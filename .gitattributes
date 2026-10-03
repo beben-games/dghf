@@ -1,0 +1,7 @@
+# Normalize line endings (Godot's default)
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.ogg binary
+*.wav binary

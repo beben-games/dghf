@@ -1,0 +1,21 @@
+name: Writing
+description: Story, dialogue or lore
+labels: ["writing"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What to write
+      description: A scene, a character's background, dialogue for a level, item or spell names.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Where it appears in the game, and what the player knows at that point.
+  - type: input
+    id: length
+    attributes:
+      label: Length
+      description: Roughly how long, for example "3 lines of dialogue" or "one paragraph".

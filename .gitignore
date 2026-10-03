@@ -1,0 +1,21 @@
+# Godot 4
+.godot/
+/android/
+
+# Exported builds
+/builds/
+
+# Meeting recordings and raw transcripts never go in this public repository
+/meetings-raw/
+
+# Secrets and local settings
+.env
+.env.*
+.claude/settings.local.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# The starter kit archive this repository was created from
+/game-repo-starter.zip

@@ -1,0 +1,34 @@
+name: Asset
+description: A sprite, tile set, UI element, music track or sound effect
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - Character sprite or animation
+        - Enemy sprite or animation
+        - Tiles or background
+        - Effect (spell, hit, explosion)
+        - UI
+        - Music
+        - Sound effect
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What it is and where it's used in the game.
+    validations:
+      required: true
+  - type: textarea
+    id: specs
+    attributes:
+      label: Specs
+      description: For art, size in pixels, animation frames and facing direction. For audio, length, whether it loops, and the mood.
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Images, tracks or games to match.

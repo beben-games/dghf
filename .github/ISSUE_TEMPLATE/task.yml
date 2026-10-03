@@ -1,0 +1,32 @@
+name: Task
+description: Code, design or level design work
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Code
+        - Design
+        - Level design
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: What should happen
+      description: What the player sees or can do when this is finished.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: How we check it's finished, for example "the knight can punch the dummy and it flinches".
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: References, videos of other games, links to the game bible or a meeting.

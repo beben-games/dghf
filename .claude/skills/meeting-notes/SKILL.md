@@ -1,11 +1,11 @@
 ---
 name: meeting-notes
-description: Turn a recording or transcript of the team's weekly Discord meeting into notes in docs/meetings/, update the game bible, and propose GitHub issues for the action items. Use when someone shares a Craig recording, a transcript, or rough notes from a team meeting.
+description: Turn a recording or transcript of the team's weekly Discord meeting into notes in docs/meetings/, update the game bible, propose GitHub issues for the action items, and refresh the status recap at the top of the team's Google Doc. Use when someone shares a Craig recording, a transcript, or rough notes from a team meeting.
 ---
 
 # Meeting notes
 
-The team meets weekly on Discord and records the call with the Craig bot, which gives one audio file per speaker. This skill turns that recording, a transcript, or rough typed notes into a notes file in the repository, and proposes issues for what was agreed.
+The team meets weekly on Discord and records the call with the Craig bot, which gives one audio file per speaker. This skill turns that recording, a transcript, or rough typed notes into a notes file in the repository, proposes issues for what was agreed, and refreshes the recap the team reads in their shared Google Doc.
 
 ## Privacy rule
 
@@ -48,3 +48,24 @@ Show the list to the person and wait for their go-ahead before creating or chang
 ## 5. Open a pull request
 
 Commit the notes and the game bible changes on a branch named `meeting/YYYY-MM-DD` and open a pull request titled `Meeting notes YYYY-MM-DD`. Tell the person to post the link in Discord so T and E can check the notes.
+
+## 6. Refresh the recap in the team doc
+
+The team's shared Google Doc, titled "Game brainstorm", opens with a section headed "Where we are (date)". T and E read that doc more often than the repository, so it has to match what the meeting decided. Do this last, once the issues exist.
+
+Find the doc by its title through the Google Drive or Google Docs connector. Don't write its link in this repository. If you have no access to it, give the person the new recap as text to paste in, and say that you couldn't update the doc yourself.
+
+Rewrite the section from current facts, not from the old text:
+
+- **Heading:** "Where we are" with the meeting date.
+- **The game:** one short paragraph, with a link to `docs/game-bible.md` on GitHub. Change it only if the meeting changed the core of the game.
+- **Milestones:** one bullet each, from `gh api "repos/{owner}/{repo}/milestones?state=all"`: done, in progress with its count of open tasks, or not started. Link the current milestone to its page on GitHub. Say whether the milestone plan is decided or still proposed, as the game bible marks it.
+- **What happens next:** one bullet per person or group, built from the meeting's action items, each linked to its issue. Add what the team has to answer in the doc before the next meeting, if anything.
+
+Rules:
+
+- Replace only that section, from its heading down to the next top-level heading. Never change a question or anyone's answer.
+- T and E see edits as they happen. Show the person the new text and wait for their go-ahead before writing to the doc.
+- Keep the section's formatting: a top-level heading, second-level headings for "Milestones" and "What happens next", and bullets that start with a bold label. Link names to their pages rather than pasting addresses.
+- Keep it to one screen. It is a snapshot, not the notes: the notes file has the detail.
+- Read the doc back afterwards and check that everything outside the section is unchanged.

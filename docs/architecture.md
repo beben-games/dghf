@@ -1,38 +1,44 @@
-# Combat core: proposal
+# Combat core
 
-**Status: Proposed.** Claude wrote this before any code existed, from the team's questionnaire answers. Nothing here is decided. Each section gives a proposal, why, the alternatives, and the questions the team should settle. Brainstorm it, change it, throw parts out. When a section is settled, mark it **Decided** with the date and link the design spec that settled it.
+**Status: partly decided.** Claude wrote this before any code existed, from the team's questionnaire answers. A first brainstorm on 2026-10-03 (`docs/design/2026-10-03-combat-core.md`) settled the technical parts of sections 1, 3, 4 and 7. Everything a player would feel in their hands stays **Proposed** until the team agrees at a weekly meeting: where a section says "Ben's position", that is one person's view, not a decision. Each section is marked.
 
 The game needs three things a generic beat 'em up doesn't: fighting-game feel (frame-precise moves, combos, spell cancels), crowds of dozens of enemies, and up to three players on one screen. Every proposal below is aimed at one of those.
 
 ## 1. Time is counted in frames
 
-**Proposal.** All combat logic runs in Godot's fixed physics tick at 60 ticks per second, and every duration is a number of frames: startup, active, recovery, hitstun, hitstop, input buffer. Nothing in combat uses seconds or `delta`.
+**Decided (2026-10-03, Ben as build owner).** See `docs/design/2026-10-03-combat-core.md`.
 
-**Why.** Fighting-game feel is tuned in frames ("this jab recovers in 9 frames"). Frame counts also make moves reproducible, so a bug can be replayed.
+- All combat logic runs in Godot's fixed physics tick at 60 ticks per second.
+- Every duration is a whole number of ticks: startup, active, recovery, hitstun, hitstop, input buffer. Nothing in combat uses seconds or `delta`.
+- On a machine that can't keep up, the game slows down. It never skips ticks.
 
-**Alternatives.** Seconds and `delta` everywhere: simpler to start with, but timing drifts with frame rate and is hard to tune precisely.
+**Why.** Fighting-game feel is tuned in frames ("this jab recovers in 9 frames"). Frame counts also make moves reproducible, so a bug can be replayed. Skipping ticks would let a short hitbox vanish.
 
-**Questions to settle.**
-- Is 60 ticks per second right, or do we want 30 for a chunkier, more retro feel?
-- What should happen on a slow machine: slow the game down, or skip frames?
+**Alternatives considered.** Seconds and `delta` everywhere; 30 ticks per second for a lighter crowd and a more retro feel; 60 for fighters with the crowd on every other tick.
 
-## 2. A 2.5D world: x, depth and height
+## 2. The world: lanes or free depth
 
-**Proposal.** Every fighter and enemy has a ground position (`x`, `depth`) and a `height` above the ground for jumps and launches. The screen position is `y = depth - height`, and draw order follows `depth`. A hit lands when the boxes overlap on `x` and `height`, and the two fighters are within a depth tolerance of each other (for example 12 pixels).
+**Proposed. Ben's position (2026-10-03): 3 lanes with thickness.** For the weekly meeting. See `docs/design/2026-10-03-combat-core.md`.
 
-**Why.** In a beat 'em up you move up and down the screen as well as left and right. A jump changes height, not depth. Godot's 2D physics has no idea of depth, so a plain 2D overlap test would let you hit someone standing far behind you on screen.
+**Proposal.** The ground has 3 lanes, as in Guardian Heroes. Every fighter and enemy has a position `x`, a lane, and a `height` above the ground for jumps and launches. A hit lands when the boxes overlap on `x` and `height` and both are in the same lane. A lane has thickness for drawing only: crowd enemies stand in staggered rows inside it, so a lane looks like a mass and not a queue. Draw order follows lane, then row.
+
+**Why.** Lanes leave up and down on the stick free for jump and crouch, so fighting-game motions work (see section 5). Hits and enemy AI get simpler. It is also a first version of E's "lanes" idea.
+
+**Cost.** Lanes limit how many enemies fit on screen: about 18 per row at 480 pixels wide with sprites about 26 wide, so roughly 110 with three lanes of two rows. A crowd can't fully surround a player.
 
 **Alternatives.**
-- Godot 2D physics and `Area2D`, faking depth with collision layers: quick, but jumps and depth get tangled.
-- Discrete lanes like Guardian Heroes (2 or 3 depth planes you switch between): simpler hits and AI, and closer to E's "lanes" idea, but less free movement.
+- Free movement in depth (`x`, `depth`, `height`, with a depth tolerance for hits): more enemies fit and crowds surround the player, as in Dynasty Warriors. Up and down then walk the character, so jump needs a button, there is no crouch, and motion inputs get in the way of movement.
+- 2 lanes, or 4 to 5 lanes.
 
 **Questions to settle.**
-- Free movement in depth, or 2 to 3 lanes like Guardian Heroes?
-- How high can characters be juggled?
+- Lanes or free depth? This is one decision with the input style in section 5.
+- How many lanes?
 
 ## 3. Moves are data
 
-**Proposal.** Each move is a Godot `Resource` file (`.tres`) that anyone can edit in the inspector without code:
+**Decided (2026-10-03, Ben as build owner):** the data format and the tools. See `docs/design/2026-10-03-combat-core.md`.
+
+Each move is a Godot `Resource` file (`.tres`) in `data/moves/<character>/`:
 - animation name, and total length in frames
 - hitboxes: frame range, rectangle, damage, hitstun, hitstop, knockback, launch
 - hurtbox changes: invincible frames, armor
@@ -40,48 +46,54 @@ The game needs three things a generic beat 'em up doesn't: fighting-game feel (f
 - the input that triggers it, and the mana it costs
 - effects and projectiles to spawn, and on which frame
 
-One generic piece of code plays any move from its data.
+One generic piece of code plays any move from its data. A preview scene steps through a move frame by frame with its boxes drawn over the sprite, and reloads when the file changes. Each character has its own move-list resource and may add its own script on top of the shared fighter.
 
-**Why.** T and E can tune moves and make new ones without writing code, and so can their Claudes. A combo system is then just cancel windows between moves.
+**Why.** T and E can tune moves and make new ones without writing code, and so can their Claudes. A combo system is then just cancel windows between moves. Numbers in the inspector alone are too blind to tune, hence the preview scene.
 
-**Alternatives.**
-- Drive hitboxes from `AnimationPlayer` tracks: common in Godot tutorials, and timing stays with the animation. But the data ends up spread across animation files and is harder to read and compare.
-- Hard-code moves in scripts: fastest for the first move, slowest by the twentieth.
+**Alternatives considered.** Hitboxes on `AnimationPlayer` tracks (visual, but the data is scattered and hard to compare); resources with no preview tool; hard-coded moves.
 
-**Questions to settle.**
-- Is the inspector enough for editing moves, or do we want a small editor that shows boxes over the sprite frame by frame?
-- How do moves differ between the three characters: a shared basic set plus unique specials, or fully unique move lists?
+**Proposed. Ben's position (2026-10-03): fully unique move lists.** Each character has its own list with its own structure (one may have stances, another charge moves). For the weekly meeting, since how each character fights is an open point in the game bible. The alternatives are the same slots for every character with different moves in them, or shared basic attacks with unique specials.
 
 ## 4. Fighter states
 
-**Proposal.** A small explicit state machine shared by players and enemies: Idle, Walk, Run, Jump, Attack (plays a move), Hitstun, Launched, Knockdown, Getup, Dead. Players and enemies differ in what drives them (input or AI), not in how they move or get hit.
+**Decided (2026-10-03, Ben as build owner):** two kinds of body with one set of hit rules. See `docs/design/2026-10-03-combat-core.md`.
 
-**Why.** One shared body means a hit on a player and a hit on an enemy behave the same, and every enemy gets juggles and knockdowns for free.
+- **Full fighter**, for players, bosses and elite enemies: an explicit state machine (Idle, Walk, Run, Jump, Attack, Hitstun, Launched, Knockdown, Getup, Dead), a move list and cancels. Players and these enemies differ in what drives them (input or AI), not in how they move or get hit.
+- **Crowd body**, for ordinary enemies: run by the enemy director, with no input buffer or move list and one or two simple attacks.
+- Both take hits through the same rules and hit data, so a crowd enemy can be stunned, launched, juggled and knocked down like a fighter.
 
-**Questions to settle.**
-- Do players and enemies really share everything, or do crowd enemies need a cut-down version for speed (see section 6)?
+**Why.** A full fighter for each of 100 or more foot soldiers is wasted work every tick. But combos on a crowd are only satisfying if the crowd reacts like real fighters.
+
+**Proposed. Ben's position (2026-10-03): block and dodge.** Players can guard and dodge, as in Guardian Heroes, which adds Block, Blockstun and Dodge states. Enemies then need ways to beat a guard. For the weekly meeting. The alternatives are dodge only, block only, or neither.
 
 ## 5. Input
+
+**Proposed. Ben's position (2026-10-03): motion inputs, Guardian Heroes buttons.** For the weekly meeting. See `docs/design/2026-10-03-combat-core.md`.
 
 **Proposal.**
 - An input router assigns each device to a player (1, 2 or 3). Game code asks "what did player 2 press", never "what did the keyboard press".
 - Each player has an input buffer holding the last 30 frames of directions and buttons.
 - A command reader recognises motions from the buffer (for example down, down-forward, forward plus attack), relative to the way the character faces, with a few frames of leniency.
 - A button pressed up to 8 frames before a move can start is kept and used, so combos don't need perfect timing.
+- Up jumps and down crouches. Buttons: light, medium, heavy, jump, guard, dodge, lane up, lane down. A motion plus an attack button gives a special or a spell, and the button's strength picks the version.
 
-**Why.** Fighting-game controls need motions and buffering. Routing by player index from the first line makes co-op cheap later.
+**Why.** Fighting-game controls need motions and buffering, and lanes (section 2) make room for them on the stick. Routing by player index from the first line makes co-op cheap later.
 
-**Alternatives.** Simple "direction plus button" specials (like Smash Bros. or modern beat 'em ups) instead of motions: easier to learn and to play on a keyboard, less fighting-game feel.
+**Cost.** A third attack button means more normal moves to draw and tune per character.
+
+**Alternatives.** Simple "direction plus button" specials (like Smash Bros. or modern beat 'em ups): easier to learn and to play on a keyboard, and the natural fit for free depth. Two attack buttons with a separate spell button. Hold back to guard.
 
 **Questions to settle.**
-- Motion inputs (quarter circles), simple direction plus button, or both (motions for spells, simple for normal attacks)?
-- How many buttons: attack, heavy, spell, jump, block?
+- Motions or direction plus button? One decision with section 2.
+- The button layout.
 - Is a keyboard shared by two players a case we support, or do we require gamepads for co-op?
 
 ## 6. Crowds
 
+**Proposed.** Decided after the stress test (issue #3).
+
 **Proposal.**
-- Enemies are light scenes: a sprite and a script, no physics body. They are pooled: dead enemies are reset and reused, never freed.
+- Ordinary enemies use the crowd body decided in section 4: a sprite and a script, no physics body. They are pooled: dead enemies are reset and reused, never freed.
 - An enemy director moves them, keeps them from overlapping, and runs their AI in turns: each enemy thinks every 6 frames, offset from the others, rather than every frame.
 - Attack tokens: only a few enemies (for example 3 per player) may attack at any moment. The rest circle, taunt and wait. Dynasty Warriors and most beat 'em ups do this: it keeps big fights readable and cuts the AI cost.
 - A stress test early in Milestone 1 measures frame rate at 100, 200 and 500 enemies on each of our machines, before we commit to this.
@@ -90,27 +102,33 @@ One generic piece of code plays any move from its data.
 
 **Alternatives.** If the stress test shows nodes are too slow: keep enemy data in plain arrays and draw them directly with Godot's `RenderingServer` or a `MultiMesh`. Much faster, but each enemy is no longer a scene you can open in the editor.
 
+**Note.** If the team chooses lanes (section 2), about 110 enemies fit on screen at 480 pixels wide, which bounds the first question below.
+
 **Questions to settle.**
 - How many enemies on screen at once do we want: 30, 100, 300?
 - On what is the slowest machine we must support?
 
 ## 7. Hits and feel
 
-**Proposal.** One combat system resolves every hit once per tick, in a fixed order, so results don't depend on which node happened to update first. A move hits each target once unless the move says otherwise. On a hit:
-- hitstop: attacker and target freeze for 4 to 8 frames, more for heavier hits
+**Decided (2026-10-03, Ben as build owner):** how hits are resolved. See `docs/design/2026-10-03-combat-core.md`.
+
+One combat system resolves every hit once per tick, in a fixed order, so results don't depend on which node happened to update first. A move hits each target once unless the move says otherwise. Every hit checks a team. On a hit:
+- hitstop: the attacker freezes once per swing, for the longest hitstop among the hits it landed, and each target freezes on its own (4 to 8 frames, more for heavier hits)
 - hitstun and knockback from the move's data
 - a white flash on the target, and screen shake on heavy hits
 - a combo counter for the player
 
-These numbers are starting points to tune by playing.
+Anything drawn per hit comes from a shared pool. Juggles have no hard height limit: gravity grows with each hit of a juggle. The numbers are starting points to tune by playing.
 
-**Why.** Hitstop, flash and shake are most of what makes a hit feel solid. Building them in from the first punch is cheaper than adding them later.
+**Why.** Hitstop, flash and shake are most of what makes a hit feel solid. Building them in from the first punch is cheaper than adding them later. One hitstop per swing keeps wide attacks into a crowd from feeling like glue.
 
-**Questions to settle.**
-- Damage numbers on screen, or not?
-- Can players hit each other in co-op (friendly fire)?
+**Proposed. Ben's position (2026-10-03),** for the weekly meeting:
+- Damage numbers on every hit. The alternatives are a combo counter only, or numbers on big hits only.
+- No friendly fire in co-op. The alternatives are a setting to turn it on, or reactions without damage.
 
 ## 8. Spells and combos
+
+**Proposed.** Can wait until Milestone 2.
 
 **Proposal.** Spells are moves with a mana cost that spawn effects and projectiles from a pool. The basic chain is normal attacks, cancelled into a special, cancelled into a spell. Mana fills when you land hits, like a fighting-game super meter, so playing aggressively feeds the spells.
 
@@ -124,18 +142,22 @@ These numbers are starting points to tune by playing.
 
 ## 9. Camera and screen
 
+**Proposed.** The resolution waits on the sprite size, which is in round three of the questionnaire.
+
 **Proposal.**
-- Internal resolution 480 by 270 pixels, scaled by whole numbers to the window (four times for 1080p), so pixel art stays sharp.
+- Internal resolution 480 by 270 pixels as a placeholder, scaled by whole numbers to the window (four times for 1080p), so pixel art stays sharp.
 - The camera follows the middle of all active players. Players can't walk off screen: the screen edges hold them back, rather than the camera zooming out.
 - Arenas: in some places the camera locks until the enemies there are cleared, as in most beat 'em ups.
 
 **Why.** Zooming pixel art makes it blurry or uneven. A fixed zoom with edges that hold players together is the classic beat 'em up answer.
 
 **Questions to settle.**
-- 480 by 270, or smaller (384 by 216) for bigger-looking sprites?
+- The resolution, together with the sprite size. With lanes, width sets the crowd: 384 by 216 shows about 90 enemies with bigger-looking sprites, 480 by 270 about 110, and 640 by 360 about 150 with small-looking sprites.
 - Is the fixed zoom acceptable once three players and a crowd share the screen?
 
 ## 10. Code layout
+
+**Proposed.**
 
 **Proposal.** Following `CLAUDE.md`:
 - `systems/combat/`: frame clock, hit resolution, hitstop, move player

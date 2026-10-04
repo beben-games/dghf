@@ -6,6 +6,13 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 - `docs/meetings/`: notes from the weekly meetings
 - `CLAUDE.md`: the rules every contributor's Claude follows
 
+## Running and building
+
+- `scripts/run.sh` runs the game from the project, without opening the editor.
+- `scripts/build.sh` builds Windows x64 and Linux x64 zips into `builds/`. It needs the Godot 4.7.2 export templates.
+
+Both are Bash scripts (on Windows, use Git Bash) and need Godot 4.7.2 on the `PATH` as `godot`, or its path in `GODOT_BIN`.
+
 ## Contributing
 
 1. Pick an issue on the project board, or open one from a template.

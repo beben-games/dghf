@@ -56,6 +56,12 @@ var _bench_lines: Array[String] = []
 
 
 func _ready() -> void:
+	# The test was made for a 480 by 270 screen. The project is now 1920 by 1080
+	# (proposed), so it is shown through a 4 times zoom.
+	var camera := Camera2D.new()
+	camera.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
+	camera.zoom = Vector2(4.0, 4.0)
+	add_child(camera)
 	_sim.setup(MAX_COUNT)
 	_build_rows(_make_texture(Color(0.75, 0.2, 0.2)))
 	_target_sprite = Sprite2D.new()
@@ -256,6 +262,7 @@ func _make_texture(body: Color) -> ImageTexture:
 
 func _build_label() -> void:
 	var layer := CanvasLayer.new()
+	layer.scale = Vector2(4.0, 4.0)
 	add_child(layer)
 	_label = Label.new()
 	_label.position = Vector2(4.0, 2.0)

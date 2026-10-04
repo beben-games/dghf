@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_1uood"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_3wkoi"]
+
+[sub_resource type="Resource" id="Resource_nu7wp"]
+script = ExtResource("1_1uood")
+first_frame = 8
+last_frame = 16
+rect = Rect2(40, -230, 260, 170)
+damage = 10
+hitstun = 14
+hitstop = 5
+
+[resource]
+script = ExtResource("2_3wkoi")
+animation = &"light"
+total_frames = 27
+motion = PackedInt32Array()
+hit_boxes = Array[ExtResource("1_1uood")]([SubResource("Resource_nu7wp")])

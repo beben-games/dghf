@@ -19,3 +19,6 @@ Thumbs.db
 
 # The starter kit archive this repository was created from
 /game-repo-starter.zip
+
+# Private, local-only files: placeholder art that must not be published
+/local/

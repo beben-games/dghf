@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_mqvml"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_ovmg1"]
+
+[resource]
+script = ExtResource("2_ovmg1")
+animation = &"fireball"
+total_frames = 36
+motion = PackedInt32Array(2, 3, 6)
+projectile_frame = 14
+projectile_offset = Vector2(150, -130)
+projectile_speed = 16.0

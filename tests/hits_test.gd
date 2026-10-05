@@ -303,8 +303,8 @@ func _test_jump_in_combo() -> void:
 
 func _test_air_juggle() -> void:
 	_clear()
-	# Launch, jump after the target, and hit it in the air.
-	var attacker := _fighter(640.0, 1, [H] + _repeat(0, 42) + _repeat(U, 3) + [A])
+	# Launch, jump forward after the target, and kick it in the air. The kick is short, so the jump has to close in.
+	var attacker := _fighter(660.0, 1, [H] + _repeat(0, 42) + _repeat(U | R, 3) + [A])
 	var target := _fighter(800.0, 2)
 	var ticks: int = 0
 	while target.combo_hits < 2 and ticks < 120:

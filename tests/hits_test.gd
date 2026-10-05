@@ -38,6 +38,8 @@ func _initialize() -> void:
 	_test_follow_up_needs_a_cancel()
 	_test_cancel_into_fireball()
 	_test_air_cancel()
+	_test_jump_cancel()
+	_test_no_jump_cancel_on_a_miss()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -385,3 +387,31 @@ func _test_air_cancel() -> void:
 			break
 	_check(target.combo_hits == 3, "launcher, air light cancelled into air heavy: 3 hits (got %d)" % target.combo_hits)
 	_check(target.juggle_hits == 2, "both air hits count as juggle hits")
+
+
+func _test_jump_cancel() -> void:
+	_clear()
+	# Launch, hold up-forward through the hitstop, then air light and air heavy.
+	var attacker := _fighter(660.0, 1, [H] + _repeat(0, 14) + _repeat(U | R, 10) + [A] + _repeat(0, 6) + [H])
+	var target := _fighter(800.0, 2)
+	_run(13)
+	_check(target.state == Fighter.State.LAUNCHED and attacker.hitstop == 9, "the launcher lands")
+	_run(9)
+	_check(attacker.state == Fighter.State.ATTACK, "up held during the hitstop waits for the freeze to end")
+	_run(1)
+	_check(attacker.state == Fighter.State.JUMP and attacker.move == null, "then the launcher is cut short by a jump")
+	_run(1)
+	_check(attacker.height > 0.0 and attacker.x > 660.0, "the jump goes up and forward")
+	var ticks: int = 0
+	while target.combo_hits < 3 and target.state == Fighter.State.LAUNCHED and ticks < 120:
+		_run(1)
+		ticks += 1
+	_check(target.combo_hits == 3, "launcher, jump cancel, air light, air heavy: 3 hits (got %d)" % target.combo_hits)
+	_check(attacker.height > 0.0, "all of it before the attacker lands")
+
+
+func _test_no_jump_cancel_on_a_miss() -> void:
+	_clear()
+	var attacker := _fighter(660.0, 1, [H] + _repeat(U, 25))
+	_run(22)
+	_check(attacker.state == Fighter.State.ATTACK and attacker.height == 0.0, "a launcher that hits nothing can't be jump cancelled")

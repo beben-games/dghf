@@ -3,6 +3,9 @@ extends Resource
 ## A move as data (docs/architecture.md, section 3). Durations are in ticks.
 ## This is the first slice: hurtbox changes and costs come later.
 
+## The id a cancel window lists to allow a jump.
+const JUMP: StringName = &"jump"
+
 ## The name other moves use for this one in their cancel windows.
 @export var id: StringName = &""
 ## The skin animation to show while the move plays.
@@ -41,7 +44,11 @@ extends Resource
 
 ## Whether `other` can start now, cutting this move short on `frame`.
 func can_cancel_into(other: Move, frame: int, has_hit: bool) -> bool:
+	return can_cancel_into_id(other.id, frame, has_hit)
+
+
+func can_cancel_into_id(other_id: StringName, frame: int, has_hit: bool) -> bool:
 	for window in cancels:
-		if window.allows(other.id, frame, has_hit):
+		if window.allows(other_id, frame, has_hit):
 			return true
 	return false

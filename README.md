@@ -10,7 +10,7 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 ## Running and building
 
 - `scripts/run.sh` runs the game from the project, without opening the editor.
-- `scripts/build.sh` builds Windows x64 and Linux x64 zips into `builds/`. It needs the Godot 4.7.2 export templates.
+- `scripts/build.sh` builds Windows x64 and Linux x64 zips into `builds/`. It needs the Godot 4.7.2 export templates. With `--skin <folder>` it adds a character skin beside the executable, for playtesting art that is not in the repository: those zips are named `-private` and are not for publishing.
 
 Both are Bash scripts (on Windows, use Git Bash) and need Godot 4.7.2 on the `PATH` as `godot`, or its path in `GODOT_BIN`.
 

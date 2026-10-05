@@ -28,13 +28,13 @@ class Device:
 		var keys: Dictionary[int, Array] = {
 			Buttons.LEFT: [KEY_A, KEY_LEFT], Buttons.RIGHT: [KEY_D, KEY_RIGHT],
 			Buttons.UP: [KEY_W, KEY_UP], Buttons.DOWN: [KEY_S, KEY_DOWN],
-			Buttons.LIGHT: [KEY_J], Buttons.JUMP: [KEY_K, KEY_SPACE],
+			Buttons.LIGHT: [KEY_J], Buttons.HEAVY: [KEY_L], Buttons.JUMP: [KEY_K, KEY_SPACE],
 			Buttons.LANE_UP: [KEY_Q], Buttons.LANE_DOWN: [KEY_E],
 		}
 		var pad_buttons: Dictionary[int, JoyButton] = {
 			Buttons.LEFT: JOY_BUTTON_DPAD_LEFT, Buttons.RIGHT: JOY_BUTTON_DPAD_RIGHT,
 			Buttons.UP: JOY_BUTTON_DPAD_UP, Buttons.DOWN: JOY_BUTTON_DPAD_DOWN,
-			Buttons.LIGHT: JOY_BUTTON_X, Buttons.JUMP: JOY_BUTTON_B,
+			Buttons.LIGHT: JOY_BUTTON_X, Buttons.HEAVY: JOY_BUTTON_Y, Buttons.JUMP: JOY_BUTTON_B,
 			Buttons.LANE_UP: JOY_BUTTON_LEFT_SHOULDER, Buttons.LANE_DOWN: JOY_BUTTON_RIGHT_SHOULDER,
 		}
 		# Left stick: axis and the direction that counts as pressed.

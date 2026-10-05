@@ -13,6 +13,9 @@ var _x: PackedFloat32Array = PackedFloat32Array()
 var _y: PackedFloat32Array = PackedFloat32Array()  # screen y of the centre
 var _vx: PackedFloat32Array = PackedFloat32Array()
 var _age: PackedInt32Array = PackedInt32Array()
+var _lane: PackedInt32Array = PackedInt32Array()
+var _team: PackedInt32Array = PackedInt32Array()
+var _hit: Array[HitBox] = []  # null for a projectile that can't hit
 
 
 func _init() -> void:
@@ -20,19 +23,26 @@ func _init() -> void:
 	_y.resize(CAPACITY)
 	_vx.resize(CAPACITY)
 	_age.resize(CAPACITY)
+	_lane.resize(CAPACITY)
+	_team.resize(CAPACITY)
+	_hit.resize(CAPACITY)
 
 
 func count() -> int:
 	return _count
 
 
-func spawn(at: Vector2, velocity_x: float) -> void:
+## `hit` is what it does to a target of another team in its lane, or null for none.
+func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null) -> void:
 	if _count == CAPACITY:
 		return
 	_x[_count] = at.x
 	_y[_count] = at.y
 	_vx[_count] = velocity_x
 	_age[_count] = 0
+	_lane[_count] = in_lane
+	_team[_count] = of_team
+	_hit[_count] = hit
 	_count += 1
 
 
@@ -42,14 +52,45 @@ func tick() -> void:
 		_x[i] += _vx[i]
 		_age[i] += 1
 		if _x[i] < bounds.x - RADIUS * 2.0 or _x[i] > bounds.y + RADIUS * 2.0:
-			# Fill the hole with the last one: order doesn't matter.
-			_count -= 1
-			_x[i] = _x[_count]
-			_y[i] = _y[_count]
-			_vx[i] = _vx[_count]
-			_age[i] = _age[_count]
+			remove(i)
 		else:
 			i += 1
+	queue_redraw()
+
+
+## The box projectile `i` hits with, in screen space.
+func rect(i: int) -> Rect2:
+	return Rect2(_x[i] - RADIUS, _y[i] - RADIUS, RADIUS * 2.0, RADIUS * 2.0)
+
+
+func lane(i: int) -> int:
+	return _lane[i]
+
+
+func team(i: int) -> int:
+	return _team[i]
+
+
+func hit(i: int) -> HitBox:
+	return _hit[i]
+
+
+## 1 if it flies right, -1 if left.
+func direction(i: int) -> int:
+	return 1 if _vx[i] >= 0.0 else -1
+
+
+func remove(i: int) -> void:
+	# Fill the hole with the last one: order doesn't matter.
+	_count -= 1
+	_x[i] = _x[_count]
+	_y[i] = _y[_count]
+	_vx[i] = _vx[_count]
+	_age[i] = _age[_count]
+	_lane[i] = _lane[_count]
+	_team[i] = _team[_count]
+	_hit[i] = _hit[_count]
+	_hit[_count] = null
 	queue_redraw()
 
 

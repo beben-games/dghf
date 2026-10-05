@@ -196,11 +196,8 @@ func _tick_standing() -> void:
 	elif input.pressed(Buttons.LANE_DOWN) and lane < lane_y.size() - 1:
 		input.consume(Buttons.LANE_DOWN)
 		_start_lane_change(lane + 1)
-	elif input.held(Buttons.UP) or input.pressed(Buttons.JUMP):
-		input.consume(Buttons.JUMP)
-		vertical_speed = jump_speed
-		_air_speed = direction * walk_speed
-		_enter(State.JUMP)
+	elif _wants_jump():
+		_start_jump(direction)
 	elif input.held(Buttons.DOWN):
 		_enter(State.CROUCH)
 	elif direction != 0:
@@ -258,6 +255,10 @@ func _fall() -> bool:
 func _tick_attack() -> void:
 	if _try_moves(false):
 		return
+	if _wants_jump() and move.can_cancel_into_id(Move.JUMP, move_frame, not swing_targets.is_empty()):
+		move = null
+		_start_jump(int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT)))
+		return
 	if move_frame == move.projectile_frame and projectiles != null:
 		var offset: Vector2 = move.projectile_offset
 		offset.x *= facing
@@ -309,6 +310,18 @@ func _try_moves(in_air: bool) -> bool:
 			_enter(State.AIR_ATTACK if in_air else State.ATTACK)
 			return true
 	return false
+
+
+func _wants_jump() -> bool:
+	return input.held(Buttons.UP) or input.pressed(Buttons.JUMP)
+
+
+## Leaves the ground. `direction` is the way the jump drifts: -1, 0 or 1.
+func _start_jump(direction: int) -> void:
+	input.consume(Buttons.JUMP)
+	vertical_speed = jump_speed
+	_air_speed = direction * walk_speed
+	_enter(State.JUMP)
 
 
 func _can_start(candidate: Move) -> bool:

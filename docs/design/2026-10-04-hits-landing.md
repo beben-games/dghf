@@ -65,11 +65,14 @@ The cancels in the proof of concept, all only on hit:
 |---|---|
 | Light | Second light, heavy, fireball |
 | Second light | Heavy, fireball |
+| Heavy | A jump |
 | Air light | Air heavy |
 
-So light, light, heavy is a three-hit ground combo that launches, built entirely from data. After the launcher, a forward jump with air light then air heavy adds two more.
+So light, light, heavy is a three-hit ground combo that launches, built entirely from data. Holding up, or up and forward, as the launcher lands jumps after the target, and air light then air heavy adds two more: five hits.
 
-**Proposed, to confirm or change:** every cancel needs a hit, the heavy can't be cancelled, and the fireball cancel may or may not combo depending on distance: its values are untuned. There is no jump cancel, which is the usual way to follow a launcher. The second light has no drawing of its own and reuses the light's.
+A jump is not a move, so a window allows it by listing the id `jump`. The jump comes out when the hitstop ends.
+
+**Proposed, to confirm or change:** every cancel needs a hit, the heavy can only be cancelled by a jump, and the fireball cancel may or may not combo depending on distance: its values are untuned. The second light has no drawing of its own and reuses the light's.
 
 ## Not built
 
@@ -77,4 +80,4 @@ Damage numbers and friendly fire (both proposed, for the meeting), health and de
 
 ## Checks
 
-`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel and the air cancel.
+`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel, the air cancel and the jump cancel.

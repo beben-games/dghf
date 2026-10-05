@@ -41,7 +41,7 @@ The game adds the jump's height itself. Never draw height into the frames: an ai
 - **One facing.** Draw the character facing one way and say which in `faces`. The game mirrors it.
 - **Effects are not part of the character.** A big slash arc or a fireball should be its own sprite, spawned by the move, so that it can be reused, sized and timed in the move's data. A small trail drawn into the frame is fine.
 - **No half-transparent pixels and no anti-aliasing** against the background, so the edges stay hard at any scale.
-- **Name animations** as the game asks for them: `idle`, `walk`, `crouch`, `jump`, and one per move, matching the move's `animation` field.
+- **Name animations** as the game asks for them: `idle`, `walk`, `crouch`, `jump`, the optional `land`, and one per move, matching the move's `animation` field.
 
 ## Art that comes without anchors
 

@@ -23,6 +23,7 @@ func _initialize() -> void:
 	_test_fireball()
 	_test_fireball_facing_left()
 	_test_buffered_press()
+	_test_skin_timing()
 	_projectiles.free()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -85,6 +86,7 @@ func _test_jump() -> void:
 	_check(peak > 200.0, "the jump clears 200 pixels (got %.0f)" % peak)
 	_check(ticks < 60, "the jump lands within a second (took %d ticks)" % ticks)
 	_check(f.height == 0.0 and f.state == Fighter.State.IDLE, "landing returns to idle on the ground")
+	_check(f.previous_state == Fighter.State.JUMP, "after landing, the state before idle is the jump")
 	f.free()
 
 
@@ -161,3 +163,13 @@ func _test_buffered_press() -> void:
 	_run(f, 6)
 	_check(f.state == Fighter.State.ATTACK, "a press just before landing comes out on landing")
 	f.free()
+
+
+func _test_skin_timing() -> void:
+	var skin := FighterSkin.new()
+	skin.cell = Vector2(100.0, 50.0)
+	skin.columns = 4
+	skin.animations = {"land": {"frames": [5, 6], "ticks": 4, "loop": false}}
+	_check(skin.duration(&"land") == 8, "an animation lasts its frames times its ticks")
+	_check(skin.region(&"land", 0).position == Vector2(100.0, 50.0), "frame 5 of a 4-column sheet is the second cell of the second row")
+	_check(skin.region(&"land", 100).position == Vector2(200.0, 50.0), "an animation that doesn't loop holds its last frame")

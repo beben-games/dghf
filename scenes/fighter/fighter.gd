@@ -25,6 +25,8 @@ var lane_y: PackedFloat32Array = PackedFloat32Array()  # screen y of each lane, 
 var bounds: Vector2 = Vector2(0.0, 1920.0)  # x range the fighter stays in
 
 var state: State = State.IDLE
+## The state before this one, so the view can show how the fighter got here (a landing, for example).
+var previous_state: State = State.IDLE
 var x: float = 0.0
 var lane: int = 0
 var height: float = 0.0
@@ -163,6 +165,7 @@ func _start_lane_change(to_lane: int) -> void:
 
 
 func _enter(new_state: State) -> void:
+	previous_state = state
 	state = new_state
 	state_ticks = 0
 

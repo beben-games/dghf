@@ -64,6 +64,7 @@ When a brainstorm settles something:
 - Final art is pixel art made with PixelLab. Before generating, check the style and size rules in `docs/game-bible.md` so every sprite matches.
 - Commit only game-ready files: PNG for sprites and tiles, OGG for music and sound effects. Keep source files (WAV masters, stems, project files) in the team's shared Drive folder and link them from the issue.
 - Name sprites `<subject>_<action>.png`, for example `knight_attack.png`, and sprite sheets the same way.
+- Character sprite sheets follow `docs/skins.md` (proposed): every frame on the same canvas with the feet at the same pixel, exported without cropping.
 - Note in the pull request which tool made each asset and with what prompt, so it can be regenerated.
 
 ## Writing

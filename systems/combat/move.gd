@@ -23,3 +23,7 @@ extends Resource
 ## Where it starts, relative to the feet, for a fighter facing right.
 @export var projectile_offset: Vector2 = Vector2.ZERO
 @export var projectile_speed: float = 0.0  # pixels per tick
+## What the projectile does to a target. Its damage, hitstun, hitstop, knockback,
+## launch and shake are used. The projectile has its own shape, so the rectangle
+## and the frames are not.
+@export var projectile_hit: HitBox

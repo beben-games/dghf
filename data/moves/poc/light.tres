@@ -11,6 +11,7 @@ rect = Rect2(40, -230, 260, 170)
 damage = 10
 hitstun = 14
 hitstop = 5
+knockback = 9.0
 
 [resource]
 script = ExtResource("2_3wkoi")

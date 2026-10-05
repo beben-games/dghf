@@ -4,7 +4,7 @@
 
 ## In one paragraph
 
-Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks and throws a fireball. The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three. T was not available the week of 2026-10-04.
+Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks and throws a fireball. A first slice of hits landing on a training dummy is in a pull request. The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three. T was not available the week of 2026-10-04.
 
 ## What runs today
 
@@ -13,9 +13,10 @@ Setup is done. Milestone 1 is under way. There is a playable proof of concept on
 | The proof of concept (the main scene) | `scenes/levels/poc_stage/` | `scripts/run.sh`, or F5 in the editor |
 | The crowd stress test | `scenes/stress_test/` | `scripts/run.sh res://scenes/stress_test/stress_test.tscn` (add `-- --benchmark` for the timed table) |
 | The fighter test | `tests/poc_player_test.gd` | `godot --headless --path . -s tests/poc_player_test.gd` prints `all passed` |
+| The hits test (with the hits pull request) | `tests/hits_test.gd` | `godot --headless --path . -s tests/hits_test.gd` prints `all passed` |
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/` |
 
-Controls and the skin format are in `docs/design/2026-10-04-poc-1080p-player.md`. How to draw or prepare character frames is in `docs/skins.md`.
+Controls and the skin format are in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. How to draw or prepare character frames is in `docs/skins.md`.
 
 ## Decided, and still proposed
 
@@ -41,7 +42,8 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #2 Brainstorm and settle the combat core | Open. Sections 1, 3, 4 and 7 are decided. Sections 2, 5 and 9 wait for the meeting. |
 | #3 Crowd stress test | Open. Merged and measured on Ben's Mac. Needs numbers from E, T and Ben's Windows PC. |
 | #4 Placeholder art, #5 Placeholder stage | Not started. Written for small CC0 sprites at 480 by 270, so they need rethinking if the 1080p direction is kept. |
-| #6 2.5D movement, #7 Input router and buffer, #8 Moves from data, #9 Hits that feel good | Not started as issues, but the proof of concept already has a first slice of 6, 7 and 8: lanes, the input buffer and command reader, and moves as data. Missing: a second player, cancels, a move preview tool, and everything about hits landing. |
+| #6 2.5D movement, #7 Input router and buffer, #8 Moves from data | Not started as issues, but the proof of concept already has a first slice of each: lanes, the input buffer and command reader, and moves as data. Missing: a second player, cancels, and a move preview tool. |
+| #9 Hits that feel good | In review. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
 | #10 Milestone 1 build | Not started. The build script exists. |
 | #11 Port the PixelLab art pipeline | Not started. Its style probe should compare sprite sizes, including a large one. |
 | #17 1080p proof of concept | Open. Merged. Done when the three have played it and commented. |
@@ -67,6 +69,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 - A script run with `godot -s` that hits an error never quits. Add `--quit-after <frames>` as a safety.
 - In a `Node` script, don't name a variable `_input`: it shadows the engine's callback.
 - `draw_texture_rect_region` with a negative width mirrors the image in place. Don't also move the rectangle.
+- A `SceneTree` script's `_physics_process` quits the game if it returns anything but false, and a function that uses `await` returns something. Put the `await` in a helper.
 - Godot's movie writer records at a fixed frame rate, so a recording never shows real performance.
 
 ## Suggested next steps
@@ -74,4 +77,4 @@ This is not decided, and it pulls against two things the game bible has as decid
 1. Get play feedback on the proof of concept into issue #17, and stress-test numbers into issue #3.
 2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
 3. If the 1080p direction is kept: rewrite issues #4 and #5, and run the PixelLab probe (#11) at the chosen size with a walk and an attack.
-4. Then the first enemy and hits landing (#9): a training dummy, hitstop, hitstun.
+4. Play the training dummy (#9) and tune the hit values. Then cancels between moves and the move preview tool (#8), which is what makes real combos possible.

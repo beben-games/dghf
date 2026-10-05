@@ -13,6 +13,8 @@ Setup is done. Milestone 1 is under way. There is a playable proof of concept on
 | The proof of concept (the main scene) | `scenes/levels/poc_stage/` | `scripts/run.sh`, or F5 in the editor |
 | The crowd stress test | `scenes/stress_test/` | `scripts/run.sh res://scenes/stress_test/stress_test.tscn` (add `-- --benchmark` for the timed table) |
 | The fighter test | `tests/poc_player_test.gd` | `godot --headless --path . -s tests/poc_player_test.gd` prints `all passed` |
+| The move preview tool | `scenes/tools/move_preview/` | `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Steps through a move frame by frame and reloads it when its file is saved |
+| The move preview test | `tests/move_preview_test.gd` | `godot --headless --path . -s tests/move_preview_test.gd` prints `all passed` |
 | The hits test | `tests/hits_test.gd` | `godot --headless --path . -s tests/hits_test.gd` prints `all passed` |
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/`. Add `--skin <folder>` for a playtest build with a skin beside the executable: its zips are named `-private` and must not be published |
 
@@ -42,7 +44,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #2 Brainstorm and settle the combat core | Open. Sections 1, 3, 4 and 7 are decided. Sections 2, 5 and 9 wait for the meeting. |
 | #3 Crowd stress test | Open. Merged and measured on Ben's Mac. Needs numbers from E, T and Ben's Windows PC. |
 | #4 Placeholder art, #5 Placeholder stage | Not started. Written for small CC0 sprites at 480 by 270, so they need rethinking if the 1080p direction is kept. |
-| #6 2.5D movement, #7 Input router and buffer, #8 Moves from data | Not started as issues, but the proof of concept already has a first slice of each: lanes, the input buffer and command reader, and moves as data. Missing: a second player and a move preview tool. Cancels between moves are in review under #8: light, light, heavy is a three-hit combo from data. |
+| #6 2.5D movement, #7 Input router and buffer, #8 Moves from data | Not started as issues, but the proof of concept already has a first slice of each: lanes, the input buffer and command reader, and moves as data. Missing: a second player. Under #8, cancels are merged (light, light, heavy is a three-hit combo from data) and the move preview tool is in review. #8 is done when someone who doesn't code has changed a move with it. |
 | #9 Hits that feel good | Open. Merged. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #10 Milestone 1 build | Not started. The build script exists. |
@@ -78,4 +80,4 @@ This is not decided, and it pulls against two things the game bible has as decid
 1. Get play feedback on the proof of concept into issue #17, and stress-test numbers into issue #3.
 2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
 3. If the 1080p direction is kept: rewrite issues #4 and #5, and run the PixelLab probe (#11) at the chosen size with a walk and an attack.
-4. Play the training dummy (#9) and the combos (#8), and tune the hit values. Then the move preview tool (#8), so moves can be tuned without code.
+4. Play the training dummy (#9) and the combos (#8), and tune the hit values with the move preview tool. T or E changing a move with it closes #8.

@@ -74,9 +74,25 @@ A jump is not a move, so a window allows it by listing the id `jump`. The jump c
 
 **Proposed, to confirm or change:** every cancel needs a hit, the heavy can only be cancelled by a jump, and the fireball cancel may or may not combo depending on distance: its values are untuned. The second light has no drawing of its own and reuses the light's.
 
+## The move preview tool (issue #8)
+
+The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.
+
+Run it with `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`, or open the scene in the editor and press F6.
+
+- It shows one move from `data/moves/poc/` at a time, on one frame: the fighter in that pose, the hitboxes active on that frame in red, the hurtbox in blue, and where a projectile leaves from.
+- A ruler on the ground gives distances from the feet, in pixels.
+- A timeline has one cell per frame: hitboxes on the top row, cancel windows on the bottom row with the moves they lead to, and a mark where the projectile leaves.
+- The text lists the move's values, and says whether the frame shown is startup, active or recovery.
+- Left and right step a frame, space plays the move in a loop, up and down change move, F turns the fighter around, and a click on the timeline jumps to a frame.
+
+**Tuning a move without code.** Leave the tool running. In the editor, double-click a move file in `data/moves/poc/`, change a number in the inspector and save. The tool notices the file changed and shows the new version within half a second. The game itself reads a move when it starts, so restart the game to play the change.
+
+With no skin, the tool shows the plain figure, which has no pose for most frames: the boxes and the timeline are still right.
+
 ## Not built
 
-Damage numbers and friendly fire (both proposed, for the meeting), health and death, the move preview tool (#8), walls or bounces, attacks from the dummy, and bodies blocking each other: the player can walk through the dummy.
+Damage numbers and friendly fire (both proposed, for the meeting), health and death, walls or bounces, attacks from the dummy, and bodies blocking each other: the player can walk through the dummy.
 
 ## Checks
 

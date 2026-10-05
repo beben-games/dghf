@@ -33,6 +33,7 @@ The game adds the jump's height itself. Never draw height into the frames: an ai
 
 - A looping animation lists each frame of the cycle once. Don't repeat the first frame at the end: the game goes from the last frame back to the first.
 - A walk cycle is two steps, left and right. If a loop hitches, the usual cause is a frame list that runs past the end of the cycle.
+- An animation's frames go in the order they happen. For a jump that is rising, tucking, then falling. Landing frames are not part of it: they belong to the ground, after the jump ends.
 - Check the feet against the ground. If they skate, change the walk speed on the fighter or the walk's `ticks` in `skin.json`, not the drawing.
 
 ## Other rules
@@ -48,7 +49,7 @@ Frames that arrive cropped, with no fixed canvas, have lost their feet point. It
 
 - **Standing, walking, crouching:** take x from the middle of the chest and shoulders (the rows from about 12% to 40% of the frame's height), and y from the sole of the lower shoe.
 - **Moves on the ground:** place the first frame like a standing frame. Slide each later frame sideways until the pixels just above the ground match the frame before. That follows whichever foot is planted.
-- **In the air:** take x and y from the centre of all the frame's pixels, shifted by the distance from that centre to the feet point in the standing pose. Then make sure the soles are not below the feet point.
+- **In the air:** take x and y from the centre of all the frame's pixels, shifted by the distance from that centre to the soles in the jump's first frame, the stretched take-off pose. Then make sure the soles are not below the feet point. Don't measure that distance on the standing pose: a stretched body is longer, and the character pops upward when it stretches out again to land.
 
 This is slow, and it is a repair. It is the reason for the fixed-canvas rule.
 

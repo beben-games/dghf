@@ -7,7 +7,7 @@
 script = ExtResource("1_hbox")
 first_frame = 12
 last_frame = 17
-rect = Rect2(30, -300, 250, 260)
+rect = Rect2(40, -265, 225, 265)
 damage = 22
 hitstun = 20
 hitstop = 9

@@ -39,10 +39,22 @@ New fighter states: hitstun, launched, knockdown and getup. A skin may add the a
 - **A third button, heavy**, on L and gamepad Y. The button layout is still proposed (section 5).
 - **The dummy is a full fighter** with no input, not the crowd body, which does not exist yet. The crowd body must take hits through `Combat` by the same rules when it is built.
 
+## Air attacks (issue #23)
+
+Asked for by Ben after playing the dummy. Light and heavy also work during a jump, as their own moves (`air_light.tres`, `air_heavy.tres`), marked `air` in the move data. A move is either an air move or a ground move.
+
+- An air move follows the jump's arc. Landing ends it at once, and if it ends first the jump carries on, so a long jump has room for more than one.
+- They hit through the same rules. An air light late in a jump, then a ground light pressed before landing, is a two-hit combo on a standing target. After a launcher, a jump and an air attack continue the juggle.
+- A skin may add the animations `air_light` and `air_heavy`.
+
+**Proposed, to confirm or change:** any number of air moves per jump, no turning around in the air, no special moves in the air, and an air heavy that is a plain strong hit: it does not spike the target into the ground.
+
+**A side effect.** Attack pressed just before landing used to be kept and come out as a ground attack. It now starts an air attack. A press made during an air move is still kept for the landing.
+
 ## Not built
 
 Damage numbers and friendly fire (both proposed, for the meeting), health and death, cancels between moves (#8), walls or bounces, attacks from the dummy, and bodies blocking each other: the player can walk through the dummy.
 
 ## Checks
 
-`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, and the crouching hurtbox.
+`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo and the air juggle.

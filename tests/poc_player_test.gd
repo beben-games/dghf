@@ -149,19 +149,12 @@ func _test_fireball_facing_left() -> void:
 
 
 func _test_buffered_press() -> void:
-	# Find how long a jump lasts, then press attack 4 ticks before landing.
-	var probe := _fighter([U])
-	var air: int = 0
-	_run(probe, 1)
-	while probe.state == Fighter.State.JUMP:
-		_run(probe, 1)
-		air += 1
-	probe.free()
-	var f := _fighter([U] + _repeat(0, air - 4) + [A])
-	_run(f, 1 + air - 4 + 1)
-	_check(f.state == Fighter.State.JUMP, "the attack is pressed while still in the air")
-	_run(f, 6)
-	_check(f.state == Fighter.State.ATTACK, "a press just before landing comes out on landing")
+	# A lane change takes 10 ticks. Attack is pressed 4 ticks before it ends.
+	var f := _fighter([Buttons.LANE_DOWN] + _repeat(0, 5) + [A])
+	_run(f, 7)
+	_check(f.state == Fighter.State.LANE_CHANGE, "the attack is pressed during the lane change")
+	_run(f, 5)
+	_check(f.state == Fighter.State.ATTACK, "a press just before a lane change ends comes out when it ends")
 	f.free()
 
 

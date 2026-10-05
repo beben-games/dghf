@@ -65,7 +65,7 @@ func _animation() -> StringName:
 			return &"crouch"
 		Fighter.State.JUMP:
 			return &"jump"
-		Fighter.State.ATTACK:
+		Fighter.State.ATTACK, Fighter.State.AIR_ATTACK:
 			return _fighter.move.animation
 		Fighter.State.HITSTUN:
 			return &"hurt"
@@ -85,7 +85,7 @@ func _animation() -> StringName:
 func _is_landing() -> bool:
 	return (
 		_fighter.state == Fighter.State.IDLE
-		and _fighter.previous_state == Fighter.State.JUMP
+		and _fighter.previous_state in [Fighter.State.JUMP, Fighter.State.AIR_ATTACK]
 		and skin != null and skin.has(&"land")
 		and _fighter.state_ticks < skin.duration(&"land")
 	)
@@ -93,7 +93,7 @@ func _is_landing() -> bool:
 
 func _draw_skin() -> void:
 	var progress: float = -1.0
-	if _fighter.state == Fighter.State.ATTACK:
+	if _fighter.is_attacking():
 		progress = float(_fighter.move_frame) / _fighter.move.total_frames
 	elif _fighter.state == Fighter.State.JUMP:
 		# Rising, then falling: follow the vertical speed across the animation.
@@ -113,7 +113,7 @@ func _draw_figure() -> void:
 	var f: float = _fighter.facing
 	var state: Fighter.State = _fighter.state
 	var crouched: bool = state == Fighter.State.CROUCH
-	var airborne: bool = state == Fighter.State.JUMP
+	var airborne: bool = _fighter.is_jumping()
 	var leg: float = 60.0 if crouched or airborne else 130.0
 	_tilt_figure()
 	var torso_top: float = -leg - 100.0
@@ -128,7 +128,7 @@ func _draw_figure() -> void:
 	# arm and sword
 	var arm := Rect2(10.0, torso_top + 24.0, 50.0, 18.0)
 	var sword := Rect2(50.0, torso_top - 40.0, 10.0, 80.0)
-	if state == Fighter.State.ATTACK:
+	if _fighter.is_attacking():
 		var t: float = float(_fighter.move_frame) / _fighter.move.total_frames
 		var reach: float = sin(t * PI)
 		arm = Rect2(10.0, torso_top + 24.0, 50.0 + 60.0 * reach, 18.0)

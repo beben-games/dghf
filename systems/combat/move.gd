@@ -13,6 +13,8 @@ extends Resource
 ## Stick motion needed before the button, in numpad notation relative to the
 ## way the fighter faces. Empty means the button alone.
 @export var motion: PackedInt32Array = PackedInt32Array()
+## An air move starts during a jump and ends on landing. Other moves start on the ground.
+@export var air: bool = false
 
 @export_group("Hits")
 @export var hit_boxes: Array[HitBox] = []

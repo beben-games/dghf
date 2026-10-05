@@ -26,7 +26,7 @@ func _resolve_moves() -> void:
 	var hits: Array[HitBox] = []
 	var points: PackedVector2Array = PackedVector2Array()
 	for attacker in fighters:
-		if attacker.state != Fighter.State.ATTACK:
+		if not attacker.is_attacking():
 			continue
 		for target in fighters:
 			if not _can_hit(attacker.team, attacker.lane, target) or attacker.swing_targets.has(target):

@@ -15,7 +15,7 @@ const MARGIN: float = 120.0
 ## Private art goes here. The folder is git-ignored and hidden from Godot's importer.
 const LOCAL_SKIN: String = "res://local/skins/player"
 const HELP: String = "Move: A D or stick    Jump: W, K or (B)    Crouch: S    Lane: Q E or shoulders
-Attack: J or (X)    Heavy: L or (Y)    Fireball: down, down-forward, forward + attack    F1: boxes"
+Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Fireball: down, down-forward, forward + attack    F1: boxes"
 ## How long the combo counter stays after a combo ends, in ticks.
 const COMBO_LINGER: int = 60
 
@@ -44,6 +44,8 @@ func _ready() -> void:
 		preload("res://data/moves/poc/fireball.tres"),
 		preload("res://data/moves/poc/light.tres"),
 		preload("res://data/moves/poc/heavy.tres"),
+		preload("res://data/moves/poc/air_light.tres"),
+		preload("res://data/moves/poc/air_heavy.tres"),
 	]
 	_fighter.setup(_player_input, LANE_Y, 1, SCREEN.x / 2.0)
 

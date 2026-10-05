@@ -9,6 +9,7 @@ const R: int = Buttons.RIGHT
 const D: int = Buttons.DOWN
 const A: int = Buttons.LIGHT
 const H: int = Buttons.HEAVY
+const U: int = Buttons.UP
 
 var _failures: int = 0
 var _combat: Combat
@@ -27,6 +28,10 @@ func _initialize() -> void:
 	_test_combo_ends_on_recovery()
 	_test_fireball_hit()
 	_test_crouching_hurtbox()
+	_test_air_attack()
+	_test_air_attack_ends_on_landing()
+	_test_jump_in_combo()
+	_test_air_juggle()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -59,6 +64,8 @@ func _fighter(x: float, team: int, samples: Array = [], lane: int = 1) -> Fighte
 		load("res://data/moves/poc/fireball.tres"),
 		load("res://data/moves/poc/light.tres"),
 		load("res://data/moves/poc/heavy.tres"),
+		load("res://data/moves/poc/air_light.tres"),
+		load("res://data/moves/poc/air_heavy.tres"),
 	]
 	fighter.projectiles = _projectiles
 	fighter.setup(PlayerInput.new(team, InputSource.Scripted.new(PackedInt32Array(samples))), LANES, lane, x)
@@ -241,3 +248,66 @@ func _test_crouching_hurtbox() -> void:
 	_run(5)
 	_check(croucher.hurt_rect().size.y < standing.size.y, "crouching makes the hurtbox shorter")
 	_check(croucher.hurt_rect().end.y == standing.end.y, "and keeps it on the ground")
+
+
+func _test_air_attack() -> void:
+	_clear()
+	var attacker := _fighter(600.0, 1, [U, 0, A])
+	_run(2)
+	_check(attacker.state == Fighter.State.JUMP, "up jumps")
+	_run(1)
+	_check(attacker.state == Fighter.State.AIR_ATTACK and attacker.move.animation == &"air_light", "attack in a jump is the air light")
+	var height: float = attacker.height
+	_run(1)
+	_check(attacker.height > height, "the jump carries on during the air move")
+	_run(18)
+	_check(attacker.state == Fighter.State.JUMP and attacker.move == null, "when the air move ends first, the jump carries on")
+	_clear()
+	attacker = _fighter(600.0, 1, [U, 0, H])
+	_run(3)
+	_check(attacker.move != null and attacker.move.animation == &"air_heavy", "heavy in a jump is the air heavy")
+	_clear()
+	attacker = _fighter(600.0, 1, [A])
+	_run(1)
+	_check(attacker.move.animation == &"light", "on the ground, attack is still the ground light")
+
+
+func _test_air_attack_ends_on_landing() -> void:
+	_clear()
+	var attacker := _fighter(600.0, 1, [U] + _repeat(0, 24) + [H])
+	_run(26)
+	_check(attacker.state == Fighter.State.AIR_ATTACK, "an air heavy late in the jump starts")
+	var ticks: int = 0
+	while attacker.height > 0.0 and ticks < 60:
+		_run(1)
+		ticks += 1
+	_check(ticks < 26, "the fighter lands before the move's 26 frames are over (after %d)" % ticks)
+	_check(attacker.state == Fighter.State.IDLE and attacker.move == null, "landing ends the air move")
+	_check(attacker.active_hit_rects().is_empty(), "and its hitbox")
+
+
+func _test_jump_in_combo() -> void:
+	_clear()
+	# Jump forward, air light late on the way down, then a ground light pressed
+	# before landing, which comes out on landing.
+	var attacker := _fighter(560.0, 1, [U | R] + _repeat(0, 24) + [A] + _repeat(0, 9) + [A])
+	var target := _fighter(900.0, 2)
+	var ticks: int = 0
+	while target.combo_hits < 2 and ticks < 90:
+		_run(1)
+		ticks += 1
+		if target.combo_hits == 1 and target.state == Fighter.State.IDLE:
+			break
+	_check(target.combo_hits == 2 and target.state == Fighter.State.HITSTUN, "an air light into a ground light is a 2-hit combo on a standing target (got %d)" % target.combo_hits)
+
+
+func _test_air_juggle() -> void:
+	_clear()
+	# Launch, jump after the target, and hit it in the air.
+	var attacker := _fighter(640.0, 1, [H] + _repeat(0, 42) + _repeat(U, 3) + [A])
+	var target := _fighter(800.0, 2)
+	var ticks: int = 0
+	while target.combo_hits < 2 and ticks < 120:
+		_run(1)
+		ticks += 1
+	_check(target.combo_hits == 2 and attacker.height > 0.0, "a launcher, then a jump and an air light: 2 hits, the second from the air (got %d)" % target.combo_hits)

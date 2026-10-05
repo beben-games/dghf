@@ -44,6 +44,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #4 Placeholder art, #5 Placeholder stage | Not started. Written for small CC0 sprites at 480 by 270, so they need rethinking if the 1080p direction is kept. |
 | #6 2.5D movement, #7 Input router and buffer, #8 Moves from data | Not started as issues, but the proof of concept already has a first slice of each: lanes, the input buffer and command reader, and moves as data. Missing: a second player, cancels, and a move preview tool. |
 | #9 Hits that feel good | In review. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
+| #23 Air attacks | In review. Light and heavy work during a jump. Done when the team has played them. |
 | #10 Milestone 1 build | Not started. The build script exists. |
 | #11 Port the PixelLab art pipeline | Not started. Its style probe should compare sprite sizes, including a large one. |
 | #17 1080p proof of concept | Open. Merged. Done when the three have played it and commented. |

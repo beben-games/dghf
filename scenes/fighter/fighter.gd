@@ -7,10 +7,10 @@ extends Node2D
 ## Position is x, a lane, and a height above the ground (docs/architecture.md,
 ## section 2, still proposed).
 
-enum State { IDLE, WALK, CROUCH, JUMP, ATTACK, LANE_CHANGE, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP }
+enum State { IDLE, WALK, CROUCH, JUMP, ATTACK, LANE_CHANGE, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP, AIR_ATTACK }
 
 const STATE_NAMES: Array[String] = [
-	"idle", "walk", "crouch", "jump", "attack", "lane change", "hitstun", "launched", "knockdown", "getup",
+	"idle", "walk", "crouch", "jump", "attack", "lane change", "hitstun", "launched", "knockdown", "getup", "air attack",
 ]
 
 # Tuning, in pixels and ticks. Starting points to tune by playing.
@@ -112,7 +112,19 @@ func tick() -> void:
 		State.GETUP:
 			if state_ticks >= getup_ticks:
 				_enter(State.IDLE)
+		State.AIR_ATTACK:
+			_tick_air_attack()
 	_place()
+
+
+## Playing a move, on the ground or in the air.
+func is_attacking() -> bool:
+	return state == State.ATTACK or state == State.AIR_ATTACK
+
+
+## Off the ground under its own power: jumping, with or without an air move.
+func is_jumping() -> bool:
+	return state == State.JUMP or state == State.AIR_ATTACK
 
 
 ## A box of the current move in screen space.
@@ -147,7 +159,7 @@ func take_hit(hit: HitBox, direction: int) -> void:
 	facing = -direction
 	move = null
 	_ground_y = lane_y[lane]  # a hit ends a lane change on the lane it was heading for
-	if hit.launch > 0.0 or state == State.JUMP or state == State.LAUNCHED:
+	if hit.launch > 0.0 or is_jumping() or state == State.LAUNCHED:
 		if state == State.LAUNCHED:
 			juggle_hits += 1
 		vertical_speed = hit.launch if hit.launch > 0.0 else air_hit_pop
@@ -163,7 +175,7 @@ func take_hit(hit: HitBox, direction: int) -> void:
 ## The hitboxes active this tick, in screen space.
 func active_hit_rects() -> Array[Rect2]:
 	var rects: Array[Rect2] = []
-	if state != State.ATTACK:
+	if not is_attacking():
 		return rects
 	for box in move.hit_boxes:
 		if box.active_on(move_frame):
@@ -175,7 +187,7 @@ func _tick_standing() -> void:
 	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
 	if direction != 0:
 		facing = direction
-	if _try_moves():
+	if _try_moves(false):
 		return
 	if input.pressed(Buttons.LANE_UP) and lane > 0:
 		input.consume(Buttons.LANE_UP)
@@ -201,20 +213,42 @@ func _tick_standing() -> void:
 func _tick_crouch() -> void:
 	# A motion such as down, down-forward, forward passes through a crouch,
 	# so moves must be able to start from here.
-	if _try_moves():
+	if _try_moves(false):
 		return
 	if not input.held(Buttons.DOWN):
 		_enter(State.IDLE)
 
 
 func _tick_jump() -> void:
+	_try_moves(true)
+	if _fall():
+		move = null
+		_enter(State.IDLE)
+
+
+## An air move follows the jump's arc. Landing ends it, and if it ends first
+## the jump carries on.
+func _tick_air_attack() -> void:
+	if _fall():
+		move = null
+		_enter(State.IDLE)
+		return
+	move_frame += 1
+	if move_frame >= move.total_frames:
+		move = null
+		_enter(State.JUMP)
+
+
+## One tick of the jump's arc. True on the tick it lands.
+func _fall() -> bool:
 	height += vertical_speed
 	vertical_speed -= gravity
 	x = clampf(x + _air_speed, bounds.x, bounds.y)
-	if height <= 0.0:
-		height = 0.0
-		vertical_speed = 0.0
-		_enter(State.IDLE)
+	if height > 0.0:
+		return false
+	height = 0.0
+	vertical_speed = 0.0
+	return true
 
 
 func _tick_attack() -> void:
@@ -254,15 +288,16 @@ func _tick_launched() -> void:
 		_enter(State.KNOCKDOWN)
 
 
-func _try_moves() -> bool:
+## Starts the first move whose input is there, among air moves or ground moves.
+func _try_moves(in_air: bool) -> bool:
 	for candidate in moves:
-		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing):
+		if candidate.air == in_air and input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing):
 			input.consume(candidate.button)
 			move = candidate
 			move_frame = 0
 			swing_targets.clear()
 			swing_froze = false
-			_enter(State.ATTACK)
+			_enter(State.AIR_ATTACK if in_air else State.ATTACK)
 			return true
 	return false
 

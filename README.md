@@ -2,6 +2,7 @@
 
 A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge crowds of enemies, spell combos, three playable characters, solo or local co-op. Made in Godot by Ben, T and E.
 
+- `docs/STATUS.md`: where the project stands right now
 - `docs/game-bible.md`: what the game is, and the decisions so far
 - `docs/meetings/`: notes from the weekly meetings
 - `CLAUDE.md`: the rules every contributor's Claude follows

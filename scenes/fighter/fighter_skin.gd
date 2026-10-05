@@ -43,6 +43,12 @@ func has(animation: StringName) -> bool:
 	return animations.has(String(animation))
 
 
+## How long an animation plays once through, in ticks.
+func duration(animation: StringName) -> int:
+	var entry: Dictionary = animations[String(animation)]
+	return (entry["frames"] as Array).size() * int(entry.get("ticks", 6))
+
+
 ## The sheet region for an animation. `ticks` is how long it has played.
 ## With `progress` from 0 to 1 the frame follows that instead, which is how a
 ## move of any length shows its whole animation.

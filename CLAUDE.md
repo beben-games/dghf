@@ -26,7 +26,7 @@ When a brainstorm settles something:
 ## Before you start a task
 
 1. Work from a GitHub issue. If there is none, ask the person you're working with whether to create one.
-2. Read the issue, `docs/game-bible.md`, and the most recent file in `docs/meetings/`. Decisions from the last meeting override older ones.
+2. Read the issue, `docs/STATUS.md`, `docs/game-bible.md`, and the most recent file in `docs/meetings/`. Decisions from the last meeting override older ones.
 3. Assign the issue to the person you're working with, make sure it has its area label (`code`, `art`, `audio`, `writing`, `design` or `level-design`) and a milestone, and move it to **In progress** on the project board.
 
 ## Git
@@ -76,3 +76,4 @@ When a brainstorm settles something:
 
 - If the work showed that something in `docs/game-bible.md` or `docs/architecture.md` doesn't hold up, say so and propose the change. Don't mark anything **Decided** on your own: that takes the person's agreement, and the team's for anything they agreed together.
 - Move the issue to **In review** and ask the person to request Ben's review.
+- Update `docs/STATUS.md` if the task changed what runs, what is decided, or what the team is waiting on.

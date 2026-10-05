@@ -43,7 +43,20 @@ func _animation() -> StringName:
 			return &"jump"
 		Fighter.State.ATTACK:
 			return _fighter.move.animation
+	if _is_landing():
+		return &"land"
 	return &"idle"
+
+
+## Just back on the ground after a jump, and still standing there. This is only
+## a look: the fighter is already idle and can act at once, which ends it.
+func _is_landing() -> bool:
+	return (
+		_fighter.state == Fighter.State.IDLE
+		and _fighter.previous_state == Fighter.State.JUMP
+		and skin != null and skin.has(&"land")
+		and _fighter.state_ticks < skin.duration(&"land")
+	)
 
 
 func _draw_skin() -> void:

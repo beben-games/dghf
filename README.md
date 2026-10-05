@@ -7,6 +7,33 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 - `docs/meetings/`: notes from the weekly meetings
 - `CLAUDE.md`: the rules every contributor's Claude follows
 
+## Try it
+
+What there is to play today, in about fifteen minutes. If you work with Claude, ask it to "show me around the game": it follows the same tour from `docs/STATUS.md` and runs the commands for you.
+
+1. **Run the game:** `scripts/run.sh`. You get one character and a red training dummy on an empty stage. Without a skin the character is a plain blue figure: that is expected.
+2. **Move around:** walk, jump, crouch, and change lane with Q and E. The controls are in the table below.
+3. **Hit the dummy:** light (J), heavy (L), and a fireball from a distance. Press F1 to see the hitboxes.
+4. **Do the combo:** stand next to the dummy and press J, J, L, each press after the hit before lands. As the L lands, hold W to jump after the dummy, then press J and L in the air. That is five hits.
+5. **Look inside a move:** `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Step through a move with the left and right arrows, and change move with up and down.
+6. **Change a move yourself:** see "Tuning a move without code" below.
+7. **Say what you think:** which parts felt good and which felt off. Comment on the issue for that part (the list is in `docs/STATUS.md`), or tell Ben.
+
+## Tuning a move without code
+
+1. Start the move preview tool (step 5 above) and leave it running.
+2. Open the project in the Godot editor. In the FileSystem panel, open `data/moves/poc/` and double-click a move, for example `light.tres`. Its values appear in the Inspector.
+3. Change a number and press Ctrl+S (Cmd+S on a Mac). The preview tool shows the new version within half a second.
+4. To play the change, close the game and run it again: the game reads the moves when it starts.
+
+What the numbers mean:
+
+- **Total Frames:** how long the move lasts. One frame is one sixtieth of a second.
+- **Hit Boxes:** each has the frames it is out on (First Frame to Last Frame), its rectangle measured from the character's feet (up is negative), and what it does: Damage, Hitstun (how long the target is stuck), Hitstop (the freeze when it lands), Knockback (the push), Launch (above 0 sends the target into the air) and Shake (screen shake).
+- **Cancels:** the frames during which the move can be cut short by another one, and by which. This is what makes combos.
+
+Your changes stay on your machine until you commit them. To throw them away, run `git checkout -- data/moves/poc`. To keep them, work from an issue on a branch as usual.
+
 ## Running and building
 
 - `scripts/run.sh` runs the game from the project, without opening the editor.

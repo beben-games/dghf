@@ -1,6 +1,6 @@
 # Status
 
-**Updated 2026-10-04.** Where the project stands, for a person or a Claude starting a new session. Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
+**Updated 2026-10-04.** Where the project stands, for a person or a Claude starting a new session. To show someone what there is to play, go to "Showing someone around". Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
 
 ## In one paragraph
 
@@ -19,6 +19,28 @@ Setup is done. Milestone 1 is under way. There is a playable proof of concept on
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/`. Add `--skin <folder>` for a playtest build with a skin beside the executable: its zips are named `-private` and must not be published |
 
 The controls are in `README.md`. The skin format is in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. How to draw or prepare character frames is in `docs/skins.md`.
+
+## Showing someone around
+
+For a Claude whose person asks what there is to see or try, or says "show me around". Go one step at a time, run the commands yourself, and wait for their reaction before the next step. The same tour, written for a person, is in `README.md` under "Try it".
+
+1. **Check the setup.** `source scripts/godot.sh && "$GODOT_BIN" --version` must print 4.7.2. If Godot is missing or another version, stop and help them install 4.7.2 (see `SETUP.md`). Pull `main` first.
+2. **Run the game:** `scripts/run.sh`. It opens a window and returns when they close it. Tell them before you start what they will see: one character and a red training dummy, and a plain blue figure for the character unless a skin is present. A build that Ben sent them may show a drawn character: that art is private and is not in the repository.
+3. **Give them things to try, in this order:** walking and the three lanes (Q and E), a light attack (J), a heavy (L), a fireball (down, down-forward, forward, then J), F1 for the boxes, then the combo: J, J, L, hold W as the L lands, then J and L in the air. The full controls table is in `README.md`.
+4. **Show the move preview tool:** `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Explain the red and green rows of the timeline: when the move can hit, and when it can be cancelled into another move.
+5. **Have them change a move themselves.** Follow "Tuning a move without code" in `README.md`: they edit a number in the Godot editor's inspector, not you in the file. This is the check that closes issue #8, so note in that issue whether it worked for them. Afterwards, ask whether to keep the change (then it needs an issue and a branch) or throw it away with `git checkout -- data/moves/poc`.
+6. **Run the stress test on their machine:** `scripts/run.sh res://scenes/stress_test/stress_test.tscn -- --benchmark`. Post the table it prints, with their processor and graphics card, as a comment on issue #3.
+7. **Collect their reactions.** Ask what felt good and what felt off, then offer to post their words as comments on the matching issue. Show them the comment before posting it.
+
+| What they talk about | Issue |
+|---|---|
+| Lanes, the controls, the screen and sprite size | #17 |
+| How hits feel: hitstop, knockback, the launcher, the shake | #9 |
+| Air attacks | #23 |
+| Combos, cancels, the move preview tool | #8 |
+| Frame rate with a crowd | #3 |
+
+Most of what they will react to is still **Proposed**. Don't defend it: their reaction is what the weekly meeting needs. Someone with no GitHub account yet can give their reactions to Ben, or write them in the "Game brainstorm" Google Doc.
 
 ## Decided, and still proposed
 
@@ -77,7 +99,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 ## Suggested next steps
 
-1. Get play feedback on the proof of concept into issue #17, and stress-test numbers into issue #3.
+1. T and E take the tour in "Showing someone around": play feedback into issues #17, #9, #23 and #8, and stress-test numbers into issue #3.
 2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
 3. If the 1080p direction is kept: rewrite issues #4 and #5, and run the PixelLab probe (#11) at the chosen size with a walk and an attack.
 4. Play the training dummy (#9) and the combos (#8), and tune the hit values with the move preview tool. T or E changing a move with it closes #8.

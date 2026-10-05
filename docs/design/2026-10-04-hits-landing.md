@@ -51,10 +51,30 @@ Asked for by Ben after playing the dummy. Light and heavy also work during a jum
 
 **A side effect.** Attack pressed just before landing used to be kept and come out as a ground attack. It now starts an air attack. A press made during an air move is still kept for the landing.
 
+## Cancels between moves (issue #8)
+
+Asked for by Ben. A move can now be cut short by starting another one, which is what makes combos. This follows the decided design: cancel windows are part of a move's data (`docs/architecture.md`, section 3).
+
+- **A cancel window** (`systems/combat/cancel_window.gd`) is a range of frames, the ids of the moves that can start during it, and whether the move must have hit first. A move has a list of them, and an `id` that other moves name.
+- **A follow-up** is a move that never starts on its own, only as a cancel. The second light (`light_2.tres`) is one: pressing light again during a light that hit.
+- **A press made during hitstop is kept** until the freeze ends, so the natural rhythm works: hit, press, and the next move comes out as the freeze lifts.
+
+The cancels in the proof of concept, all only on hit:
+
+| From | Into |
+|---|---|
+| Light | Second light, heavy, fireball |
+| Second light | Heavy, fireball |
+| Air light | Air heavy |
+
+So light, light, heavy is a three-hit ground combo that launches, built entirely from data. After the launcher, a forward jump with air light then air heavy adds two more.
+
+**Proposed, to confirm or change:** every cancel needs a hit, the heavy can't be cancelled, and the fireball cancel may or may not combo depending on distance: its values are untuned. There is no jump cancel, which is the usual way to follow a launcher. The second light has no drawing of its own and reuses the light's.
+
 ## Not built
 
-Damage numbers and friendly fire (both proposed, for the meeting), health and death, cancels between moves (#8), walls or bounces, attacks from the dummy, and bodies blocking each other: the player can walk through the dummy.
+Damage numbers and friendly fire (both proposed, for the meeting), health and death, the move preview tool (#8), walls or bounces, attacks from the dummy, and bodies blocking each other: the player can walk through the dummy.
 
 ## Checks
 
-`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo and the air juggle.
+`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel and the air cancel.

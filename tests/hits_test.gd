@@ -32,6 +32,12 @@ func _initialize() -> void:
 	_test_air_attack_ends_on_landing()
 	_test_jump_in_combo()
 	_test_air_juggle()
+	_test_three_hit_combo()
+	_test_no_cancel_on_a_miss()
+	_test_no_cancel_outside_the_window()
+	_test_follow_up_needs_a_cancel()
+	_test_cancel_into_fireball()
+	_test_air_cancel()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -62,7 +68,7 @@ func _fighter(x: float, team: int, samples: Array = [], lane: int = 1) -> Fighte
 	fighter.bounds = Vector2(120.0, 1800.0)
 	fighter.moves = [
 		load("res://data/moves/poc/fireball.tres"),
-		load("res://data/moves/poc/light.tres"),
+		load("res://data/moves/poc/light_2.tres"), load("res://data/moves/poc/light.tres"),
 		load("res://data/moves/poc/heavy.tres"),
 		load("res://data/moves/poc/air_light.tres"),
 		load("res://data/moves/poc/air_heavy.tres"),
@@ -311,3 +317,71 @@ func _test_air_juggle() -> void:
 		_run(1)
 		ticks += 1
 	_check(target.combo_hits == 2 and attacker.height > 0.0, "a launcher, then a jump and an air light: 2 hits, the second from the air (got %d)" % target.combo_hits)
+
+
+func _test_three_hit_combo() -> void:
+	_clear()
+	# Light, a second light pressed during the first one's hitstop, then heavy pressed during the second's.
+	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 9) + [A] + _repeat(0, 11) + [H])
+	var target := _fighter(800.0, 2)
+	_run(9)
+	_check(target.combo_hits == 1 and attacker.hitstop == 5, "the light lands")
+	_run(5)
+	_check(attacker.move.id == &"light", "a press during hitstop waits for the freeze to end")
+	_run(1)
+	_check(attacker.move.id == &"light_2" and attacker.move_frame == 0, "then the light is cut short by its follow-up")
+	var ticks: int = 0
+	while target.combo_hits < 3 and target.in_hit_reaction() and ticks < 80:
+		_run(1)
+		ticks += 1
+	_check(target.combo_hits == 3 and target.state == Fighter.State.LAUNCHED, "light, light, heavy is a 3-hit combo that launches (got %d hits)" % target.combo_hits)
+	_check(target.combo_damage == 10 + 12 + 22, "and adds up its damage")
+	_check(ticks < 30, "the cancels make it quick (%d ticks after the first cancel)" % ticks)
+
+
+func _test_no_cancel_on_a_miss() -> void:
+	_clear()
+	var attacker := _fighter(600.0, 1, [A] + _repeat(0, 9) + [A])
+	_run(20)
+	_check(attacker.move != null and attacker.move.id == &"light" and attacker.move_frame == 19, "a light that hits nothing can't be cancelled")
+
+
+func _test_no_cancel_outside_the_window() -> void:
+	_clear()
+	# The light's window closes on frame 20. With 5 ticks of hitstop that is tick 26: press on tick 28.
+	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 26) + [H] + _repeat(0, 3))
+	var target := _fighter(800.0, 2)
+	_run(30)
+	_check(target.combo_hits == 1 and attacker.move != null and attacker.move.id == &"light", "a press after the window has closed does not cancel")
+
+
+func _test_follow_up_needs_a_cancel() -> void:
+	_clear()
+	var attacker := _fighter(600.0, 1, [A])
+	_run(1)
+	_check(attacker.move.id == &"light", "from standing, attack is the first light, never the follow-up")
+
+
+func _test_cancel_into_fireball() -> void:
+	_clear()
+	# Light, then the fireball motion finished during the light's hitstop.
+	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 7) + _repeat(D, 2) + _repeat(D | R, 2) + [R, R | A])
+	var target := _fighter(800.0, 2)
+	_run(15)
+	_check(attacker.move != null and attacker.move.id == &"fireball", "a light that hits can be cancelled into the fireball")
+	_check(attacker.facing == 1, "holding forward during the cancel does not turn or walk the fighter")
+
+
+func _test_air_cancel() -> void:
+	_clear()
+	# Launch, jump forward, air light, and heavy pressed during the air light's hitstop.
+	var attacker := _fighter(660.0, 1, [H] + _repeat(0, 42) + _repeat(U | R, 3) + [A] + _repeat(0, 6) + [H])
+	var target := _fighter(800.0, 2)
+	var ticks: int = 0
+	while target.combo_hits < 3 and target.state == Fighter.State.LAUNCHED or ticks < 14:
+		_run(1)
+		ticks += 1
+		if ticks > 150:
+			break
+	_check(target.combo_hits == 3, "launcher, air light cancelled into air heavy: 3 hits (got %d)" % target.combo_hits)
+	_check(target.juggle_hits == 2, "both air hits count as juggle hits")

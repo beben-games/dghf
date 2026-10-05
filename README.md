@@ -28,6 +28,7 @@ The game is a proof of concept for now: one character and a training dummy on an
 | Heavy attack (launches) | L | Y |
 | Air attacks | J or L during a jump | X or Y during a jump |
 | Fireball | Down, down-forward, forward, then light attack | The same |
+| Combo | Light, light, heavy: each press after the hit before lands | The same |
 | Show hitboxes and hurtboxes | F1 | |
 
 ## Contributing

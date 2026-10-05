@@ -4,7 +4,7 @@
 
 ## In one paragraph
 
-Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks and throws a fireball. A first slice of hits landing on a training dummy is in a pull request. The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three. T was not available the week of 2026-10-04.
+Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, and throws a fireball, and a training dummy that takes the hits. The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three. T was not available the week of 2026-10-04.
 
 ## What runs today
 
@@ -13,10 +13,10 @@ Setup is done. Milestone 1 is under way. There is a playable proof of concept on
 | The proof of concept (the main scene) | `scenes/levels/poc_stage/` | `scripts/run.sh`, or F5 in the editor |
 | The crowd stress test | `scenes/stress_test/` | `scripts/run.sh res://scenes/stress_test/stress_test.tscn` (add `-- --benchmark` for the timed table) |
 | The fighter test | `tests/poc_player_test.gd` | `godot --headless --path . -s tests/poc_player_test.gd` prints `all passed` |
-| The hits test (with the hits pull request) | `tests/hits_test.gd` | `godot --headless --path . -s tests/hits_test.gd` prints `all passed` |
+| The hits test | `tests/hits_test.gd` | `godot --headless --path . -s tests/hits_test.gd` prints `all passed` |
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/` |
 
-Controls and the skin format are in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. How to draw or prepare character frames is in `docs/skins.md`.
+The controls are in `README.md`. The skin format is in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. How to draw or prepare character frames is in `docs/skins.md`.
 
 ## Decided, and still proposed
 
@@ -43,8 +43,8 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #3 Crowd stress test | Open. Merged and measured on Ben's Mac. Needs numbers from E, T and Ben's Windows PC. |
 | #4 Placeholder art, #5 Placeholder stage | Not started. Written for small CC0 sprites at 480 by 270, so they need rethinking if the 1080p direction is kept. |
 | #6 2.5D movement, #7 Input router and buffer, #8 Moves from data | Not started as issues, but the proof of concept already has a first slice of each: lanes, the input buffer and command reader, and moves as data. Missing: a second player, cancels, and a move preview tool. |
-| #9 Hits that feel good | In review. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
-| #23 Air attacks | In review. Light and heavy work during a jump. Done when the team has played them. |
+| #9 Hits that feel good | Open. Merged. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
+| #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #10 Milestone 1 build | Not started. The build script exists. |
 | #11 Port the PixelLab art pipeline | Not started. Its style probe should compare sprite sizes, including a large one. |
 | #17 1080p proof of concept | Open. Merged. Done when the three have played it and commented. |

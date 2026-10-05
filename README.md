@@ -14,6 +14,22 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 
 Both are Bash scripts (on Windows, use Git Bash) and need Godot 4.7.2 on the `PATH` as `godot`, or its path in `GODOT_BIN`.
 
+## Controls
+
+The game is a proof of concept for now: one character and a training dummy on an empty stage. These controls are being tried out and are not final.
+
+| Action | Keyboard | Gamepad |
+|---|---|---|
+| Walk | A, D or the left and right arrows | Stick or d-pad |
+| Jump | W, K, Space or the up arrow | Up, or B |
+| Crouch | S or the down arrow | Down |
+| Change lane | Q (back), E (front) | Left and right shoulder |
+| Light attack | J | X |
+| Heavy attack (launches) | L | Y |
+| Air attacks | J or L during a jump | X or Y during a jump |
+| Fireball | Down, down-forward, forward, then light attack | The same |
+| Show hitboxes and hurtboxes | F1 | |
+
 ## Contributing
 
 1. Pick an issue on the project board, or open one from a template.

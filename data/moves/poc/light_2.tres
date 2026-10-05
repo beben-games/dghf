@@ -6,27 +6,27 @@
 
 [sub_resource type="Resource" id="Resource_hit"]
 script = ExtResource("1_hbox")
-first_frame = 5
+first_frame = 6
 last_frame = 12
-rect = Rect2(30, -235, 135, 110)
-damage = 8
-hitstun = 16
-hitstop = 5
-knockback = 6.0
+rect = Rect2(40, -210, 225, 210)
+damage = 12
+hitstun = 18
+hitstop = 6
+knockback = 7.0
 
 [sub_resource type="Resource" id="Resource_cancel"]
 script = ExtResource("3_cancel")
-first_frame = 5
-last_frame = 14
-into = Array[StringName]([&"air_heavy"])
+first_frame = 6
+last_frame = 18
+into = Array[StringName]([&"heavy", &"fireball"])
 
 [resource]
 script = ExtResource("2_move")
-id = &"air_light"
-animation = &"air_light"
-total_frames = 18
+id = &"light_2"
+animation = &"light"
+total_frames = 24
 button = 16
 motion = PackedInt32Array()
-air = true
+follow_up = true
 hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])
 cancels = Array[ExtResource("3_cancel")]([SubResource("Resource_cancel")])

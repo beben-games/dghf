@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_1uood"]
 [ext_resource type="Script" path="res://systems/combat/move.gd" id="2_3wkoi"]
+[ext_resource type="Script" path="res://systems/combat/cancel_window.gd" id="3_cancel"]
 
 [sub_resource type="Resource" id="Resource_nu7wp"]
 script = ExtResource("1_1uood")
@@ -13,9 +14,17 @@ hitstun = 14
 hitstop = 5
 knockback = 9.0
 
+[sub_resource type="Resource" id="Resource_cancel"]
+script = ExtResource("3_cancel")
+first_frame = 8
+last_frame = 20
+into = Array[StringName]([&"light_2", &"heavy", &"fireball"])
+
 [resource]
 script = ExtResource("2_3wkoi")
+id = &"light"
 animation = &"light"
 total_frames = 27
 motion = PackedInt32Array()
 hit_boxes = Array[ExtResource("1_1uood")]([SubResource("Resource_nu7wp")])
+cancels = Array[ExtResource("3_cancel")]([SubResource("Resource_cancel")])

@@ -89,6 +89,7 @@ func tick() -> void:
 	flash_ticks = maxi(flash_ticks - 1, 0)
 	if hitstop > 0:
 		hitstop -= 1
+		input.hold_presses()
 		return
 	state_ticks += 1
 	match state:
@@ -229,9 +230,12 @@ func _tick_jump() -> void:
 ## An air move follows the jump's arc. Landing ends it, and if it ends first
 ## the jump carries on.
 func _tick_air_attack() -> void:
+	var cancelled: bool = _try_moves(true)
 	if _fall():
 		move = null
 		_enter(State.IDLE)
+		return
+	if cancelled:
 		return
 	move_frame += 1
 	if move_frame >= move.total_frames:
@@ -252,6 +256,8 @@ func _fall() -> bool:
 
 
 func _tick_attack() -> void:
+	if _try_moves(false):
+		return
 	if move_frame == move.projectile_frame and projectiles != null:
 		var offset: Vector2 = move.projectile_offset
 		offset.x *= facing
@@ -289,9 +295,12 @@ func _tick_launched() -> void:
 
 
 ## Starts the first move whose input is there, among air moves or ground moves.
+## During a move, only the moves its cancel windows allow right now can start.
 func _try_moves(in_air: bool) -> bool:
 	for candidate in moves:
-		if candidate.air == in_air and input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing):
+		if candidate.air != in_air or not _can_start(candidate):
+			continue
+		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing):
 			input.consume(candidate.button)
 			move = candidate
 			move_frame = 0
@@ -300,6 +309,12 @@ func _try_moves(in_air: bool) -> bool:
 			_enter(State.AIR_ATTACK if in_air else State.ATTACK)
 			return true
 	return false
+
+
+func _can_start(candidate: Move) -> bool:
+	if move == null:
+		return not candidate.follow_up
+	return move.can_cancel_into(candidate, move_frame, not swing_targets.is_empty())
 
 
 func _start_lane_change(to_lane: int) -> void:

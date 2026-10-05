@@ -12,6 +12,7 @@ knockback = 10.0
 
 [resource]
 script = ExtResource("2_ovmg1")
+id = &"fireball"
 animation = &"fireball"
 total_frames = 36
 motion = PackedInt32Array(2, 3, 6)

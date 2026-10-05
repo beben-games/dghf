@@ -36,7 +36,7 @@ func _fighter(samples: Array) -> Fighter:
 		_projectiles.free()
 	var fighter := Fighter.new()
 	fighter.bounds = Vector2(120.0, 1800.0)
-	fighter.moves = [load("res://data/moves/poc/fireball.tres"), load("res://data/moves/poc/light.tres")]
+	fighter.moves = [load("res://data/moves/poc/fireball.tres"), load("res://data/moves/poc/light_2.tres"), load("res://data/moves/poc/light.tres")]
 	_projectiles = Projectiles.new()
 	fighter.projectiles = _projectiles
 	fighter.setup(PlayerInput.new(1, InputSource.Scripted.new(PackedInt32Array(samples))), LANES, 1, 960.0)

@@ -44,7 +44,7 @@ func _ready() -> void:
 	_fighter.bounds = Vector2(MARGIN, SCREEN.x - MARGIN)
 	_fighter.moves = [
 		preload("res://data/moves/poc/fireball.tres"),
-		preload("res://data/moves/poc/light.tres"),
+		preload("res://data/moves/poc/light_2.tres"), preload("res://data/moves/poc/light.tres"),
 		preload("res://data/moves/poc/heavy.tres"),
 		preload("res://data/moves/poc/air_light.tres"),
 		preload("res://data/moves/poc/air_heavy.tres"),

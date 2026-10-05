@@ -44,6 +44,13 @@ func pressed(bit: int) -> bool:
 	return _tick - _last_press.get(bit, -1000) < PRESS_BUFFER
 
 
+## Call on a tick the fighter spends frozen by a hit, after tick(): the freeze
+## does not use up the buffer, so a press made during hitstop still counts after it.
+func hold_presses() -> void:
+	for bit: int in _last_press:
+		_last_press[bit] += 1
+
+
 ## Marks the buffered press as used, so one press starts one thing.
 func consume(bit: int) -> void:
 	_last_press.erase(bit)

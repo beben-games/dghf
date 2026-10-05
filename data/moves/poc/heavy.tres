@@ -17,6 +17,7 @@ shake = 14.0
 
 [resource]
 script = ExtResource("2_move")
+id = &"heavy"
 animation = &"heavy"
 total_frames = 34
 button = 256

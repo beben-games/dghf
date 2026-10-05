@@ -24,6 +24,7 @@ func _initialize() -> void:
 	_test_fireball_facing_left()
 	_test_buffered_press()
 	_test_skin_timing()
+	_test_skin_from_a_folder_outside_the_project()
 	_projectiles.free()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -166,3 +167,19 @@ func _test_skin_timing() -> void:
 	_check(skin.duration(&"land") == 8, "an animation lasts its frames times its ticks")
 	_check(skin.region(&"land", 0).position == Vector2(100.0, 50.0), "frame 5 of a 4-column sheet is the second cell of the second row")
 	_check(skin.region(&"land", 100).position == Vector2(200.0, 50.0), "an animation that doesn't loop holds its last frame")
+
+
+## A built game loads its skin from a folder beside the executable, by its path on disk.
+func _test_skin_from_a_folder_outside_the_project() -> void:
+	var folder: String = OS.get_user_data_dir().path_join("test_skin")
+	DirAccess.make_dir_recursive_absolute(folder)
+	_check(FighterSkin.load_from(folder) == null, "a folder with no skin gives no skin")
+	Image.create_empty(8, 4, false, Image.FORMAT_RGBA8).save_png(folder.path_join("sheet.png"))
+	var json := FileAccess.open(folder.path_join("skin.json"), FileAccess.WRITE)
+	json.store_string('{"sheet": "sheet.png", "cell": [4, 4], "feet": [2, 4], "columns": 2, "animations": {"idle": {"frames": [0, 1], "ticks": 6, "loop": true}}}')
+	json.close()
+	var skin: FighterSkin = FighterSkin.load_from(folder)
+	_check(skin != null and skin.has(&"idle") and skin.texture.get_width() == 8, "a skin loads from a folder outside the project")
+	DirAccess.remove_absolute(folder.path_join("sheet.png"))
+	DirAccess.remove_absolute(folder.path_join("skin.json"))
+	DirAccess.remove_absolute(folder)

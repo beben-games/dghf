@@ -14,6 +14,8 @@ const LANE_Y: PackedFloat32Array = [760.0, 880.0, 1000.0]  # back to front
 const MARGIN: float = 120.0
 ## Private art goes here. The folder is git-ignored and hidden from Godot's importer.
 const LOCAL_SKIN: String = "res://local/skins/player"
+## A built game has no local folder. It looks for a skin in this folder beside its executable.
+const BUILD_SKIN: String = "skins/player"
 const HELP: String = "Move: A D or stick    Jump: W, K or (B)    Crouch: S    Lane: Q E or shoulders
 Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Fireball: down, down-forward, forward + attack    F1: boxes"
 ## How long the combo counter stays after a combo ends, in ticks.
@@ -50,7 +52,7 @@ func _ready() -> void:
 	_fighter.setup(_player_input, LANE_Y, 1, SCREEN.x / 2.0)
 
 	_view = FighterView.new()
-	_view.skin = FighterSkin.load_from(LOCAL_SKIN)
+	_view.skin = _find_skin()
 	_fighter.add_child(_view)
 
 	# The dummy never presses anything: the plain input source is always empty.
@@ -90,6 +92,15 @@ func _ready() -> void:
 	_combo_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_combo_label.add_theme_constant_override("outline_size", 16)
 	layer.add_child(_combo_label)
+
+
+## The player's skin, or null for the plain figure. Run from the project it is
+## the local folder. A built game looks beside its executable instead, so art
+## can be tried in a build without being packed into it.
+func _find_skin() -> FighterSkin:
+	if OS.has_feature("template"):
+		return FighterSkin.load_from(OS.get_executable_path().get_base_dir().path_join(BUILD_SKIN))
+	return FighterSkin.load_from(LOCAL_SKIN)
 
 
 func _physics_process(_delta: float) -> void:
@@ -149,6 +160,6 @@ func _update_readout() -> void:
 	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps\ndummy: %s   last combo %d hits, %d damage" % [
 		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1,
 		"right" if _fighter.facing > 0 else "left", " ".join(_history),
-		"local" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
+		"from a folder" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
 		Fighter.STATE_NAMES[_dummy.state], _dummy.combo_hits, _dummy.combo_damage,
 	]

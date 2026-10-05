@@ -14,7 +14,7 @@ Setup is done. Milestone 1 is under way. There is a playable proof of concept on
 | The crowd stress test | `scenes/stress_test/` | `scripts/run.sh res://scenes/stress_test/stress_test.tscn` (add `-- --benchmark` for the timed table) |
 | The fighter test | `tests/poc_player_test.gd` | `godot --headless --path . -s tests/poc_player_test.gd` prints `all passed` |
 | The hits test | `tests/hits_test.gd` | `godot --headless --path . -s tests/hits_test.gd` prints `all passed` |
-| Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/` |
+| Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/`. Add `--skin <folder>` for a playtest build with a skin beside the executable: its zips are named `-private` and must not be published |
 
 The controls are in `README.md`. The skin format is in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. How to draw or prepare character frames is in `docs/skins.md`.
 
@@ -60,7 +60,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 - Follow `CLAUDE.md`: an issue, a branch named `<type>/<issue>-<name>`, a pull request. `main` is protected, for admins too. Ben merges, or asks his Claude to.
 - New issues are not always added to the board automatically. Check, and add them by hand.
-- `builds/` and `local/` are git-ignored. `local/` holds private placeholder art that must never be committed or shipped, and the export presets leave both folders out of builds. A built game therefore shows the plain figure.
+- `builds/` and `local/` are git-ignored. `local/` holds private placeholder art that must never be committed or shipped, and the export presets leave both folders out of builds. A built game therefore shows the plain figure, unless a skin sits in `skins/player/` beside its executable (see `scripts/build.sh --skin`). That lookup has not been tried on a real Windows or Linux machine yet.
 - The "Game brainstorm" Google Doc opens with a "Where we are" recap. The `meeting-notes` skill refreshes it after a meeting. It was last written on 2026-10-03 and does not mention the proof of concept yet.
 
 ## Things that have bitten us

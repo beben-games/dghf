@@ -20,6 +20,8 @@ var skin: FighterSkin
 var show_boxes: bool = false
 ## The plain figure's colour, to tell fighters apart.
 var body_color: Color = Color(0.35, 0.55, 0.85)
+## Darkens the whole fighter, for lanes further back. 1 is unchanged.
+var shade: float = 1.0
 
 @onready var _fighter: Fighter = get_parent()
 
@@ -35,10 +37,12 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	(material as ShaderMaterial).set_shader_parameter(&"flash", 1.0 if _fighter.flash_ticks > 0 else 0.0)
+	modulate = Color(shade, shade, shade)
 	queue_redraw()
 
 
 func _draw() -> void:
+	_draw_shadow()
 	if skin != null and skin.has(_animation()):
 		_draw_skin()
 	else:
@@ -54,6 +58,15 @@ func _draw() -> void:
 			rect.position -= _fighter.position
 			draw_rect(rect, Color(1.0, 0.1, 0.1, 0.35))
 			draw_rect(rect, Color(1.0, 0.1, 0.1), false, 3.0)
+
+
+## An ellipse on the ground under the fighter. With lanes close together it
+## is what says which lane a fighter is in, and where a jump will land.
+func _draw_shadow() -> void:
+	var shrink: float = clampf(1.0 - _fighter.height / 900.0, 0.5, 1.0)
+	draw_set_transform(Vector2(0.0, _fighter.height), 0.0, Vector2(1.0, 0.3))
+	draw_circle(Vector2.ZERO, 70.0 * shrink, Color(0.0, 0.0, 0.0, 0.35))
+	draw_set_transform(Vector2.ZERO)
 
 
 ## The skin animation name for the fighter's state.

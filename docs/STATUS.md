@@ -1,10 +1,10 @@
 # Status
 
-**Updated 2026-10-04.** Where the project stands, for a person or a Claude starting a new session. To show someone what there is to play, go to "Showing someone around". Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
+**Updated 2026-10-11.** Where the project stands, for a person or a Claude starting a new session. To show someone what there is to play, go to "Showing someone around". Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
 
 ## In one paragraph
 
-Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, and throws a fireball, and a training dummy that takes the hits. The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three. T was not available the week of 2026-10-04.
+Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, and throws a fireball, and a training dummy that takes the hits. T and E have played it. They want more overlap between the lanes, a lower camera and more depth; a lane-spacing experiment is in the proof of concept (F2 and F3). They also want to know how to make floors, backgrounds, destructibles and pickups, which is the art pipeline (#11). The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three.
 
 ## What runs today
 
@@ -70,15 +70,15 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #9 Hits that feel good | Open. Merged. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #10 Milestone 1 build | Not started. The build script exists. |
-| #11 Port the PixelLab art pipeline | Not started. Its style probe should compare sprite sizes, including a large one. |
-| #17 1080p proof of concept | Open. Merged. Done when the three have played it and commented. |
+| #11 Port the PixelLab art pipeline | Next. Ben's direction is on the issue: open to other generators (PixelLab may not do parallax backgrounds), character creation as one workflow from concept to playable, and characters that appear as bosses before being unlocked. Deliverables: a guide for T and E (floors, backgrounds, destructibles, pickups, characters) and a probe at two sprite sizes, about 110 and 200 pixels. |
+| #17 1080p proof of concept | Open. Played by all three. The lane-spacing experiment (F2, F3) is in review. Done when the meeting has settled lanes and spacing. |
 
 ## Waiting on people
 
-- **T:** round three of the questionnaire (the "Game brainstorm" Google Doc), a GitHub account, Godot 4.7.2.
-- **E** (GitHub `T13nou`): accept the repository invitation, finish round three, run the stress test and the Linux build.
-- **Ben:** run the Windows build, answer the five newest round-three questions.
-- **All three:** a weekly meeting to settle sections 2, 5 and 9 and the screen and sprite size.
+- **T** (GitHub `pipochao`, invited to the repository and the board on 2026-10-11): accept the invitations, install Godot 4.7.2, take the tour above. T's round three is in: three lanes with a small perspective effect, 30 to 40 enemies at most, two attack buttons plus guard plus a spell button, block and dodge, combo counter only, no friendly fire.
+- **E** (GitHub `T13nou`): finish round three, run the stress test and post its table on #3.
+- **Ben:** run the Windows build, answer the five newest round-three questions, write up what T and E said about the hits and the combos on #9 and #8.
+- **All three:** a weekly meeting to settle sections 2, 5 and 9 and the screen and sprite size. New for that agenda: the lane spacing (F2 in the proof of concept), the resolution (keep 1080p, or 960 by 540 scaled 2x once the PixelLab probe shows sprites at both sizes), and the button layout: T wants two attacks plus guard plus a spell button, and the proof of concept has light and heavy.
 
 ## Working in this repository
 
@@ -99,7 +99,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 ## Suggested next steps
 
-1. T and E take the tour in "Showing someone around": play feedback into issues #17, #9, #23 and #8, and stress-test numbers into issue #3.
+1. T and E try the lane spacings (F2) and say which one reads best, on #17. E's stress-test numbers into issue #3.
 2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
-3. If the 1080p direction is kept: rewrite issues #4 and #5, and run the PixelLab probe (#11) at the chosen size with a walk and an attack.
+3. The art pipeline (#11): the guide for T and E, and the probe at two sprite sizes with a walk and an attack, so the meeting picks the resolution looking at real sprites. Then rewrite issues #4 and #5 for the chosen size.
 4. Play the training dummy (#9) and the combos (#8), and tune the hit values with the move preview tool. T or E changing a move with it closes #8.

@@ -84,6 +84,15 @@ func setup(player_input: PlayerInput, lanes: PackedFloat32Array, start_lane: int
 	_place()
 
 
+## Moves the lanes, for trying lane spacings. A fighter standing in a lane
+## moves with it; one changing lane keeps heading for its new lane.
+func set_lanes(lanes: PackedFloat32Array) -> void:
+	lane_y = lanes
+	if state != State.LANE_CHANGE:
+		_ground_y = lane_y[lane]
+		_place()
+
+
 func tick() -> void:
 	input.tick()
 	flash_ticks = maxi(flash_ticks - 1, 0)

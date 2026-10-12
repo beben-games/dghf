@@ -24,6 +24,7 @@ func _initialize() -> void:
 	_test_fireball_facing_left()
 	_test_buffered_press()
 	_test_skin_timing()
+	_test_moving_the_lanes()
 	_test_skin_from_a_folder_outside_the_project()
 	_projectiles.free()
 	print("%d failed" % _failures if _failures else "all passed")
@@ -183,3 +184,16 @@ func _test_skin_from_a_folder_outside_the_project() -> void:
 	DirAccess.remove_absolute(folder.path_join("sheet.png"))
 	DirAccess.remove_absolute(folder.path_join("skin.json"))
 	DirAccess.remove_absolute(folder)
+
+
+func _test_moving_the_lanes() -> void:
+	var f := _fighter([])
+	f.set_lanes(PackedFloat32Array([900.0, 950.0, 1000.0]))
+	_check(f.position.y == 950.0, "a standing fighter moves with its lane")
+	var g := _fighter([Buttons.LANE_DOWN] + _repeat(0, 20))
+	_run(g, 3)
+	g.set_lanes(PackedFloat32Array([900.0, 950.0, 1000.0]))
+	_run(g, 10)
+	_check(g.position.y == 1000.0, "a fighter changing lane ends on the moved lane")
+	f.free()
+	g.free()

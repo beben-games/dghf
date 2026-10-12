@@ -10,14 +10,18 @@ extends Node2D
 ## fixed order, 60 times a second.
 
 const SCREEN := Vector2(1920.0, 1080.0)
-const LANE_Y: PackedFloat32Array = [760.0, 880.0, 1000.0]  # back to front
+## The front lane's screen y. The other two sit above it, `spacing` apart.
+const FRONT_LANE_Y: float = 1000.0
+## Lane spacings to try, cycled with F2 (issue #17: T and E asked for more overlap between lanes).
+const SPACINGS: Array[float] = [120.0, 80.0, 50.0, 35.0]
 const MARGIN: float = 120.0
 ## Private art goes here. The folder is git-ignored and hidden from Godot's importer.
 const LOCAL_SKIN: String = "res://local/skins/player"
 ## A built game has no local folder. It looks for a skin in this folder beside its executable.
 const BUILD_SKIN: String = "skins/player"
 const HELP: String = "Move: A D or stick    Jump: W, K or (B)    Crouch: S    Lane: Q E or shoulders
-Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Fireball: down, down-forward, forward + attack    F1: boxes"
+Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Fireball: down, down-forward, forward + attack
+F1: boxes    F2: lane spacing    F3: shade the back lanes"
 ## How long the combo counter stays after a combo ends, in ticks.
 const COMBO_LINGER: int = 60
 
@@ -33,6 +37,8 @@ var _combo_linger: int = 0
 var _shake: float = 0.0
 var _tick: int = 0
 var _history: Array[int] = []  # recent stick positions, for the readout
+var _spacing: int = 0  # index into SPACINGS
+var _shading: bool = false
 
 @onready var _fighter: Fighter = $Player
 @onready var _dummy: Fighter = $Dummy
@@ -49,7 +55,7 @@ func _ready() -> void:
 		preload("res://data/moves/poc/air_light.tres"),
 		preload("res://data/moves/poc/air_heavy.tres"),
 	]
-	_fighter.setup(_player_input, LANE_Y, 1, SCREEN.x / 2.0)
+	_fighter.setup(_player_input, lanes(), 1, SCREEN.x / 2.0)
 
 	_view = FighterView.new()
 	_view.skin = _find_skin()
@@ -57,7 +63,7 @@ func _ready() -> void:
 
 	# The dummy never presses anything: the plain input source is always empty.
 	_dummy.bounds = _fighter.bounds
-	_dummy.setup(PlayerInput.new(0, InputSource.new()), LANE_Y, 1, SCREEN.x * 0.7)
+	_dummy.setup(PlayerInput.new(0, InputSource.new()), lanes(), 1, SCREEN.x * 0.7)
 	_dummy.facing = -1
 	_dummy_view = FighterView.new()
 	_dummy_view.body_color = Color(0.75, 0.4, 0.3)
@@ -65,12 +71,12 @@ func _ready() -> void:
 
 	_projectiles = Projectiles.new()
 	_projectiles.bounds = Vector2(0.0, SCREEN.x)
-	_projectiles.z_index = LANE_Y.size()
+	_projectiles.z_index = 3
 	add_child(_projectiles)
 	_fighter.projectiles = _projectiles
 
 	_sparks = HitSparks.new()
-	_sparks.z_index = LANE_Y.size()
+	_sparks.z_index = 3
 	add_child(_sparks)
 
 	_combat.fighters = [_fighter, _dummy]
@@ -117,17 +123,34 @@ func _physics_process(_delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# A debug key, read directly on purpose: it is not a player's input.
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1:
-		_view.show_boxes = not _view.show_boxes
-		_dummy_view.show_boxes = _view.show_boxes
+	if event is InputEventKey and event.pressed and not event.echo:
+		match event.keycode:
+			KEY_F1:
+				_view.show_boxes = not _view.show_boxes
+				_dummy_view.show_boxes = _view.show_boxes
+			KEY_F2:
+				_spacing = (_spacing + 1) % SPACINGS.size()
+				for fighter in _combat.fighters:
+					fighter.set_lanes(lanes())
+				queue_redraw()
+			KEY_F3:
+				_shading = not _shading
+
+
+## The three lanes' screen y, back to front, at the spacing being tried.
+func lanes() -> PackedFloat32Array:
+	var spacing: float = SPACINGS[_spacing]
+	return PackedFloat32Array([FRONT_LANE_Y - 2.0 * spacing, FRONT_LANE_Y - spacing, FRONT_LANE_Y])
 
 
 func _draw() -> void:
 	# Drawn wider than the screen, so a shake never shows an edge.
 	var bleed: float = 64.0
 	draw_rect(Rect2(Vector2.ZERO, SCREEN).grow(bleed), Color(0.15, 0.165, 0.21))
-	draw_rect(Rect2(-bleed, 640.0, SCREEN.x + bleed * 2.0, SCREEN.y - 640.0 + bleed), Color(0.305, 0.275, 0.243))
-	for y in LANE_Y:
+	# The ground starts a little above the back lane, so a lower camera also lowers the horizon.
+	var horizon: float = lanes()[0] - 120.0
+	draw_rect(Rect2(-bleed, horizon, SCREEN.x + bleed * 2.0, SCREEN.y - horizon + bleed), Color(0.305, 0.275, 0.243))
+	for y in lanes():
 		draw_line(Vector2(-bleed, y), Vector2(SCREEN.x + bleed, y), Color(0.42, 0.385, 0.34), 3.0)
 
 
@@ -149,6 +172,10 @@ func _update_combo() -> void:
 
 
 func _update_readout() -> void:
+	for fighter in _combat.fighters:
+		var view: FighterView = _view if fighter == _fighter else _dummy_view
+		# The back lane is darkest: a cheap depth cue that keeps pixel art sharp.
+		view.shade = 1.0 - 0.12 * (2 - fighter.lane) if _shading else 1.0
 	var direction: int = _player_input.direction(_fighter.facing)
 	if _history.is_empty() or _history[-1] != direction:
 		_history.append(direction)
@@ -157,9 +184,10 @@ func _update_readout() -> void:
 	var move_text: String = ""
 	if _fighter.move != null:
 		move_text = "   %s %d/%d" % [_fighter.move.animation, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps\ndummy: %s   last combo %d hits, %d damage" % [
+	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart%s\ndummy: %s   last combo %d hits, %d damage" % [
 		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1,
 		"right" if _fighter.facing > 0 else "left", " ".join(_history),
 		"from a folder" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
+		int(SPACINGS[_spacing]), ", shaded" if _shading else "",
 		Fighter.STATE_NAMES[_dummy.state], _dummy.combo_hits, _dummy.combo_damage,
 	]

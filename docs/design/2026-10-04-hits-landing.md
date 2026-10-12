@@ -74,6 +74,19 @@ A jump is not a move, so a window allows it by listing the id `jump`. The jump c
 
 **Proposed, to confirm or change:** every cancel needs a hit, the heavy can only be cancelled by a jump, and the fireball cancel may or may not combo depending on distance: its values are untuned. The second light has no drawing of its own and reuses the light's.
 
+## Guard (issue #41)
+
+Asked for by Ben on 2026-10-11, once he and T had agreed on two attacks plus guard. The position "block and dodge" (section 4 of the architecture) is still proposed; this builds the block half so the team can feel it.
+
+- **Hold K (B on a pad) on the ground to guard.** The fighter stops, keeps facing the way it faced, and blocks.
+- **A hit from the front is blocked:** no damage, no flash, no combo count. The blocker is held in the guard for the hit's `blockstun` (move data, on the hitbox) and pushed back by part of its knockback (`block_pushback`, 0.6). Both fighters freeze for half the hit's hitstop, at least 2 ticks (`block_hitstop`). The spark is blue and small.
+- **A hit from behind lands as usual.** A guard covers the front only.
+- **A blocked launcher does not launch**, and a blocked hit does not shake the screen.
+- **Letting go** during blockstun keeps the guard up until it ends; after that, the fighter stands.
+- **F4** makes the training dummy guard, so the player can see all of this. A skin may add a `block` animation.
+
+**Proposed, to confirm or change:** no chip damage; no guard in the air; guard with down held is the same standing guard (no low guard, no high and low mixing); guard beats launchers; the attacker is not pushed back on block; blockstun values (light 8, second light 10, heavy 14, air light 8, air heavy 12, fireball 10). How enemies beat a guard (grabs, attacks from behind, guard breaks) is enemy design for Milestone 2. Dodge is not built.
+
 ## The move preview tool (issue #8)
 
 The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.
@@ -96,4 +109,4 @@ Damage numbers and friendly fire (both proposed, for the meeting), health and de
 
 ## Checks
 
-`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel, the air cancel and the jump cancel.
+`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel, the air cancel, the jump cancel, and the guard: from the front, from behind, against a launcher, pushback and release, not in the air.

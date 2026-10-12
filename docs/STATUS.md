@@ -16,6 +16,7 @@ Setup is done. Milestone 1 is under way. There is a playable proof of concept on
 | The move preview tool | `scenes/tools/move_preview/` | `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Steps through a move frame by frame and reloads it when its file is saved |
 | The move preview test | `tests/move_preview_test.gd` | `godot --headless --path . -s tests/move_preview_test.gd` prints `all passed` |
 | The hits test | `tests/hits_test.gd` | `godot --headless --path . -s tests/hits_test.gd` prints `all passed` |
+| The art pipeline | `tools/art/`, `docs/art.md` | `python3 tools/art/pixellab.py balance` and `python3 tools/art/budget.py` report from this repository (Ben's key, in his keychain). `gen.py plan art/jobs/probe_sizes.json` lists the sprite-size probe |
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/`. Add `--skin <folder>` for a playtest build with a skin beside the executable: its zips are named `-private` and must not be published |
 
 The controls are in `README.md`. The skin format is in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. How to draw or prepare character frames is in `docs/skins.md`.
@@ -70,7 +71,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #9 Hits that feel good | Open. Merged. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #10 Milestone 1 build | Not started. The build script exists. |
-| #11 Port the PixelLab art pipeline | Next. Ben's direction is on the issue: open to other generators (PixelLab may not do parallax backgrounds), character creation as one workflow from concept to playable, and characters that appear as bosses before being unlocked. Deliverables: a guide for T and E (floors, backgrounds, destructibles, pickups, characters) and a probe at two sprite sizes, about 110 and 200 pixels. |
+| #11 Port the PixelLab art pipeline | In review. The tools are ported and report the balance from here; `docs/art.md` is the guide for T and E (asset kinds and sizes at both candidate resolutions, the character workflow, the tools, how the pipeline fits the MCP rule). The sprite-size probe is written as a job file and waits for Ben's go on the spend. Done when the probe is on the issue. |
 | #17 1080p proof of concept | Open. Played by all three. The depth experiment (F2: lane spacing and fighter size by lane, F3: shading) is in. Done when the meeting has settled lanes, spacing and depth. |
 
 ## Waiting on people
@@ -101,5 +102,5 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 1. T and E try the depth presets (F2) and say which one reads best, on #17. E's stress-test numbers into issue #3.
 2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
-3. The art pipeline (#11): the guide for T and E, and the probe at two sprite sizes with a walk and an attack, so the meeting picks the resolution looking at real sprites. Then rewrite issues #4 and #5 for the chosen size.
+3. Run the sprite-size probe (#11, `art/jobs/probe_sizes.json`: the stills first, then the walks and attacks) and post it on the issue, so the meeting picks the resolution looking at real sprites. Then rewrite issues #4 and #5 for the chosen size.
 4. Play the training dummy (#9) and the combos (#8), and tune the hit values with the move preview tool. T or E changing a move with it closes #8.

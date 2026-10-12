@@ -61,7 +61,7 @@ When a brainstorm settles something:
 - **Licences.** This repository is public, so committing a file publishes it. Only add assets released as CC0 or CC BY, or made by the team. Never add "free to use" assets whose licence forbids redistribution, and never sprites, music or sounds taken from other games. If the licence isn't clear, don't add it: ask.
 - Record every asset the team didn't make in `CREDITS.md`: what it is, the author, the source link and the licence.
 - Placeholder art comes from CC0 packs until the team replaces it.
-- Final art is pixel art made with PixelLab. Before generating, check the style and size rules in `docs/game-bible.md` so every sprite matches.
+- Final art is pixel art made with AI tools, PixelLab by default. How to make each kind of asset, with what tool and at what size, is in `docs/art.md`. Check the style rules there and in `docs/game-bible.md` before generating, so every sprite matches, and check a new tool's terms allow redistribution before using it.
 - Commit only game-ready files: PNG for sprites and tiles, OGG for music and sound effects. Keep source files (WAV masters, stems, project files) in the team's shared Drive folder and link them from the issue.
 - Name sprites `<subject>_<action>.png`, for example `knight_attack.png`, and sprite sheets the same way.
 - Character sprite sheets follow `docs/skins.md` (proposed): every frame on the same canvas with the feet at the same pixel, exported without cropping.

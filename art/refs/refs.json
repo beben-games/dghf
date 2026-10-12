@@ -1,0 +1,4 @@
+{
+    "note": "Images the team approved as references to steer a generation (docs/art.md, References). Each: id, file (repo-relative), sha256, source, steers, approved (true only on the team's word), approved_on. gen.py refuses an image that is not here.",
+    "refs": []
+}

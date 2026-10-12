@@ -46,7 +46,7 @@ Most of what they will react to is still **Proposed**. Don't defend it: their re
 ## Decided, and still proposed
 
 - **Decided** (see `docs/design/2026-10-03-combat-core.md`): 60 ticks a second with every duration in ticks, the game slows down and never skips ticks, moves are `.tres` data played by one move player, two kinds of body (full fighters and a light crowd body) with one set of hit rules, hits resolved once per tick in a fixed order. Godot 4.7.2.
-- **Proposed, Ben's positions, for the meeting:** 3 lanes with thickness, motion inputs, Guardian Heroes buttons, block and dodge, fully unique move lists, damage numbers on every hit, no friendly fire. E has agreed to motion inputs in round three.
+- **Proposed, Ben's positions, for the meeting:** 3 lanes with thickness, motion inputs, two attacks (light and heavy) plus guard with spells and later commands on their own pad buttons (Ben and T agree in writing, 2026-10-11; E to confirm), block and dodge, fully unique move lists, damage numbers on every hit, no friendly fire. E has agreed to motion inputs in round three.
 - **Proposed and being explored:** a 1920 by 1080 screen with large sprites, see the next section.
 - **Open:** the three characters, the licence (MIT or GPL), the store, the title.
 
@@ -79,7 +79,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 - **T** (GitHub `pipochao`, invited to the repository and the board on 2026-10-11): accept the invitations, install Godot 4.7.2, take the tour above. T's round three is in: three lanes with a small perspective effect, 30 to 40 enemies at most, two attack buttons plus guard plus a spell button, block and dodge, combo counter only, no friendly fire.
 - **E** (GitHub `T13nou`): finish round three, run the stress test and post its table on #3.
 - **Ben:** run the Windows build, answer the five newest round-three questions, write up what T and E said about the hits and the combos on #9 and #8.
-- **All three:** a weekly meeting to settle sections 2, 5 and 9 and the screen and sprite size. New for that agenda: the lane spacing and depth (F2 in the proof of concept), the resolution (the probe says 1080p native with characters about 240 pixels tall from `create-character-v3` at 256, in the look of Ben's knight: see `docs/probes/2026-10-11-size-probe/`), and the button layout: T wants two attacks plus guard plus a spell button, and the proof of concept has light and heavy.
+- **All three:** a weekly meeting to settle sections 2, 5 and 9 and the screen and sprite size. New for that agenda: the lane spacing and depth (F2 in the proof of concept), the resolution (the probe says 1080p native with characters about 240 pixels tall from `create-character-v3` at 256, in the look of Ben's knight: see `docs/probes/2026-10-11-size-probe/`), and the button layout, where Ben and T now agree on two attacks plus guard (the proof of concept has light and heavy; guard is not built) and E has to confirm.
 
 ## Working in this repository
 

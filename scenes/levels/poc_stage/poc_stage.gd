@@ -27,9 +27,9 @@ const MARGIN: float = 120.0
 const LOCAL_SKIN: String = "res://local/skins/player"
 ## A built game has no local folder. It looks for a skin in this folder beside its executable.
 const BUILD_SKIN: String = "skins/player"
-const HELP: String = "Move: A D or stick    Jump: W, K or (B)    Crouch: S    Lane: Q E or shoulders
-Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Fireball: down, down-forward, forward + attack
-F1: boxes    F2: lane spacing and depth    F3: shade the back lanes"
+const HELP: String = "Move: A D or stick    Jump: W, Space or (A)    Crouch: S    Lane: Q E or shoulders
+Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Guard: hold K or (B)    Fireball: down, down-forward, forward + attack
+F1: boxes    F2: lane spacing and depth    F3: shade the back lanes    F4: the dummy guards"
 ## How long the combo counter stays after a combo ends, in ticks.
 const COMBO_LINGER: int = 60
 
@@ -47,6 +47,7 @@ var _tick: int = 0
 var _history: Array[int] = []  # recent stick positions, for the readout
 var _preset: int = 0  # index into PRESETS
 var _shading: bool = false
+var _dummy_guards: bool = false
 
 @onready var _fighter: Fighter = $Player
 @onready var _dummy: Fighter = $Dummy
@@ -145,6 +146,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				queue_redraw()
 			KEY_F3:
 				_shading = not _shading
+			KEY_F4:
+				_dummy_guards = not _dummy_guards
+				_dummy.input.source = InputSource.Held.new(Buttons.GUARD if _dummy_guards else 0)
 
 
 ## The three lanes' screen y, back to front, in the preset being tried.

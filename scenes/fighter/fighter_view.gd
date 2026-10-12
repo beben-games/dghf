@@ -91,6 +91,8 @@ func _animation() -> StringName:
 			return &"knockdown"
 		Fighter.State.GETUP:
 			return &"getup"
+		Fighter.State.BLOCK:
+			return &"block"
 	if _is_landing():
 		return &"land"
 	return &"idle"
@@ -144,7 +146,11 @@ func _draw_figure() -> void:
 	# arm and sword
 	var arm := Rect2(10.0, torso_top + 24.0, 50.0, 18.0)
 	var sword := Rect2(50.0, torso_top - 40.0, 10.0, 80.0)
-	if _fighter.is_attacking():
+	if state == Fighter.State.BLOCK:
+		# The sword held upright in front, the arm bent.
+		arm = Rect2(10.0, torso_top + 10.0, 36.0, 18.0)
+		sword = Rect2(44.0, torso_top - 70.0, 12.0, 130.0)
+	elif _fighter.is_attacking():
 		var t: float = float(_fighter.move_frame) / _fighter.move.total_frames
 		var reach: float = sin(t * PI)
 		arm = Rect2(10.0, torso_top + 24.0, 50.0 + 60.0 * reach, 18.0)

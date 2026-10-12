@@ -10,6 +10,7 @@ const D: int = Buttons.DOWN
 const A: int = Buttons.LIGHT
 const H: int = Buttons.HEAVY
 const U: int = Buttons.UP
+const G: int = Buttons.GUARD
 
 var _failures: int = 0
 var _combat: Combat
@@ -40,6 +41,11 @@ func _initialize() -> void:
 	_test_air_cancel()
 	_test_jump_cancel()
 	_test_no_jump_cancel_on_a_miss()
+	_test_guard_from_the_front()
+	_test_guard_from_behind()
+	_test_guard_stops_a_launcher()
+	_test_guard_pushback_and_release()
+	_test_no_guard_in_the_air()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -415,3 +421,68 @@ func _test_no_jump_cancel_on_a_miss() -> void:
 	var attacker := _fighter(660.0, 1, [H] + _repeat(U, 25))
 	_run(22)
 	_check(attacker.state == Fighter.State.ATTACK and attacker.height == 0.0, "a launcher that hits nothing can't be jump cancelled")
+
+
+## A fighter who holds guard from the first tick, facing `facing`.
+func _guarding(x: float, team: int, facing: int, ticks: int = 200) -> Fighter:
+	var f := _fighter(x, team, _repeat(G, ticks))
+	f.facing = facing
+	return f
+
+
+func _test_guard_from_the_front() -> void:
+	_clear()
+	var attacker := _fighter(620.0, 1, [A])
+	var blocker := _guarding(800.0, 2, -1)
+	_run(1)
+	_check(blocker.state == Fighter.State.BLOCK, "holding guard on the ground blocks")
+	_run(8)
+	_check(blocker.state == Fighter.State.BLOCK and blocker.combo_hits == 0 and blocker.combo_damage == 0, "a light from the front is blocked: no hit, no damage")
+	_check(blocker.hitstop == 2 and attacker.hitstop == 2, "a blocked light freezes both for half its hitstop, at least 2 ticks")
+	_check(blocker.flash_ticks == 0, "a blocked hit does not flash")
+	_check(attacker.swing_targets.has(blocker), "the swing has used its one hit on the blocker")
+	_check(_combat.shake == 0.0, "a blocked hit does not shake the screen")
+
+
+func _test_guard_from_behind() -> void:
+	_clear()
+	_fighter(620.0, 1, [A])
+	var turned := _guarding(800.0, 2, 1)
+	_run(9)
+	_check(turned.state == Fighter.State.HITSTUN and turned.combo_damage == 10, "a guard does not cover the back: a hit from behind lands")
+
+
+func _test_guard_stops_a_launcher() -> void:
+	_clear()
+	_fighter(620.0, 1, [H])
+	var blocker := _guarding(800.0, 2, -1)
+	_run(13 + 9)
+	_check(blocker.state == Fighter.State.BLOCK and blocker.height == 0.0, "a blocked launcher does not launch")
+	_check(_combat.shake == 0.0, "nor shake")
+
+
+func _test_guard_pushback_and_release() -> void:
+	_clear()
+	var attacker := _fighter(620.0, 1, [A])
+	# Guard held through the hit, then let go 2 ticks into the blockstun.
+	var blocker := _fighter(800.0, 2, _repeat(G, 11))
+	blocker.facing = -1
+	_run(9)
+	var before: float = blocker.x
+	_run(2 + 3)
+	_check(blocker.x > before, "a blocked hit pushes the blocker back (%.0f to %.0f)" % [before, blocker.x])
+	_check(blocker.state == Fighter.State.BLOCK, "letting go during blockstun keeps the guard up")
+	_run(8)
+	_check(blocker.state == Fighter.State.IDLE, "after the blockstun, with guard released, the fighter stands")
+	_check(attacker.state == Fighter.State.ATTACK or attacker.state == Fighter.State.IDLE, "the attacker finishes its swing as usual")
+
+
+func _test_no_guard_in_the_air() -> void:
+	_clear()
+	var jumper := _fighter(800.0, 2, [U] + _repeat(G, 30))
+	_run(5)
+	_check(jumper.state == Fighter.State.JUMP, "guard held in the air does nothing")
+	_clear()
+	var croucher := _fighter(800.0, 2, _repeat(D | G, 5))
+	_run(2)
+	_check(croucher.state == Fighter.State.BLOCK, "guard with down held blocks too (one guard for now)")

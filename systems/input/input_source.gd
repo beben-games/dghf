@@ -28,13 +28,13 @@ class Device:
 		var keys: Dictionary[int, Array] = {
 			Buttons.LEFT: [KEY_A, KEY_LEFT], Buttons.RIGHT: [KEY_D, KEY_RIGHT],
 			Buttons.UP: [KEY_W, KEY_UP], Buttons.DOWN: [KEY_S, KEY_DOWN],
-			Buttons.LIGHT: [KEY_J], Buttons.HEAVY: [KEY_L], Buttons.JUMP: [KEY_K, KEY_SPACE],
+			Buttons.LIGHT: [KEY_J], Buttons.HEAVY: [KEY_L], Buttons.GUARD: [KEY_K], Buttons.JUMP: [KEY_SPACE],
 			Buttons.LANE_UP: [KEY_Q], Buttons.LANE_DOWN: [KEY_E],
 		}
 		var pad_buttons: Dictionary[int, JoyButton] = {
 			Buttons.LEFT: JOY_BUTTON_DPAD_LEFT, Buttons.RIGHT: JOY_BUTTON_DPAD_RIGHT,
 			Buttons.UP: JOY_BUTTON_DPAD_UP, Buttons.DOWN: JOY_BUTTON_DPAD_DOWN,
-			Buttons.LIGHT: JOY_BUTTON_X, Buttons.HEAVY: JOY_BUTTON_Y, Buttons.JUMP: JOY_BUTTON_B,
+			Buttons.LIGHT: JOY_BUTTON_X, Buttons.HEAVY: JOY_BUTTON_Y, Buttons.GUARD: JOY_BUTTON_B, Buttons.JUMP: JOY_BUTTON_A,
 			Buttons.LANE_UP: JOY_BUTTON_LEFT_SHOULDER, Buttons.LANE_DOWN: JOY_BUTTON_RIGHT_SHOULDER,
 		}
 		# Left stick: axis and the direction that counts as pressed.
@@ -62,6 +62,19 @@ class Device:
 					var key := InputEventKey.new()
 					key.physical_keycode = keycode
 					InputMap.action_add_event(action, key)
+
+
+## Holds the same buttons forever. For a training dummy told to guard.
+class Held:
+	extends InputSource
+
+	var mask: int = 0
+
+	func _init(held_mask: int) -> void:
+		mask = held_mask
+
+	func sample(_player: int) -> int:
+		return mask
 
 
 ## Plays back a fixed list of samples, one per tick. For tests and replays.

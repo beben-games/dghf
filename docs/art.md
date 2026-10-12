@@ -14,9 +14,9 @@ Read `docs/game-bible.md` ("Look and sound") first. Two things there are decided
 
 ## Who does what
 
-- **Ben's PixelLab account generates** (Tier 2, shared with another project of his). T and E ask for what they want on an issue, and Ben's session runs it, or Ben delegates by assigning the issue.
-- **T and E try things on their own accounts** with the PixelLab MCP server in their own Claude settings (`CLAUDE.md`, Secrets), or with any other tool, and post the results on the issue. That is how a look gets proposed.
-- **Budget.** `tools/art/budget.py` says what a session may spend of this project's share this period. A concept is approved with a budget range before anything is generated for it.
+- **Everyone may generate with their own stack** (Ben, 2026-10-11): PixelLab through the MCP server in your own Claude settings, or any other tool with acceptable terms, with your own account and keys. What makes it one game is the art direction on this page and in the game bible, the style sentence, the sizes, and the palette once there is one. Keys stay in your own settings or keychain, never in the repository (`CLAUDE.md`, Secrets).
+- **Ben's PixelLab account and the pipeline in `tools/art/`** are there for anyone who has no account: ask on an issue and Ben's session runs it. The pipeline is also the record for production sets: every call logged, every reference approved.
+- **Budget.** Spending grows with the project, staggered over months. `tools/art/budget.py` paces Ben's account; a concept still gets a budget range before anything is generated for it, so a whole set is not spent on a look nobody has approved.
 
 ## What each kind of asset needs
 
@@ -63,7 +63,7 @@ Ported from `beben-games/2d-game` (`tools/art/`). Python 3 with Pillow. The Pixe
 
 A job file names the concept, and each call's endpoint, body and estimate. Claude writes them; the person approves the concept and its range.
 
-**How this fits the MCP rule in `CLAUDE.md` (proposed, for the meeting):** the MCP server in each person's own settings is for trying ideas on your own account. Production assets come from this pipeline on Ben's account, because it records every call, enforces the budget and the reference rule, and keeps the key out of the repository.
+**How this fits the MCP rule in `CLAUDE.md`:** the MCP server in each person's own settings, with their own account, is the normal way to generate; the pipeline is the same thing with a record, for Ben's account and for production sets. Both follow this page.
 
 ## The sprite-size probe
 

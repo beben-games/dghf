@@ -23,6 +23,15 @@ When a brainstorm settles something:
 2. Change the point's marker in the source doc to **Decided** with the date, and link the spec.
 3. Decisions that change what the team agreed together go to the next weekly meeting before they count as decided. Say so to the person.
 
+## Who does what
+
+Decided by Ben on 2026-10-11, until the team changes it at a meeting.
+
+- **Everyone works in this repository**, `beben-games/dghf`, on branches. Never fork it, and never start a parallel version of a system that exists here: if something seems wrong, say so on its issue.
+- **Ben owns the code.** Changes to the game's code come from Ben's sessions, or from an issue Ben assigned to someone. Before working with T or E on anything that changes code, check that the issue is assigned to them; if it isn't, ask Ben on the issue instead of starting.
+- **T's and E's sessions do, without asking:** pull `main` and run the game, the tools and the tests locally; play, test and report (feedback and stress-test numbers as issue comments, bugs as issues from the template); try and compare assets, and propose them; tune move values with the move preview tool and propose the numbers on the issue. A proposal is a comment with the values or the images, not a pull request, unless Ben assigns the issue.
+- **Start a session with `git pull` on `main`.** Local experiments that nobody asked to keep are thrown away with `git checkout -- .`, never committed to `main` or pushed as a branch without an issue.
+
 ## Before you start a task
 
 1. Work from a GitHub issue. If there is none, ask the person you're working with whether to create one.

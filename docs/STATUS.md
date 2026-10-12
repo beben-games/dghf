@@ -83,6 +83,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 ## Working in this repository
 
 - Follow `CLAUDE.md`: an issue, a branch named `<type>/<issue>-<name>`, a pull request. `main` is protected, for admins too. Ben merges, or asks his Claude to.
+- "Who does what" in `CLAUDE.md` (2026-10-11): code changes come from Ben or from issues Ben assigned; T's and E's sessions run, test, QA, try assets and propose values, in this repository and never a fork.
 - New issues are not always added to the board automatically. Check, and add them by hand.
 - `builds/` and `local/` are git-ignored. `local/` holds private placeholder art that must never be committed or shipped, and the export presets leave both folders out of builds. A built game therefore shows the plain figure, unless a skin sits in `skins/player/` beside its executable (see `scripts/build.sh --skin`). That lookup has not been tried on a real Windows or Linux machine yet.
 - The "Game brainstorm" Google Doc opens with a "Where we are" recap. The `meeting-notes` skill refreshes it after a meeting. It was last written on 2026-10-03 and does not mention the proof of concept yet.

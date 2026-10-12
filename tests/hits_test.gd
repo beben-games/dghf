@@ -50,6 +50,8 @@ func _initialize() -> void:
 	_test_dodge_through_a_hit()
 	_test_dodge_direction_and_recovery()
 	_test_dodge_from_guard_not_from_the_air()
+	_test_enemy_walks_up_and_attacks()
+	_test_enemy_changes_lane_and_sometimes_guards()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -533,3 +535,57 @@ func _test_dodge_from_guard_not_from_the_air() -> void:
 	_check(jumper.state == Fighter.State.JUMP, "there is no dodge in the air")
 	_run(40)
 	_check(jumper.state != Fighter.State.DODGE, "and the press is not kept for the landing")
+
+
+## A fighter driven by a brain against `target`, with the two attacks as its moves.
+func _enemy(x: float, target: Fighter, seed_value: int = 1) -> Fighter:
+	var brain := FighterBrain.new(seed_value)
+	var f := _fighter(x, 2, [], target.lane)
+	f.moves = [load("res://data/moves/poc/light_2.tres"), load("res://data/moves/poc/light.tres"), load("res://data/moves/poc/heavy.tres")]
+	f.input = PlayerInput.new(2, brain)
+	brain.fighter = f
+	brain.target = target
+	return f
+
+
+func _test_enemy_walks_up_and_attacks() -> void:
+	_clear()
+	var player := _fighter(600.0, 1)
+	var enemy := _enemy(1400.0, player)
+	_run(30)
+	_check(enemy.x < 1400.0 and enemy.facing == -1, "the enemy walks toward the player and faces it")
+	var ticks: int = 0
+	while player.combo_hits == 0 and ticks < 400:
+		_run(1)
+		ticks += 1
+	_check(player.combo_hits == 1, "it gets within reach and lands a hit on a player who does nothing (after %d ticks)" % ticks)
+	_check(enemy.x - player.x < 300.0, "from within its reach")
+	# Each later hit starts a new one-hit combo, so count the times the player is put into a reaction.
+	var hits_after_first: int = 0
+	var reeling: bool = player.in_hit_reaction()
+	for i in 300:
+		_run(1)
+		if player.in_hit_reaction() and not reeling:
+			hits_after_first += 1
+		reeling = player.in_hit_reaction()
+	_check(hits_after_first >= 1, "it keeps attacking, with rests between swings (%d more hits in 300 ticks)" % hits_after_first)
+
+
+func _test_enemy_changes_lane_and_sometimes_guards() -> void:
+	_clear()
+	var player := _fighter(800.0, 1, [], 0)
+	var enemy := _enemy(1000.0, player, 7)
+	enemy.set_lanes(LANES)
+	enemy.lane = 2
+	_run(40)
+	_check(enemy.lane == player.lane, "the enemy changes lane to reach the player (lane %d)" % enemy.lane)
+	# A player who swings over and over at a guarding-capable enemy: it should block some.
+	_clear()
+	player = _fighter(700.0, 1, _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30))
+	enemy = _enemy(900.0, player, 3)
+	var blocked_ticks: int = 0
+	for i in 200:
+		_run(1)
+		if enemy.state == Fighter.State.BLOCK:
+			blocked_ticks += 1
+	_check(blocked_ticks > 0, "an enemy within reach guards sometimes when the player swings (%d ticks guarding)" % blocked_ticks)

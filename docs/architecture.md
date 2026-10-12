@@ -58,7 +58,7 @@ One generic piece of code plays any move from its data. A preview scene steps th
 
 **Decided (2026-10-03, Ben as build owner):** two kinds of body with one set of hit rules. See `docs/design/2026-10-03-combat-core.md`.
 
-- **Full fighter**, for players, bosses and elite enemies: an explicit state machine (Idle, Walk, Run, Jump, Attack, Hitstun, Launched, Knockdown, Getup, Dead), a move list and cancels. Players and these enemies differ in what drives them (input or AI), not in how they move or get hit.
+- **Full fighter**, for players, bosses and elite enemies: an explicit state machine (Idle, Walk, Run, Jump, Attack, Hitstun, Launched, Knockdown, Getup, Dead), a move list and cancels. Players and these enemies differ in what drives them (input or AI), not in how they move or get hit. The first AI driver is `systems/enemies/fighter_brain.gd` (issue #45): an input source that presses buttons.
 - **Crowd body**, for ordinary enemies: run by the enemy director, with no input buffer or move list and one or two simple attacks.
 - Both take hits through the same rules and hit data, so a crowd enemy can be stunned, launched, juggled and knocked down like a fighter.
 

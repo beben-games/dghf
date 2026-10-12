@@ -98,6 +98,17 @@ Asked for by Ben on 2026-10-11, the other half of "block and dodge".
 
 **Proposed, to confirm or change:** the timing (16 ticks, 10 invincible, 5 of recovery), the distance (about 200 pixels), neutral means back, no cost and no cooldown, no cancel into or out of a dodge, and a dodge does not pass through fighters (there is no body collision yet, so today everything passes through everything).
 
+## The first enemy that attacks (issue #45)
+
+Asked for by Ben on 2026-10-11: guard and dodge needed something to guard and dodge.
+
+- **F5** makes the training dummy fight back. It is the same full fighter, driven by a `FighterBrain` (`systems/enemies/fighter_brain.gd`) instead of a device: an input source that presses buttons, so the enemy moves, attacks, guards and gets hit exactly as a player does. This is the decided split of section 4 of the architecture. The crowd body and the enemy director are Milestone 2.
+- **What it does:** changes lane to the player's, walks within reach (220 pixels), swings light or heavy (one heavy in three), rests 30 to 70 ticks between swings, turns to face the player, and guards for 24 ticks about half the time the player swings within reach. It thinks every 6 ticks, as section 6 proposes, with a seeded random so a fight replays.
+- Its moves are the light, the second light and the heavy: no fireball, no air moves. Every number is a value on the brain.
+- No health, no death: it fights until the player stops it or presses F5 again.
+
+**Proposed, to confirm or change:** the reach, the rests, the guard chance, and that the enemy's moves are the player's. How it should beat a guard (today it can't: it has no grab and no attack from behind on purpose) is enemy design for Milestone 2. A player skin without `hurt`, `launched`, `knockdown` and `getup` animations shows the plain figure when hit.
+
 ## The move preview tool (issue #8)
 
 The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.
@@ -120,4 +131,4 @@ Damage numbers and friendly fire (both proposed, for the meeting), health and de
 
 ## Checks
 
-`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel, the air cancel, the jump cancel, and the guard: from the front, from behind, against a launcher, pushback and release, not in the air; and the dodge: through a hit, direction and recovery, out of a guard and not in the air.
+`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel, the air cancel, the jump cancel, and the guard: from the front, from behind, against a launcher, pushback and release, not in the air; the dodge: through a hit, direction and recovery, out of a guard and not in the air; and the enemy: walking up and attacking, changing lane, and guarding sometimes.

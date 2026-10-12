@@ -1,0 +1,65 @@
+{
+    "concept": "probe2",
+    "note": "The sprite-size and style probe, second round (issue #11): the man-at-arms at 256 in the look of Ben's knight. v3 from scratch at 256 is the cheap path that also gives a character for east-only animations; generate-with-style-v2 uses the knight itself as the style image for one 256 image. The strict side view came out as a flat profile; a low top-down view is tried too, whose east rotation is a three-quarter view like Ben's knight.",
+    "calls": [
+        {
+            "id": "man_at_arms_v3_256",
+            "endpoint": "/create-character-v3",
+            "estimate": 2,
+            "body": {
+                "description": "a French man-at-arms of 1430 in full plate armour with a steel sallet helmet, visor up, a dark blue surcoat with golden fleurs-de-lis over the breastplate, mail at the joints, plate legs, holding a longsword in both hands in a ready stance, realistic adult proportions, side view facing right. detailed 16-bit pixel art with realistic proportions, steel rendered with cool highlights, dark selective outline, light from the top left, no background",
+                "name": "probe2 man-at-arms v3 256",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "side",
+                "template_id": "mannequin",
+                "seed": 1431,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "man_at_arms_styled_256",
+            "endpoint": "/generate-with-style-v2",
+            "estimate": 40,
+            "body": {
+                "description": "a French man-at-arms of 1430 in full plate armour with a steel sallet helmet, visor up, a dark blue surcoat with golden fleurs-de-lis over the breastplate, mail at the joints, plate legs, holding a longsword in both hands in a ready stance, realistic adult proportions, side view facing right",
+                "style_description": "detailed 16-bit pixel art with realistic proportions, steel rendered with cool highlights, dark selective outline, light from the top left, no background",
+                "style_images": [
+                    {
+                        "ref": "ben_knight_frame",
+                        "as": "style"
+                    }
+                ],
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1431,
+                "no_background": true
+            }
+        },
+        {
+            "id": "man_at_arms_v3_256_lowtopdown",
+            "endpoint": "/create-character-v3",
+            "estimate": 2,
+            "body": {
+                "description": "a French man-at-arms of 1430 in full plate armour with a steel sallet helmet, visor up, a dark blue surcoat with golden fleurs-de-lis over the breastplate, mail at the joints, plate legs, holding a longsword in both hands in a ready stance, realistic adult proportions, three-quarter view. detailed 16-bit pixel art with realistic proportions, steel rendered with cool highlights, dark selective outline, light from the top left, no background",
+                "name": "probe2 man-at-arms v3 256 low top-down",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1431,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        }
+    ]
+}

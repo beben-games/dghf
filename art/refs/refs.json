@@ -1,4 +1,23 @@
 {
     "note": "Images the team approved as references to steer a generation (docs/art.md, References). Each: id, file (repo-relative), sha256, source, steers, approved (true only on the team's word), approved_on. gen.py refuses an image that is not here.",
-    "refs": []
+    "refs": [
+        {
+            "id": "ben_knight_frame",
+            "file": "art/refs/user/knight_idle_frame.png",
+            "sha256": "31994f4bff7113e26e59a41188e72dcec66a559ac2e5142a7455682966d87b33",
+            "source": "Ben's own PixelLab output (the web character creator, 2026-10-04), brought to the project as the art direction on 2026-10-11",
+            "steers": "the look and the size of every character: proportions, detail, outline, side view, about 227 px tall on a 256 canvas",
+            "approved": true,
+            "approved_on": "2026-10-11"
+        },
+        {
+            "id": "ben_knight_sheet",
+            "file": "art/refs/user/knight_idle_sheet.png",
+            "sha256": "992ee404d267e50c7261941c5960f80f5b1d1813f876d031331a5fd93399d3d8",
+            "source": "Ben's own PixelLab output (the web character creator, 2026-10-04), brought to the project as the art direction on 2026-10-11",
+            "steers": "the same, as the 9-frame idle sheet it came from",
+            "approved": true,
+            "approved_on": "2026-10-11"
+        }
+    ]
 }

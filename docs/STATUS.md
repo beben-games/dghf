@@ -4,7 +4,7 @@
 
 ## In one paragraph
 
-Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, guards, dodges, and throws a fireball, and a training dummy that takes or blocks the hits, or fights back (F5). T and E have played it. They want more overlap between the lanes, a lower camera and more depth; a depth experiment is in the proof of concept (F2 cycles lane spacing and fighter size by lane, F3 shades the back lanes). They also want to know how to make floors, backgrounds, destructibles and pickups, which is the art pipeline (#11). The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three.
+Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, guards, dodges, and throws a fireball, and a training dummy that takes or blocks the hits, or fights back (F5). T and E have played it. They want more overlap between the lanes, a lower camera and more depth; the proof of concept now starts with lanes 50 pixels apart and fighters scaled by lane (Ben's pick; F2 cycles the other presets, F3 shades the back lanes). They also want to know how to make floors, backgrounds, destructibles and pickups, which is the art pipeline (#11). The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three.
 
 ## What runs today
 

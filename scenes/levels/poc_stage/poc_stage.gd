@@ -28,7 +28,7 @@ const LOCAL_SKIN: String = "res://local/skins/player"
 ## A built game has no local folder. It looks for a skin in this folder beside its executable.
 const BUILD_SKIN: String = "skins/player"
 const HELP: String = "Move: A D or stick    Jump: W, Space or (A)    Crouch: S    Lane: Q E or shoulders
-Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Guard: hold K or (B)    Fireball: down, down-forward, forward + attack
+Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Guard: hold K or (B)    Dodge: Shift or (RT), with a direction or back    Fireball: down, down-forward, forward + attack
 F1: boxes    F2: lane spacing and depth    F3: shade the back lanes    F4: the dummy guards"
 ## How long the combo counter stays after a combo ends, in ticks.
 const COMBO_LINGER: int = 60

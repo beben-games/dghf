@@ -11,9 +11,10 @@ const LANE_UP: int = 64
 const LANE_DOWN: int = 128
 const HEAVY: int = 256
 const GUARD: int = 512
+const DODGE: int = 1024
 
 ## Action name suffix for each bit, used by the device source ("p1_left", ...).
 const NAMES: Dictionary[int, String] = {
 	LEFT: "left", RIGHT: "right", UP: "up", DOWN: "down",
-	LIGHT: "light", HEAVY: "heavy", GUARD: "guard", JUMP: "jump", LANE_UP: "lane_up", LANE_DOWN: "lane_down",
+	LIGHT: "light", HEAVY: "heavy", GUARD: "guard", DODGE: "dodge", JUMP: "jump", LANE_UP: "lane_up", LANE_DOWN: "lane_down",
 }

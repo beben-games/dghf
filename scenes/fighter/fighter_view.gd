@@ -37,7 +37,8 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	(material as ShaderMaterial).set_shader_parameter(&"flash", 1.0 if _fighter.flash_ticks > 0 else 0.0)
-	modulate = Color(shade, shade, shade)
+	# Half transparent while a dodge can't be hit, so the player sees the window.
+	modulate = Color(shade, shade, shade, 0.45 if _fighter.is_invincible() else 1.0)
 	queue_redraw()
 
 
@@ -93,6 +94,8 @@ func _animation() -> StringName:
 			return &"getup"
 		Fighter.State.BLOCK:
 			return &"block"
+		Fighter.State.DODGE:
+			return &"dodge"
 	if _is_landing():
 		return &"land"
 	return &"idle"
@@ -168,6 +171,9 @@ func _tilt_figure() -> void:
 	var back: float = -_fighter.facing
 	var ticks: float = _fighter.state_ticks
 	match _fighter.state:
+		Fighter.State.DODGE:
+			# Leaning into the dash.
+			draw_set_transform(Vector2.ZERO, _fighter.dodge_direction * 0.35)
 		Fighter.State.HITSTUN:
 			draw_set_transform(Vector2.ZERO, back * 0.3)
 		Fighter.State.LAUNCHED:

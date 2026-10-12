@@ -28,7 +28,7 @@ class Device:
 		var keys: Dictionary[int, Array] = {
 			Buttons.LEFT: [KEY_A, KEY_LEFT], Buttons.RIGHT: [KEY_D, KEY_RIGHT],
 			Buttons.UP: [KEY_W, KEY_UP], Buttons.DOWN: [KEY_S, KEY_DOWN],
-			Buttons.LIGHT: [KEY_J], Buttons.HEAVY: [KEY_L], Buttons.GUARD: [KEY_K], Buttons.JUMP: [KEY_SPACE],
+			Buttons.LIGHT: [KEY_J], Buttons.HEAVY: [KEY_L], Buttons.GUARD: [KEY_K], Buttons.DODGE: [KEY_SHIFT], Buttons.JUMP: [KEY_SPACE],
 			Buttons.LANE_UP: [KEY_Q], Buttons.LANE_DOWN: [KEY_E],
 		}
 		var pad_buttons: Dictionary[int, JoyButton] = {
@@ -37,20 +37,22 @@ class Device:
 			Buttons.LIGHT: JOY_BUTTON_X, Buttons.HEAVY: JOY_BUTTON_Y, Buttons.GUARD: JOY_BUTTON_B, Buttons.JUMP: JOY_BUTTON_A,
 			Buttons.LANE_UP: JOY_BUTTON_LEFT_SHOULDER, Buttons.LANE_DOWN: JOY_BUTTON_RIGHT_SHOULDER,
 		}
-		# Left stick: axis and the direction that counts as pressed.
+		# Axes: the left stick's directions, and the right trigger for dodge; the value that counts as pressed.
 		var stick: Dictionary[int, Vector2i] = {
 			Buttons.LEFT: Vector2i(JOY_AXIS_LEFT_X, -1), Buttons.RIGHT: Vector2i(JOY_AXIS_LEFT_X, 1),
 			Buttons.UP: Vector2i(JOY_AXIS_LEFT_Y, -1), Buttons.DOWN: Vector2i(JOY_AXIS_LEFT_Y, 1),
+			Buttons.DODGE: Vector2i(JOY_AXIS_TRIGGER_RIGHT, 1),
 		}
 		for bit: int in Buttons.NAMES:
 			var action: String = "p%d_%s" % [player, Buttons.NAMES[bit]]
 			if InputMap.has_action(action):
 				continue
 			InputMap.add_action(action, 0.5)
-			var button := InputEventJoypadButton.new()
-			button.device = pad
-			button.button_index = pad_buttons[bit]
-			InputMap.action_add_event(action, button)
+			if pad_buttons.has(bit):
+				var button := InputEventJoypadButton.new()
+				button.device = pad
+				button.button_index = pad_buttons[bit]
+				InputMap.action_add_event(action, button)
 			if stick.has(bit):
 				var motion := InputEventJoypadMotion.new()
 				motion.device = pad

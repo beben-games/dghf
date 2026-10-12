@@ -58,6 +58,7 @@ The game is a proof of concept for now: one character and a training dummy on an
 | Heavy attack (launches) | L | Y |
 | Air attacks | J or L during a jump | X or Y during a jump |
 | Guard | Hold K | Hold B |
+| Dodge | Shift, with a direction held, or alone for a step back | Right trigger |
 | Fireball | Down, down-forward, forward, then light attack | The same |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Show hitboxes and hurtboxes | F1 | |

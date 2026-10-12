@@ -7,10 +7,10 @@ extends Node2D
 ## Position is x, a lane, and a height above the ground (docs/architecture.md,
 ## section 2, still proposed).
 
-enum State { IDLE, WALK, CROUCH, JUMP, ATTACK, LANE_CHANGE, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP, AIR_ATTACK, BLOCK }
+enum State { IDLE, WALK, CROUCH, JUMP, ATTACK, LANE_CHANGE, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP, AIR_ATTACK, BLOCK, DODGE }
 
 const STATE_NAMES: Array[String] = [
-	"idle", "walk", "crouch", "jump", "attack", "lane change", "hitstun", "launched", "knockdown", "getup", "air attack", "block",
+	"idle", "walk", "crouch", "jump", "attack", "lane change", "hitstun", "launched", "knockdown", "getup", "air attack", "block", "dodge",
 ]
 
 # Tuning, in pixels and ticks. Starting points to tune by playing.
@@ -34,6 +34,16 @@ const STATE_NAMES: Array[String] = [
 ## How much heavier the fighter falls for each hit of a juggle: 0.25 is a quarter more gravity per hit.
 @export var juggle_gravity_growth: float = 0.25
 @export var knockdown_ticks: int = 40
+@export_group("Dodge")
+## How long a dodge lasts, in ticks. The last ticks after the invincible ones are the recovery.
+@export var dodge_ticks: int = 16
+## The ticks of the dodge during which nothing can hit the fighter (the first tick is 1).
+@export var dodge_invincible_from: int = 2
+@export var dodge_invincible_to: int = 11
+## Pixels per tick while the invincible part lasts; the recovery slides to a stop.
+@export var dodge_speed: float = 18.0
+
+@export_group("Getting hit")
 ## Share of a blocked hit's knockback that pushes the blocker back.
 @export var block_pushback: float = 0.6
 ## Share of a blocked hit's hitstop that both fighters freeze for (at least 2 ticks).
@@ -80,6 +90,8 @@ var swing_froze: bool = false
 
 var _stun_ticks: int = 0
 var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
+## The way the current dodge goes: 1 right, -1 left.
+var dodge_direction: int = 1
 var _knock_speed: float = 0.0
 var _air_speed: float = 0.0
 var _ground_y: float = 0.0
@@ -143,6 +155,8 @@ func tick() -> void:
 			_tick_air_attack()
 		State.BLOCK:
 			_tick_block()
+		State.DODGE:
+			_tick_dodge()
 	_place()
 
 
@@ -166,9 +180,14 @@ func hurt_rect() -> Rect2:
 	return _faced(crouch_hurt_box if state == State.CROUCH else hurt_box)
 
 
-## A fighter on the floor or getting up can't be hit.
+## A fighter on the floor, getting up, or in the invincible part of a dodge can't be hit.
 func can_be_hit() -> bool:
-	return state != State.KNOCKDOWN and state != State.GETUP
+	return state != State.KNOCKDOWN and state != State.GETUP and not is_invincible()
+
+
+## In the invincible ticks of a dodge.
+func is_invincible() -> bool:
+	return state == State.DODGE and state_ticks >= dodge_invincible_from and state_ticks <= dodge_invincible_to
 
 
 ## Whether a hit pushing in `direction` is stopped by the guard: the fighter is
@@ -239,6 +258,8 @@ func _tick_standing() -> void:
 	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
 	if direction != 0:
 		facing = direction
+	if _try_dodge():
+		return
 	if input.held(Buttons.GUARD):
 		_blockstun = 0
 		_knock_speed = 0.0
@@ -267,7 +288,7 @@ func _tick_standing() -> void:
 func _tick_crouch() -> void:
 	# A motion such as down, down-forward, forward passes through a crouch,
 	# so moves must be able to start from here.
-	if _try_moves(false):
+	if _try_dodge() or _try_moves(false):
 		return
 	if not input.held(Buttons.DOWN):
 		_enter(State.IDLE)
@@ -344,7 +365,33 @@ func _tick_block() -> void:
 	_knock_speed *= knockback_friction
 	if _blockstun > 0:
 		_blockstun -= 1
+	elif _try_dodge():
+		return
 	elif not input.held(Buttons.GUARD):
+		_enter(State.IDLE)
+
+
+## A dash along the lane: the held direction, or a step back when neutral.
+## Invincible in the middle, vulnerable while it slides to a stop.
+func _try_dodge() -> bool:
+	if not input.pressed(Buttons.DODGE):
+		return false
+	input.consume(Buttons.DODGE)
+	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
+	dodge_direction = direction if direction != 0 else -facing
+	_knock_speed = 0.0
+	_enter(State.DODGE)
+	return true
+
+
+func _tick_dodge() -> void:
+	if state_ticks <= dodge_invincible_to:
+		x = clampf(x + dodge_direction * dodge_speed, bounds.x, bounds.y)
+	else:
+		# The recovery: a quick slide to a stop.
+		var left: float = float(dodge_ticks - state_ticks) / maxf(dodge_ticks - dodge_invincible_to, 1.0)
+		x = clampf(x + dodge_direction * dodge_speed * 0.5 * left, bounds.x, bounds.y)
+	if state_ticks >= dodge_ticks:
 		_enter(State.IDLE)
 
 

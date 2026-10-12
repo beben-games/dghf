@@ -11,6 +11,7 @@ const A: int = Buttons.LIGHT
 const H: int = Buttons.HEAVY
 const U: int = Buttons.UP
 const G: int = Buttons.GUARD
+const X: int = Buttons.DODGE
 
 var _failures: int = 0
 var _combat: Combat
@@ -46,6 +47,9 @@ func _initialize() -> void:
 	_test_guard_stops_a_launcher()
 	_test_guard_pushback_and_release()
 	_test_no_guard_in_the_air()
+	_test_dodge_through_a_hit()
+	_test_dodge_direction_and_recovery()
+	_test_dodge_from_guard_not_from_the_air()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -486,3 +490,46 @@ func _test_no_guard_in_the_air() -> void:
 	var croucher := _fighter(800.0, 2, _repeat(D | G, 5))
 	_run(2)
 	_check(croucher.state == Fighter.State.BLOCK, "guard with down held blocks too (one guard for now)")
+
+
+func _test_dodge_through_a_hit() -> void:
+	_clear()
+	# The light's box is out on tick 9. A dodge pressed on tick 6 is invincible from its tick 2 (tick 8) to tick 11 (tick 17).
+	var attacker := _fighter(620.0, 1, [A])
+	var dodger := _fighter(800.0, 2, _repeat(0, 5) + [X])
+	dodger.facing = -1
+	_run(6)
+	_check(dodger.state == Fighter.State.DODGE, "the dodge button dodges")
+	_run(2)
+	_check(dodger.is_invincible() and not dodger.can_be_hit(), "the dodge is invincible from its second tick")
+	_run(9)
+	_check(dodger.combo_hits == 0 and attacker.swing_targets.is_empty(), "a light swung through a dodging fighter hits nothing")
+	_check(dodger.x > 800.0, "a neutral dodge is a step back, away from the way the fighter faces (%.0f)" % dodger.x)
+
+
+func _test_dodge_direction_and_recovery() -> void:
+	_clear()
+	var f := _fighter(800.0, 2, [X | Buttons.LEFT] + _repeat(0, 30))
+	_run(1)
+	_check(f.state == Fighter.State.DODGE and f.dodge_direction == -1, "a dodge with a direction held goes that way")
+	_run(f.dodge_invincible_to)
+	var at_end_of_iframes: float = f.x
+	_check(is_equal_approx(at_end_of_iframes, 800.0 - f.dodge_speed * f.dodge_invincible_to), "it covers dodge_speed a tick while invincible")
+	_run(1)
+	_check(f.state == Fighter.State.DODGE and f.can_be_hit(), "after the invincible ticks the dodge is still going but can be hit")
+	_run(f.dodge_ticks - f.dodge_invincible_to - 1)
+	_check(f.state == Fighter.State.IDLE, "the dodge ends after dodge_ticks")
+	_check(f.x < at_end_of_iframes and f.x > at_end_of_iframes - f.dodge_speed * 4.0, "the recovery slides a little further and stops")
+
+
+func _test_dodge_from_guard_not_from_the_air() -> void:
+	_clear()
+	var blocker := _fighter(800.0, 2, _repeat(G, 3) + [G | X])
+	_run(4)
+	_check(blocker.state == Fighter.State.DODGE, "a dodge comes out of a guard")
+	_clear()
+	var jumper := _fighter(800.0, 2, [U, 0, X] + _repeat(0, 10))
+	_run(3)
+	_check(jumper.state == Fighter.State.JUMP, "there is no dodge in the air")
+	_run(40)
+	_check(jumper.state != Fighter.State.DODGE, "and the press is not kept for the landing")

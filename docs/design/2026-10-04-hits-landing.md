@@ -103,7 +103,7 @@ Asked for by Ben on 2026-10-11, the other half of "block and dodge".
 Asked for by Ben on 2026-10-11: guard and dodge needed something to guard and dodge.
 
 - **F5** makes the training dummy fight back. It is the same full fighter, driven by a `FighterBrain` (`systems/enemies/fighter_brain.gd`) instead of a device: an input source that presses buttons, so the enemy moves, attacks, guards and gets hit exactly as a player does. This is the decided split of section 4 of the architecture. The crowd body and the enemy director are Milestone 2.
-- **What it does:** changes lane to the player's, walks within reach (220 pixels), swings light or heavy (one heavy in three), rests 30 to 70 ticks between swings, turns to face the player, and guards for 24 ticks about half the time the player swings within reach. It thinks every 6 ticks, as section 6 proposes, with a seeded random so a fight replays.
+- **What it does:** follows the player to another lane only after the player has been there 45 ticks (`lane_follow_ticks`: a lane hop buys a moment, and the enemy doesn't shadow every hop), walks within reach (220 pixels), swings light or heavy (one heavy in three), rests 30 to 70 ticks between swings, turns to face the player, and guards for 24 ticks about half the time the player swings within reach. It thinks every 6 ticks, as section 6 proposes, with a seeded random so a fight replays.
 - Its moves are the light, the second light and the heavy: no fireball, no air moves. Every number is a value on the brain.
 - No health, no death: it fights until the player stops it or presses F5 again.
 

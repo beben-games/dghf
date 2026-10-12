@@ -15,6 +15,9 @@ var target: Fighter
 var think_every: int = 6
 ## How close, in pixels, before it swings instead of walking.
 var reach: float = 220.0
+## Ticks the target has to be in another lane before the enemy follows it there:
+## a player who hops lanes gets a moment, and the enemy doesn't shadow every hop.
+var lane_follow_ticks: int = 45
 ## Ticks to wait after a swing before the next, picked between these two.
 var rest_min: int = 30
 var rest_max: int = 70
@@ -29,6 +32,7 @@ var _tick: int = 0
 var _mask: int = 0
 var _rest: int = 0
 var _guarding: int = 0
+var _other_lane_ticks: int = 0
 
 
 func _init(seed_value: int = 1) -> void:
@@ -41,6 +45,7 @@ func sample(_player: int) -> int:
 	_guarding = maxi(_guarding - 1, 0)
 	if fighter == null or target == null:
 		return 0
+	_other_lane_ticks = _other_lane_ticks + 1 if target.lane != fighter.lane else 0
 	# A press is a one-tick thing; the rest of a decision is held until the next think.
 	_mask &= ~(Buttons.LIGHT | Buttons.HEAVY | Buttons.LANE_UP | Buttons.LANE_DOWN)
 	if _tick % think_every == 0:
@@ -54,6 +59,9 @@ func _decide() -> int:
 	var gap: float = target.x - fighter.x
 	var toward: int = Buttons.RIGHT if gap > 0.0 else Buttons.LEFT
 	if target.lane != fighter.lane:
+		if _other_lane_ticks < lane_follow_ticks:
+			# Not yet: close the distance along the lane meanwhile, and wait.
+			return toward if absf(gap) > reach else 0
 		return Buttons.LANE_UP if target.lane < fighter.lane else Buttons.LANE_DOWN
 	if absf(gap) > reach:
 		return toward

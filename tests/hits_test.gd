@@ -577,8 +577,10 @@ func _test_enemy_changes_lane_and_sometimes_guards() -> void:
 	var enemy := _enemy(1000.0, player, 7)
 	enemy.set_lanes(LANES)
 	enemy.lane = 2
-	_run(40)
-	_check(enemy.lane == player.lane, "the enemy changes lane to reach the player (lane %d)" % enemy.lane)
+	_run(30)
+	_check(enemy.lane == 2 and enemy.state != Fighter.State.LANE_CHANGE, "the enemy does not follow a lane change at once")
+	_run(90)
+	_check(enemy.lane == player.lane, "after a moment it changes lane to reach the player (lane %d)" % enemy.lane)
 	# A player who swings over and over at a guarding-capable enemy: it should block some.
 	_clear()
 	player = _fighter(700.0, 1, _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30) + _repeat(A, 1) + _repeat(0, 30))

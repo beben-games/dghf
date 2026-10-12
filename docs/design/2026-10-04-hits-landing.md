@@ -72,7 +72,7 @@ So light, light, heavy is a three-hit ground combo that launches, built entirely
 
 A jump is not a move, so a window allows it by listing the id `jump`. The jump comes out when the hitstop ends.
 
-**Proposed, to confirm or change:** every cancel needs a hit, the heavy can only be cancelled by a jump, and the fireball cancel may or may not combo depending on distance: its values are untuned. The second light has no drawing of its own and reuses the light's.
+**Proposed, to confirm or change:** every cancel needs a hit, the heavy can only be cancelled by a jump, and the fireball cancel may or may not combo depending on distance: its values are untuned. The second light has its own animation name, `light_2`; a skin without it shows the plain figure.
 
 ## Guard (issue #41)
 

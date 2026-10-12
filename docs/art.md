@@ -65,6 +65,8 @@ Ported from `beben-games/2d-game` (`tools/art/`). Python 3 with Pillow. The Pixe
 
 A job file names the concept, and each call's endpoint, body and estimate. Claude writes them; the person approves the concept and its range.
 
+**How this fits the MCP rule in `CLAUDE.md`:** the MCP server in each person's own settings, with their own account, is the normal way to generate; the pipeline is the same thing with a record, for Ben's account and for production sets. Both follow this page.
+
 **What the API does and costs, measured on 2026-10-11** (`art/ledger.jsonl` has every call):
 
 - `create-character-v3` at 256: 8 rotations of a character about 240 pixels tall for 9 generations. The path that matches Ben's knight; `view: "low top-down"` gives the three-quarter angle, `"side"` a flat profile. The character id it returns is what animations are made from.

@@ -90,7 +90,7 @@ def resolve_images(value, refs: dict, used: list):
                 width, height = Image.open(path).size
                 return {"image": image, "size": {"width": width, "height": height}}
             return image
-        if "ref" in value and set(value) <= {"ref", "as", "usage"}:
+        if "ref" in value and set(value) <= {"ref", "as", "usage"}:  # as: sized, style or reference
             ref = refs.get(value["ref"])
             if ref is None or not ref.get("approved"):
                 raise Refused(f"reference {value['ref']!r} is not approved in {REFS.relative_to(ROOT)}")
@@ -102,6 +102,8 @@ def resolve_images(value, refs: dict, used: list):
             width, height = Image.open(io.BytesIO(data)).size
             if value.get("as") == "sized":  # Pro tiles' style_images: {base64, width, height}
                 return {"base64": encoded, "width": width, "height": height}
+            if value.get("as") == "style":  # generate-with-style-v2's style_images: {image, width, height}
+                return {"image": {"type": "base64", "base64": encoded, "format": "png"}, "width": width, "height": height}
             if value.get("as") == "reference":  # Pro images: {image, size, usage_description}
                 wrapped = {"image": {"type": "base64", "base64": encoded, "format": "png"},
                            "size": {"width": width, "height": height}}
@@ -260,9 +262,18 @@ def save_outputs(out: Path, call: dict, reply: dict, jobs: list[dict]) -> list[s
     if not character_id and call["endpoint"] == "/animate-character":
         character_id = call["body"]["character_id"]
     if character_id:
-        blob = pixellab.request_bytes("GET", f"/characters/{character_id}/zip")
-        with zipfile.ZipFile(io.BytesIO(blob)) as archive:
-            archive.extractall(out / "character")
+        # A finished animation can take a moment to be attached to the character: fetch the zip
+        # until the animation named in the call is in it (or give up after a minute).
+        wanted = call["body"].get("animation_name") if call["endpoint"] == "/animate-character" else None
+        for attempt in range(7):
+            blob = pixellab.request_bytes("GET", f"/characters/{character_id}/zip")
+            with zipfile.ZipFile(io.BytesIO(blob)) as archive:
+                names = archive.namelist()
+                if wanted is None or any(f"/animations/{wanted}/" in n for n in names) or attempt == 6:
+                    archive.extractall(out / "character")
+                    break
+            print(f"  {call['id']}: the animation is not in the character yet, waiting", flush=True)
+            time.sleep(10)
         saved.append("character/")
     return saved
 

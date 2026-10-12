@@ -87,6 +87,17 @@ Asked for by Ben on 2026-10-11, once he and T had agreed on two attacks plus gua
 
 **Proposed, to confirm or change:** no chip damage; no guard in the air; guard with down held is the same standing guard (no low guard, no high and low mixing); guard beats launchers; the attacker is not pushed back on block; blockstun values (light 8, second light 10, heavy 14, air light 8, air heavy 12, fireball 10). How enemies beat a guard (grabs, attacks from behind, guard breaks) is enemy design for Milestone 2. Dodge is not built.
 
+## Dodge (issue #43)
+
+Asked for by Ben on 2026-10-11, the other half of "block and dodge".
+
+- **Shift (the right trigger on a pad)** dashes along the lane: in the held direction, or a step back when neutral. The fighter keeps facing the way it faced.
+- **Invincible in the middle:** nothing hits the fighter from its tick 2 to its tick 11 (`dodge_invincible_from`, `dodge_invincible_to`); it is drawn half transparent and without a hurtbox then. The dodge lasts 16 ticks (`dodge_ticks`) and covers 18 pixels a tick while invincible (`dodge_speed`), then slides to a stop. The last 5 ticks are the recovery: still dodging, but hittable, and nothing else can start.
+- **Usable** from standing, walking, crouching, and out of a guard once its blockstun is over. Not in the air, and a press in the air is not kept for the landing.
+- A skin may add a `dodge` animation.
+
+**Proposed, to confirm or change:** the timing (16 ticks, 10 invincible, 5 of recovery), the distance (about 200 pixels), neutral means back, no cost and no cooldown, no cancel into or out of a dodge, and a dodge does not pass through fighters (there is no body collision yet, so today everything passes through everything).
+
 ## The move preview tool (issue #8)
 
 The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.
@@ -109,4 +120,4 @@ Damage numbers and friendly fire (both proposed, for the meeting), health and de
 
 ## Checks
 
-`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel, the air cancel, the jump cancel, and the guard: from the front, from behind, against a launcher, pushback and release, not in the air.
+`godot --headless --path . -s tests/hits_test.gd` checks the rules above with scripted inputs: a hit and its hitstop, one hit per swing, lanes and teams, one freeze for many targets, a trade, the launch and the knockdown, the juggle and its heavier fall, the fireball, the crouching hurtbox, air moves, the jump-in combo, the air juggle, and cancels: the three-hit combo, no cancel on a miss or outside the window, the follow-up, the fireball cancel, the air cancel, the jump cancel, and the guard: from the front, from behind, against a launcher, pushback and release, not in the air; and the dodge: through a hit, direction and recovery, out of a guard and not in the air.

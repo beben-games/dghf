@@ -68,24 +68,25 @@ One generic piece of code plays any move from its data. A preview scene steps th
 
 ## 5. Input
 
-**Proposed. Ben's position (2026-10-03): motion inputs, Guardian Heroes buttons.** For the weekly meeting. See `docs/design/2026-10-03-combat-core.md`.
+**Proposed. Ben's position (2026-10-03): motion inputs. Buttons: Ben and T agree in writing (2026-10-11) on two attacks, light and heavy, plus guard; E to confirm at the meeting.** See `docs/design/2026-10-03-combat-core.md`.
 
 **Proposal.**
 - An input router assigns each device to a player (1, 2 or 3). Game code asks "what did player 2 press", never "what did the keyboard press".
 - Each player has an input buffer holding the last 30 frames of directions and buttons.
 - A command reader recognises motions from the buffer (for example down, down-forward, forward plus attack), relative to the way the character faces, with a few frames of leniency.
 - A button pressed up to 8 frames before a move can start is kept and used, so combos don't need perfect timing.
-- Up jumps and down crouches. Buttons: light, medium, heavy, jump, guard, dodge, lane up, lane down. A motion plus an attack button gives a special or a spell, and the button's strength picks the version.
+- Up jumps and down crouches. Buttons: light attack, heavy attack, guard, jump, lane up, lane down. A motion plus an attack button gives a special or a spell, and the button's strength picks the version. The game is played on a gamepad (an Xbox layout as the reference), which leaves buttons free for what comes later: a spell button or menu (T's round three), troop orders, or anything the team invents. Those get their own buttons rather than sharing the attack ones.
+- A proposed pad map, for the meeting: X light, Y heavy, A jump, B guard, left and right shoulder lane up and down, triggers and the d-pad free. On the keyboard today: J light, L heavy, W jump, Q and E lanes.
 
 **Why.** Fighting-game controls need motions and buffering, and lanes (section 2) make room for them on the stick. Routing by player index from the first line makes co-op cheap later.
 
-**Cost.** A third attack button means more normal moves to draw and tune per character.
+**Cost.** Two attack strengths keep the moves to draw per character down; what spells and other commands do with the free buttons is to be designed when they arrive.
 
-**Alternatives.** Simple "direction plus button" specials (like Smash Bros. or modern beat 'em ups): easier to learn and to play on a keyboard, and the natural fit for free depth. Two attack buttons with a separate spell button. Hold back to guard.
+**Alternatives.** Simple "direction plus button" specials (like Smash Bros. or modern beat 'em ups): easier to learn and to play on a keyboard, and the natural fit for free depth. Three strengths as in Guardian Heroes (Ben's first position). Hold back to guard.
 
 **Questions to settle.**
 - Motions or direction plus button? One decision with section 2.
-- The button layout.
+- The button layout: E's confirmation of two attacks plus guard, and where guard, jump and dodge sit on the pad.
 - Is a keyboard shared by two players a case we support, or do we require gamepads for co-op?
 
 ## 6. Crowds

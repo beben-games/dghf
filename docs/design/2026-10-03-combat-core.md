@@ -46,7 +46,7 @@ Round two of the questionnaire recorded that Ben owns the Godot project and the 
 |---|---|---|
 | Depth | 3 lanes. Players and hits treat a lane as one line. Crowd enemies stand in staggered rows inside a lane, so it looks like a mass. | 2 |
 | Special moves | Fighting-game motions. Up jumps and down crouches. | 5 |
-| Buttons | Guardian Heroes style: light, medium, heavy, a jump button, guard, dodge, lane up and lane down. | 5 |
+| Buttons | Revised 2026-10-11, with T in writing: two attacks (light and heavy) plus guard, a jump button, lane up and lane down. Spells, troop orders and later commands get their own buttons on an Xbox-layout pad. E to confirm. | 5 |
 | Defence | Block and dodge. | 4 |
 | Move lists | Fully unique per character: each may have its own structure. | 3 |
 | Damage numbers | Shown on every hit. | 7 |

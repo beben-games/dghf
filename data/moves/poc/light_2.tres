@@ -24,7 +24,7 @@ into = Array[StringName]([&"heavy", &"fireball"])
 [resource]
 script = ExtResource("2_move")
 id = &"light_2"
-animation = &"light"
+animation = &"light_2"
 total_frames = 24
 button = 16
 motion = PackedInt32Array()

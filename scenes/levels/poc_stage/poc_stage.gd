@@ -29,7 +29,7 @@ const LOCAL_SKIN: String = "res://local/skins/player"
 const BUILD_SKIN: String = "skins/player"
 const HELP: String = "Move: A D or stick    Jump: W, Space or (A)    Crouch: S    Lane: Q E or shoulders
 Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Guard: hold K or (B)    Dodge: Shift or (RT), with a direction or back    Fireball: down, down-forward, forward + attack
-F1: boxes    F2: lane spacing and depth    F3: shade the back lanes    F4: the dummy guards"
+F1: boxes    F2: lane spacing and depth    F3: shade the back lanes    F4: the dummy guards    F5: the dummy fights back"
 ## How long the combo counter stays after a combo ends, in ticks.
 const COMBO_LINGER: int = 60
 
@@ -48,6 +48,7 @@ var _history: Array[int] = []  # recent stick positions, for the readout
 var _preset: int = 0  # index into PRESETS
 var _shading: bool = false
 var _dummy_guards: bool = false
+var _dummy_fights: bool = false
 
 @onready var _fighter: Fighter = $Player
 @onready var _dummy: Fighter = $Dummy
@@ -74,6 +75,12 @@ func _ready() -> void:
 	# The dummy never presses anything: the plain input source is always empty.
 	_dummy.bounds = _fighter.bounds
 	_dummy.setup(PlayerInput.new(0, InputSource.new()), lanes(), 1, SCREEN.x * 0.7)
+	# Its moves, for when it fights back (F5): the two attacks, no fireball, no air moves.
+	_dummy.moves = [
+		preload("res://data/moves/poc/light_2.tres"),
+		preload("res://data/moves/poc/light.tres"),
+		preload("res://data/moves/poc/heavy.tres"),
+	]
 	_dummy.set_lanes(lanes(), scales())
 	_dummy.facing = -1
 	_dummy_view = FighterView.new()
@@ -148,7 +155,20 @@ func _unhandled_input(event: InputEvent) -> void:
 				_shading = not _shading
 			KEY_F4:
 				_dummy_guards = not _dummy_guards
+				_dummy_fights = false
 				_dummy.input.source = InputSource.Held.new(Buttons.GUARD if _dummy_guards else 0)
+			KEY_F5:
+				_dummy_fights = not _dummy_fights
+				_dummy_guards = false
+				_dummy.input.source = _brain() if _dummy_fights else InputSource.new()
+
+
+## A brain for the dummy, fighting the player.
+func _brain() -> FighterBrain:
+	var brain := FighterBrain.new(_tick)
+	brain.fighter = _dummy
+	brain.target = _fighter
+	return brain
 
 
 ## The three lanes' screen y, back to front, in the preset being tried.
@@ -203,10 +223,11 @@ func _update_readout() -> void:
 	var move_text: String = ""
 	if _fighter.move != null:
 		move_text = "   %s %d/%d" % [_fighter.move.animation, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\ndummy: %s   last combo %d hits, %d damage" % [
+	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\ndummy (%s): %s   last combo %d hits, %d damage" % [
 		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1,
 		"right" if _fighter.facing > 0 else "left", " ".join(_history),
 		"from a folder" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
 		int(PRESETS[_preset]["spacing"]), scales()[0], scales()[2], ", shaded" if _shading else "",
+		"fighting back" if _dummy_fights else "guarding" if _dummy_guards else "still",
 		Fighter.STATE_NAMES[_dummy.state], _dummy.combo_hits, _dummy.combo_damage,
 	]

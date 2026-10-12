@@ -25,6 +25,7 @@ func _initialize() -> void:
 	_test_buffered_press()
 	_test_skin_timing()
 	_test_moving_the_lanes()
+	_test_lane_depth()
 	_test_skin_from_a_folder_outside_the_project()
 	_projectiles.free()
 	print("%d failed" % _failures if _failures else "all passed")
@@ -197,3 +198,19 @@ func _test_moving_the_lanes() -> void:
 	_check(g.position.y == 1000.0, "a fighter changing lane ends on the moved lane")
 	f.free()
 	g.free()
+
+
+func _test_lane_depth() -> void:
+	var f := _fighter([Buttons.LANE_UP] + _repeat(0, 20))
+	f.set_lanes(PackedFloat32Array([900.0, 950.0, 1000.0]), PackedFloat32Array([0.8, 1.0, 1.2]))
+	_check(f.depth_scale == 1.0 and f.scale == Vector2.ONE, "the middle lane is full size")
+	var standing: Rect2 = f.hurt_rect()
+	_run(f, 5)
+	_check(f.state == Fighter.State.LANE_CHANGE and f.height > 0.0, "a lane change hops off the ground")
+	_check(f.depth_scale < 1.0 and f.depth_scale > 0.8, "and shrinks on the way to the back lane")
+	_run(f, 6)
+	_check(f.state == Fighter.State.IDLE and f.height == 0.0, "it lands on the back lane after its 10 ticks")
+	_check(is_equal_approx(f.depth_scale, 0.8) and f.scale == Vector2(0.8, 0.8), "at the back lane's size")
+	_check(is_equal_approx(f.hurt_rect().size.y, standing.size.y * 0.8), "the hurtbox shrinks with the fighter")
+	_check(f.hurt_rect().end.y == f.position.y, "and stays on the ground")
+	f.free()

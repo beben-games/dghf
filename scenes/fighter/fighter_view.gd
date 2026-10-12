@@ -51,13 +51,16 @@ func _draw() -> void:
 	if show_boxes:
 		draw_circle(Vector2.ZERO, 6.0, Color.YELLOW)
 		if _fighter.can_be_hit():
-			var hurt: Rect2 = _fighter.hurt_rect()
-			hurt.position -= _fighter.position
-			draw_rect(hurt, Color(0.2, 0.5, 1.0), false, 3.0)
+			draw_rect(_local(_fighter.hurt_rect()), Color(0.2, 0.5, 1.0), false, 3.0)
 		for rect in _fighter.active_hit_rects():
-			rect.position -= _fighter.position
-			draw_rect(rect, Color(1.0, 0.1, 0.1, 0.35))
-			draw_rect(rect, Color(1.0, 0.1, 0.1), false, 3.0)
+			draw_rect(_local(rect), Color(1.0, 0.1, 0.1, 0.35))
+			draw_rect(_local(rect), Color(1.0, 0.1, 0.1), false, 3.0)
+
+
+## A screen-space box in this view's coordinates, which are scaled with the fighter.
+func _local(rect: Rect2) -> Rect2:
+	var s: float = _fighter.depth_scale
+	return Rect2((rect.position - _fighter.position) / s, rect.size / s)
 
 
 ## An ellipse on the ground under the fighter. With lanes close together it

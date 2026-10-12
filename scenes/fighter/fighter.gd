@@ -18,6 +18,8 @@ const STATE_NAMES: Array[String] = [
 @export var jump_speed: float = 30.0
 @export var gravity: float = 1.9
 @export var lane_change_ticks: int = 10
+## How high the hop between two lanes goes, in pixels.
+@export var lane_hop: float = 40.0
 ## A hit only lands on a fighter of another team.
 @export var team: int = 1
 
@@ -39,6 +41,10 @@ var projectiles: Projectiles
 ## Tried in order, so put moves with a motion before plain button moves.
 var moves: Array[Move] = []
 var lane_y: PackedFloat32Array = PackedFloat32Array()  # screen y of each lane, back to front
+## How large each lane draws its fighters: smaller further back, for depth. 1 is full size.
+var lane_scale: PackedFloat32Array = PackedFloat32Array()
+## The fighter's size now, between two lanes' scales during a lane change.
+var depth_scale: float = 1.0
 var bounds: Vector2 = Vector2(0.0, 1920.0)  # x range the fighter stays in
 
 var state: State = State.IDLE
@@ -73,6 +79,7 @@ var _knock_speed: float = 0.0
 var _air_speed: float = 0.0
 var _ground_y: float = 0.0
 var _lane_from_y: float = 0.0
+var _scale_from: float = 1.0
 
 
 func setup(player_input: PlayerInput, lanes: PackedFloat32Array, start_lane: int, start_x: float) -> void:
@@ -80,16 +87,21 @@ func setup(player_input: PlayerInput, lanes: PackedFloat32Array, start_lane: int
 	lane_y = lanes
 	lane = start_lane
 	x = start_x
-	_ground_y = lane_y[lane]
-	_place()
+	set_lanes(lanes)
 
 
-## Moves the lanes, for trying lane spacings. A fighter standing in a lane
-## moves with it; one changing lane keeps heading for its new lane.
-func set_lanes(lanes: PackedFloat32Array) -> void:
+## Sets the lanes' screen y and, optionally, how large each lane draws its
+## fighters (full size when left out). A fighter standing in a lane moves and
+## resizes with it; one changing lane keeps heading for its new lane.
+func set_lanes(lanes: PackedFloat32Array, scales: PackedFloat32Array = PackedFloat32Array()) -> void:
 	lane_y = lanes
+	lane_scale = scales
+	if lane_scale.size() != lane_y.size():
+		lane_scale.resize(lane_y.size())
+		lane_scale.fill(1.0)
 	if state != State.LANE_CHANGE:
 		_ground_y = lane_y[lane]
+		depth_scale = lane_scale[lane]
 		_place()
 
 
@@ -168,7 +180,11 @@ func take_hit(hit: HitBox, direction: int) -> void:
 	flash_ticks = hit.hitstop + 2
 	facing = -direction
 	move = null
-	_ground_y = lane_y[lane]  # a hit ends a lane change on the lane it was heading for
+	if state == State.LANE_CHANGE:
+		# A hit ends a lane change on the lane it was heading for.
+		_ground_y = lane_y[lane]
+		depth_scale = lane_scale[lane]
+		height = 0.0
 	if hit.launch > 0.0 or is_jumping() or state == State.LAUNCHED:
 		if state == State.LAUNCHED:
 			juggle_hits += 1
@@ -269,19 +285,24 @@ func _tick_attack() -> void:
 		_start_jump(int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT)))
 		return
 	if move_frame == move.projectile_frame and projectiles != null:
-		var offset: Vector2 = move.projectile_offset
+		var offset: Vector2 = move.projectile_offset * depth_scale
 		offset.x *= facing
-		projectiles.spawn(position + offset, move.projectile_speed * facing, lane, team, move.projectile_hit)
+		projectiles.spawn(position + offset, move.projectile_speed * facing, lane, team, move.projectile_hit, depth_scale)
 	move_frame += 1
 	if move_frame >= move.total_frames:
 		move = null
 		_enter(State.IDLE)
 
 
+## A hop from one lane to the next: the ground line and the size slide to the
+## new lane's while the fighter rises and lands.
 func _tick_lane_change() -> void:
-	var t: float = float(state_ticks) / lane_change_ticks
-	_ground_y = lerpf(_lane_from_y, lane_y[lane], minf(t, 1.0))
+	var t: float = minf(float(state_ticks) / lane_change_ticks, 1.0)
+	_ground_y = lerpf(_lane_from_y, lane_y[lane], t)
+	depth_scale = lerpf(_scale_from, lane_scale[lane], t)
+	height = sin(t * PI) * lane_hop
 	if state_ticks >= lane_change_ticks:
+		height = 0.0
 		_enter(State.IDLE)
 
 
@@ -341,6 +362,7 @@ func _can_start(candidate: Move) -> bool:
 
 func _start_lane_change(to_lane: int) -> void:
 	_lane_from_y = _ground_y
+	_scale_from = depth_scale
 	lane = to_lane
 	_enter(State.LANE_CHANGE)
 
@@ -353,12 +375,14 @@ func _enter(new_state: State) -> void:
 
 func _place() -> void:
 	position = Vector2(x, _ground_y - height)
+	scale = Vector2(depth_scale, depth_scale)
 	z_index = lane  # front lanes draw over back ones
 
 
-## A box given for a fighter facing right, as it is now in screen space.
+## A box given for a full-size fighter facing right, as it is now in screen space.
 func _faced(box: Rect2) -> Rect2:
 	if facing < 0:
 		box.position.x = -box.position.x - box.size.x
-	box.position += position
+	box.position = box.position * depth_scale + position
+	box.size *= depth_scale
 	return box

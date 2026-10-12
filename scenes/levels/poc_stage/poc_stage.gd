@@ -12,8 +12,16 @@ extends Node2D
 const SCREEN := Vector2(1920.0, 1080.0)
 ## The front lane's screen y. The other two sit above it, `spacing` apart.
 const FRONT_LANE_Y: float = 1000.0
-## Lane spacings to try, cycled with F2 (issue #17: T and E asked for more overlap between lanes).
-const SPACINGS: Array[float] = [120.0, 80.0, 50.0, 35.0]
+## Ways of showing depth to try, cycled with F2 (issue #17: T and E asked for a lower camera and
+## more overlap between lanes, and Ben for fighters that get smaller further back rather than higher).
+## `spacing` is the distance between lanes in pixels; `scales` is the size of a fighter in each lane,
+## back to front, with the middle lane at full size.
+const PRESETS: Array[Dictionary] = [
+	{"spacing": 120.0, "scales": [1.0, 1.0, 1.0]},
+	{"spacing": 70.0, "scales": [0.88, 1.0, 1.12]},
+	{"spacing": 50.0, "scales": [0.8, 1.0, 1.2]},
+	{"spacing": 35.0, "scales": [0.72, 1.0, 1.28]},
+]
 const MARGIN: float = 120.0
 ## Private art goes here. The folder is git-ignored and hidden from Godot's importer.
 const LOCAL_SKIN: String = "res://local/skins/player"
@@ -21,7 +29,7 @@ const LOCAL_SKIN: String = "res://local/skins/player"
 const BUILD_SKIN: String = "skins/player"
 const HELP: String = "Move: A D or stick    Jump: W, K or (B)    Crouch: S    Lane: Q E or shoulders
 Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Fireball: down, down-forward, forward + attack
-F1: boxes    F2: lane spacing    F3: shade the back lanes"
+F1: boxes    F2: lane spacing and depth    F3: shade the back lanes"
 ## How long the combo counter stays after a combo ends, in ticks.
 const COMBO_LINGER: int = 60
 
@@ -37,7 +45,7 @@ var _combo_linger: int = 0
 var _shake: float = 0.0
 var _tick: int = 0
 var _history: Array[int] = []  # recent stick positions, for the readout
-var _spacing: int = 0  # index into SPACINGS
+var _preset: int = 0  # index into PRESETS
 var _shading: bool = false
 
 @onready var _fighter: Fighter = $Player
@@ -56,6 +64,7 @@ func _ready() -> void:
 		preload("res://data/moves/poc/air_heavy.tres"),
 	]
 	_fighter.setup(_player_input, lanes(), 1, SCREEN.x / 2.0)
+	_fighter.set_lanes(lanes(), scales())
 
 	_view = FighterView.new()
 	_view.skin = _find_skin()
@@ -64,6 +73,7 @@ func _ready() -> void:
 	# The dummy never presses anything: the plain input source is always empty.
 	_dummy.bounds = _fighter.bounds
 	_dummy.setup(PlayerInput.new(0, InputSource.new()), lanes(), 1, SCREEN.x * 0.7)
+	_dummy.set_lanes(lanes(), scales())
 	_dummy.facing = -1
 	_dummy_view = FighterView.new()
 	_dummy_view.body_color = Color(0.75, 0.4, 0.3)
@@ -129,18 +139,23 @@ func _unhandled_input(event: InputEvent) -> void:
 				_view.show_boxes = not _view.show_boxes
 				_dummy_view.show_boxes = _view.show_boxes
 			KEY_F2:
-				_spacing = (_spacing + 1) % SPACINGS.size()
+				_preset = (_preset + 1) % PRESETS.size()
 				for fighter in _combat.fighters:
-					fighter.set_lanes(lanes())
+					fighter.set_lanes(lanes(), scales())
 				queue_redraw()
 			KEY_F3:
 				_shading = not _shading
 
 
-## The three lanes' screen y, back to front, at the spacing being tried.
+## The three lanes' screen y, back to front, in the preset being tried.
 func lanes() -> PackedFloat32Array:
-	var spacing: float = SPACINGS[_spacing]
+	var spacing: float = PRESETS[_preset]["spacing"]
 	return PackedFloat32Array([FRONT_LANE_Y - 2.0 * spacing, FRONT_LANE_Y - spacing, FRONT_LANE_Y])
+
+
+## How large a fighter is in each lane, back to front, in the preset being tried.
+func scales() -> PackedFloat32Array:
+	return PackedFloat32Array(PRESETS[_preset]["scales"])
 
 
 func _draw() -> void:
@@ -184,10 +199,10 @@ func _update_readout() -> void:
 	var move_text: String = ""
 	if _fighter.move != null:
 		move_text = "   %s %d/%d" % [_fighter.move.animation, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart%s\ndummy: %s   last combo %d hits, %d damage" % [
+	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\ndummy: %s   last combo %d hits, %d damage" % [
 		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1,
 		"right" if _fighter.facing > 0 else "left", " ".join(_history),
 		"from a folder" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
-		int(SPACINGS[_spacing]), ", shaded" if _shading else "",
+		int(PRESETS[_preset]["spacing"]), scales()[0], scales()[2], ", shaded" if _shading else "",
 		Fighter.STATE_NAMES[_dummy.state], _dummy.combo_hits, _dummy.combo_damage,
 	]

@@ -1,0 +1,13 @@
+{
+    "note": "The PixelLab subscription is Ben's Tier 2, shared with beben-games/2d-game. share is this project's part of each period's generations. The split is of our part: style probes and comparisons, production, rerolls, and the sink (what is left near the renewal, which expires).",
+    "share": 0.5,
+    "renewal_day": 27,
+    "lead_days": 7,
+    "sink_days": 3,
+    "split": {
+        "style": 0.15,
+        "production": 0.60,
+        "rerolls": 0.15,
+        "sink": 0.10
+    }
+}

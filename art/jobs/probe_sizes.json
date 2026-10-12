@@ -1,0 +1,108 @@
+{
+    "concept": "probe",
+    "note": "The sprite-size probe (issue #11): the same man-at-arms at two sizes, each with a walk and a sword attack. Pro for the stills, since the look is what is being judged. Estimates from the API's published formulas; the first run measures them.",
+    "calls": [
+        {
+            "id": "man_at_arms_128",
+            "endpoint": "/create-character-pro",
+            "estimate": 20,
+            "no_refs_reason": "The first look of this project: no reference approved yet (docs/art.md, References).",
+            "body": {
+                "description": "a French man-at-arms of 1430: a steel sallet helmet with the visor up, a plate breastplate over a blue arming doublet with the fleur-de-lis, mail at the arms, plate leg armour, a longsword held in both hands, a stern bearded face; the outfit is left-right symmetrical",
+                "style_description": "classic 16-bit pixel art, light from the top left, crisp readable shapes, dark selective outline",
+                "image_size": {
+                    "width": 128,
+                    "height": 128
+                },
+                "view": "side",
+                "template_id": "mannequin",
+                "seed": 1431,
+                "no_background": true
+            }
+        },
+        {
+            "id": "man_at_arms_256",
+            "endpoint": "/create-character-pro",
+            "estimate": 20,
+            "no_refs_reason": "The first look of this project: no reference approved yet (docs/art.md, References).",
+            "body": {
+                "description": "a French man-at-arms of 1430: a steel sallet helmet with the visor up, a plate breastplate over a blue arming doublet with the fleur-de-lis, mail at the arms, plate leg armour, a longsword held in both hands, a stern bearded face; the outfit is left-right symmetrical",
+                "style_description": "classic 16-bit pixel art, light from the top left, crisp readable shapes, dark selective outline",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "side",
+                "template_id": "mannequin",
+                "seed": 1431,
+                "no_background": true
+            }
+        },
+        {
+            "id": "walk_128",
+            "endpoint": "/animate-character",
+            "estimate": 2,
+            "hold": "needs the character id from man_at_arms_128 once it has run",
+            "body": {
+                "character_id": "<man_at_arms_128>",
+                "animation_name": "walk_128",
+                "template_animation_id": "walking-8-frames",
+                "directions": [
+                    "east"
+                ]
+            }
+        },
+        {
+            "id": "walk_256",
+            "endpoint": "/animate-character",
+            "estimate": 2,
+            "hold": "needs the character id from man_at_arms_256 once it has run",
+            "body": {
+                "character_id": "<man_at_arms_256>",
+                "animation_name": "walk_256",
+                "template_animation_id": "walking-8-frames",
+                "directions": [
+                    "east"
+                ]
+            }
+        },
+        {
+            "id": "attack_128",
+            "endpoint": "/animate-with-text-v2",
+            "estimate": 40,
+            "hold": "needs the still from man_at_arms_128 as its subject once it has run; the body is to be checked against the API reference before running",
+            "body": {
+                "description": "a two-handed overhead longsword slash, stepping forward, 8 frames",
+                "image_size": {
+                    "width": 128,
+                    "height": 128
+                },
+                "view": "side",
+                "direction": "east",
+                "reference_image": {
+                    "file": "art/raw/probe/man_at_arms_128/character/east.png",
+                    "kind": "subject"
+                }
+            }
+        },
+        {
+            "id": "attack_256",
+            "endpoint": "/animate-with-text-v2",
+            "estimate": 40,
+            "hold": "needs the still from man_at_arms_256 as its subject once it has run; the body is to be checked against the API reference before running",
+            "body": {
+                "description": "a two-handed overhead longsword slash, stepping forward, 8 frames",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "side",
+                "direction": "east",
+                "reference_image": {
+                    "file": "art/raw/probe/man_at_arms_256/character/east.png",
+                    "kind": "subject"
+                }
+            }
+        }
+    ]
+}

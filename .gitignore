@@ -22,3 +22,9 @@ Thumbs.db
 
 # Private, local-only files: placeholder art that must not be published
 /local/
+
+# The art pipeline: generated outputs and work in progress stay on each machine. Only finished,
+# game-ready PNGs are committed, under assets/.
+art/raw/
+art/work/
+reports/

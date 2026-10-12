@@ -4,6 +4,7 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 
 - `docs/STATUS.md`: where the project stands right now
 - `docs/game-bible.md`: what the game is, and the decisions so far
+- `docs/art.md`: how the team makes visual assets, and the pipeline tools in `tools/art/`
 - `docs/meetings/`: notes from the weekly meetings
 - `CLAUDE.md`: the rules every contributor's Claude follows
 

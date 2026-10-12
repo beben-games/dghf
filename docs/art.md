@@ -33,6 +33,8 @@ Sizes are given for both candidate resolutions. Pick the column once the meeting
 | Effects | any | any | Code first: Godot particles and shaders (the hit flash and sparks already are). Generated only if code can't. |
 | UI | 1080p | 1080p | Not pixel art necessarily; decided later. |
 
+**The art direction is Ben's knight** (`art/refs/user/knight_idle_frame.png`, made in PixelLab's web character creator on a 256 canvas, about 227 pixels tall, realistic proportions, a three-quarter side view, steel with cool highlights and a dark outline). It is the approved reference in `art/refs/refs.json`: every character is generated to match it in size, proportions and rendering, and compared beside it before it is accepted.
+
 Style rules for everything: one light direction (top left), one outline rule, one palette once the team has approved one (`tools/art/palette.py` measures how well an image fits a palette and can extract one from approved images). Write the same style sentence into every prompt.
 
 ## Making a character: one workflow
@@ -63,14 +65,18 @@ Ported from `beben-games/2d-game` (`tools/art/`). Python 3 with Pillow. The Pixe
 
 A job file names the concept, and each call's endpoint, body and estimate. Claude writes them; the person approves the concept and its range.
 
+**What the API does and costs, measured on 2026-10-11** (`art/ledger.jsonl` has every call):
+
+- `create-character-v3` at 256: 8 rotations of a character about 240 pixels tall for 9 generations. The path that matches Ben's knight; `view: "low top-down"` gives the three-quarter angle, `"side"` a flat profile. The character id it returns is what animations are made from.
+- `create-character-pro`: capped at 168 pixels (about 140 tall), 25 generations, and a stockier, bigger-headed look at that size. Not the path for this game's characters.
+- Every character endpoint returns 8 rotations; there is no way to ask for one. A side-scroller uses `east` (and `west` by flipping, or `south-east` for a three-quarter look). Animations are made for one direction only.
+- `animate-character` with a template (`walking-8-frames`, `running-8-frames`, `jumping-1`, `falling-back-death`, `getting-up`, `taking-punch`, `cross-punch`, `roundhouse-kick` and the rest of the mannequin's list in the API's error message when an id is wrong): 1 generation a direction, 8 frames, good walks at 128 and 168. There is no sword template: attacks are custom.
+- `animate-character` with `mode: "pro"` and an `action_description`: 15 to 20 generations a direction, but only 4 frames at 128 and above. A sword slash reads, with a slash arc at 168, but 4 frames is thin for a move that lasts 30 ticks: the game would hold or tween them. To be weighed against `pixminimax` (up to 40 frames, priced by size) and `v3` custom animations, untried.
+- `generate-with-style-v2`: one image at the style image's size, steered by up to 4 style images; about 40 generations at 256.
+- The sprite-size probe's results are in `docs/probes/2026-10-11-size-probe/` and on issue #11.
+
 **How this fits the MCP rule in `CLAUDE.md`:** the MCP server in each person's own settings, with their own account, is the normal way to generate; the pipeline is the same thing with a record, for Ben's account and for production sets. Both follow this page.
 
-## The sprite-size probe
+## The sprite-size probe (run on 2026-10-11)
 
-Before the resolution is decided, one character at two sizes, with a walk and an attack at each, so the meeting judges on moving sprites and not on an idle:
-
-- A French man-at-arms of about 1430, side view, on a 128 canvas (about 110 px tall) and on a 256 canvas (about 200 px tall).
-- Each: the still, a walk from a template, and one custom sword attack.
-- Shown at game scale on a 1080p mock-up of the stage, in all three lanes with the depth presets, beside the proof of concept's placeholder.
-
-The job file is `art/jobs/probe_sizes.json`. The result goes on issue #11, and the meeting picks.
+A French man-at-arms of about 1430 at three sizes, with a template walk and a custom sword attack at the two smaller ones. Job files: `art/jobs/probe_sizes.json` (128 and 168, the Pro creator) and `art/jobs/probe2_style.json` (256, v3, in the look of Ben's knight). Images: `docs/probes/2026-10-11-size-probe/`. Ben's verdict on round one: wrong direction and wrong size; the 256 v3 character beside his knight is the candidate for the meeting, shown on a 1080p stage mock-up with the depth presets.

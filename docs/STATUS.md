@@ -71,7 +71,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #9 Hits that feel good | Open. Merged. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #10 Milestone 1 build | Not started. The build script exists. |
-| #11 Port the PixelLab art pipeline | In review. The tools are ported and report the balance from here; `docs/art.md` is the guide for T and E (asset kinds and sizes at both candidate resolutions, the character workflow, the tools; everyone may generate with their own stack and keys, following the same art direction and palette). The sprite-size probe is written as a job file and waits for Ben's go on the spend. Done when the probe is on the issue. |
+| #11 Port the PixelLab art pipeline | In review. The tools are ported and report the balance from here; `docs/art.md` is the guide for T and E (asset kinds and sizes at both candidate resolutions, the character workflow, the tools; everyone may generate with their own stack and keys, following the same art direction and palette). The sprite-size probe ran on 2026-10-11 (about 150 generations): the Pro character creator caps at 168 pixels and gave a small, big-headed look that Ben rejected; `create-character-v3` at 256 gives a 240-pixel man-at-arms that matches Ben's knight, now the approved reference (`art/refs/`). Results in `docs/probes/2026-10-11-size-probe/` and on the issue. Open: which animation mode for attacks (pro gives 4 frames), and whether E or T generate on their own stack. |
 | #17 1080p proof of concept | Open. Played by all three. The depth experiment (F2: lane spacing and fighter size by lane, F3: shading) is in. Done when the meeting has settled lanes, spacing and depth. |
 
 ## Waiting on people
@@ -79,7 +79,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 - **T** (GitHub `pipochao`, invited to the repository and the board on 2026-10-11): accept the invitations, install Godot 4.7.2, take the tour above. T's round three is in: three lanes with a small perspective effect, 30 to 40 enemies at most, two attack buttons plus guard plus a spell button, block and dodge, combo counter only, no friendly fire.
 - **E** (GitHub `T13nou`): finish round three, run the stress test and post its table on #3.
 - **Ben:** run the Windows build, answer the five newest round-three questions, write up what T and E said about the hits and the combos on #9 and #8.
-- **All three:** a weekly meeting to settle sections 2, 5 and 9 and the screen and sprite size. New for that agenda: the lane spacing (F2 in the proof of concept), the resolution (keep 1080p, or 960 by 540 scaled 2x once the PixelLab probe shows sprites at both sizes), and the button layout: T wants two attacks plus guard plus a spell button, and the proof of concept has light and heavy.
+- **All three:** a weekly meeting to settle sections 2, 5 and 9 and the screen and sprite size. New for that agenda: the lane spacing and depth (F2 in the proof of concept), the resolution (the probe says 1080p native with characters about 240 pixels tall from `create-character-v3` at 256, in the look of Ben's knight: see `docs/probes/2026-10-11-size-probe/`), and the button layout: T wants two attacks plus guard plus a spell button, and the proof of concept has light and heavy.
 
 ## Working in this repository
 
@@ -103,5 +103,5 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 1. T and E try the depth presets (F2) and say which one reads best, on #17. E's stress-test numbers into issue #3.
 2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
-3. Run the sprite-size probe (#11, `art/jobs/probe_sizes.json`: the stills first, then the walks and attacks) and post it on the issue, so the meeting picks the resolution looking at real sprites. Then rewrite issues #4 and #5 for the chosen size.
+3. The meeting picks the resolution and the character look from the probe (#11). Then rewrite issues #4 and #5 for the chosen size, and start the first character through the workflow in `docs/art.md`.
 4. Play the training dummy (#9) and the combos (#8), and tune the hit values with the move preview tool. T or E changing a move with it closes #8.

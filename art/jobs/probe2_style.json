@@ -1,6 +1,6 @@
 {
     "concept": "probe2",
-    "note": "The sprite-size and style probe, second round (issue #11): the man-at-arms at 256 in the look of Ben's knight. v3 from scratch at 256 is the cheap path that also gives a character for east-only animations; generate-with-style-v2 uses the knight itself as the style image for one 256 image. The strict side view came out as a flat profile; a low top-down view is tried too, whose east rotation is a three-quarter view like Ben's knight.",
+    "note": "The sprite-size and style probe, second round (issue #11): the man-at-arms at 256 in the look of Ben's knight. v3 from scratch at 256 is the cheap path that also gives a character for east-only animations; generate-with-style-v2 uses the knight itself as the style image for one 256 image. The strict side view came out as a flat profile; a low top-down view is tried too, whose east rotation is a three-quarter view like Ben's knight. generate-with-style-v2 takes its size from the style images (image_size was removed from the API), so the knight frame's 256 canvas sets the output size.",
     "calls": [
         {
             "id": "man_at_arms_v3_256",
@@ -34,10 +34,6 @@
                         "as": "style"
                     }
                 ],
-                "image_size": {
-                    "width": 256,
-                    "height": 256
-                },
                 "seed": 1431,
                 "no_background": true
             }

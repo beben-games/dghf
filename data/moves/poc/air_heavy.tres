@@ -11,6 +11,7 @@ rect = Rect2(-40, -285, 200, 290)
 damage = 18
 hitstun = 22
 hitstop = 8
+blockstun = 12
 knockback = 8.0
 shake = 8.0
 

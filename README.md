@@ -51,17 +51,19 @@ The game is a proof of concept for now: one character and a training dummy on an
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | Walk | A, D or the left and right arrows | Stick or d-pad |
-| Jump | W, K, Space or the up arrow | Up, or B |
+| Jump | W, Space or the up arrow | Up, or A |
 | Crouch | S or the down arrow | Down |
 | Change lane | Q (back), E (front) | Left and right shoulder |
 | Light attack | J | X |
 | Heavy attack (launches) | L | Y |
 | Air attacks | J or L during a jump | X or Y during a jump |
+| Guard | Hold K | Hold B |
 | Fireball | Down, down-forward, forward, then light attack | The same |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Show hitboxes and hurtboxes | F1 | |
 | Try another lane spacing and depth (fighters smaller further back) | F2 | |
 | Shade the back lanes | F3 | |
+| The dummy guards | F4 | |
 
 ## Contributing
 

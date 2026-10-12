@@ -64,7 +64,7 @@ One generic piece of code plays any move from its data. A preview scene steps th
 
 **Why.** A full fighter for each of 100 or more foot soldiers is wasted work every tick. But combos on a crowd are only satisfying if the crowd reacts like real fighters.
 
-**Proposed. Ben's position (2026-10-03): block and dodge.** Players can guard and dodge, as in Guardian Heroes, which adds Block, Blockstun and Dodge states. Enemies then need ways to beat a guard. For the weekly meeting. The alternatives are dodge only, block only, or neither.
+**Proposed. Ben's position (2026-10-03): block and dodge.** T agrees in writing (round three, 2026-10-11). Players can guard and dodge, as in Guardian Heroes, which adds Block, Blockstun and Dodge states. Enemies then need ways to beat a guard. For the weekly meeting. The alternatives are dodge only, block only, or neither. The block is built in the proof of concept (issue #41, `docs/design/2026-10-04-hits-landing.md`, "Guard"); dodge is not.
 
 ## 5. Input
 

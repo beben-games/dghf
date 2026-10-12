@@ -40,11 +40,13 @@ func _resolve_moves() -> void:
 					points.append(attacker.hit_rect(box).intersection(hurt).get_center())
 					break
 
-	# The attacker freezes once per swing, for the longest hitstop it landed.
+	# The attacker freezes once per swing, for the longest hitstop it landed. A
+	# blocked hit freezes for less.
 	var freeze: Dictionary[Fighter, int] = {}
 	for i in hits.size():
 		attackers[i].swing_targets.append(targets[i])
-		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), hits[i].hitstop)
+		var stop: int = targets[i].blocked_hitstop(hits[i]) if targets[i].blocks(attackers[i].facing) else hits[i].hitstop
+		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), stop)
 	for i in hits.size():
 		_land(targets[i], hits[i], attackers[i].facing, points[i])
 	for attacker: Fighter in freeze:
@@ -72,6 +74,11 @@ func _can_hit(team: int, lane: int, target: Fighter) -> bool:
 
 
 func _land(target: Fighter, hit: HitBox, direction: int, at: Vector2) -> void:
+	if target.blocks(direction):
+		target.take_block(hit, direction)
+		if sparks != null:
+			sparks.spawn(at, 20.0 + hit.hitstop * 3.0, true)
+		return
 	target.take_hit(hit, direction)
 	shake = maxf(shake, hit.shake)
 	if sparks != null:

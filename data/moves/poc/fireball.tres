@@ -8,6 +8,7 @@ script = ExtResource("1_mqvml")
 damage = 14
 hitstun = 18
 hitstop = 6
+blockstun = 10
 knockback = 10.0
 
 [resource]

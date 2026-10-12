@@ -11,6 +11,7 @@ var _x: PackedFloat32Array = PackedFloat32Array()
 var _y: PackedFloat32Array = PackedFloat32Array()
 var _size: PackedFloat32Array = PackedFloat32Array()
 var _age: PackedInt32Array = PackedInt32Array()
+var _blocked: PackedByteArray = PackedByteArray()  # 1 for the spark of a blocked hit
 
 
 func _init() -> void:
@@ -18,19 +19,21 @@ func _init() -> void:
 	_y.resize(CAPACITY)
 	_size.resize(CAPACITY)
 	_age.resize(CAPACITY)
+	_blocked.resize(CAPACITY)
 
 
 func count() -> int:
 	return _count
 
 
-func spawn(at: Vector2, size: float) -> void:
+func spawn(at: Vector2, size: float, blocked: bool = false) -> void:
 	if _count == CAPACITY:
 		return
 	_x[_count] = at.x
 	_y[_count] = at.y
 	_size[_count] = size
 	_age[_count] = 0
+	_blocked[_count] = 1 if blocked else 0
 	_count += 1
 
 
@@ -45,18 +48,19 @@ func tick() -> void:
 			_y[i] = _y[_count]
 			_size[i] = _size[_count]
 			_age[i] = _age[_count]
+			_blocked[i] = _blocked[_count]
 		else:
 			i += 1
 	queue_redraw()
 
 
-## Placeholder look: a star that grows and thins out.
+## Placeholder look: a star that grows and thins out. A blocked hit's is blue and smaller.
 func _draw() -> void:
 	for i in _count:
 		var centre := Vector2(_x[i], _y[i])
 		var t: float = float(_age[i]) / LIFE
 		var reach: float = _size[i] * (0.5 + t)
-		var colour := Color(1.0, 0.95, 0.7, 1.0 - t)
+		var colour := Color(0.6, 0.8, 1.0, 1.0 - t) if _blocked[i] else Color(1.0, 0.95, 0.7, 1.0 - t)
 		for k in 4:
 			var arm := Vector2.from_angle(k * PI / 4.0 + _size[i]) * reach
 			draw_line(centre - arm, centre + arm, colour, maxf(2.0, 10.0 * (1.0 - t)))

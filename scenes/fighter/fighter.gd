@@ -7,10 +7,10 @@ extends Node2D
 ## Position is x, a lane, and a height above the ground (docs/architecture.md,
 ## section 2, still proposed).
 
-enum State { IDLE, WALK, CROUCH, JUMP, ATTACK, LANE_CHANGE, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP, AIR_ATTACK }
+enum State { IDLE, WALK, CROUCH, JUMP, ATTACK, LANE_CHANGE, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP, AIR_ATTACK, BLOCK }
 
 const STATE_NAMES: Array[String] = [
-	"idle", "walk", "crouch", "jump", "attack", "lane change", "hitstun", "launched", "knockdown", "getup", "air attack",
+	"idle", "walk", "crouch", "jump", "attack", "lane change", "hitstun", "launched", "knockdown", "getup", "air attack", "block",
 ]
 
 # Tuning, in pixels and ticks. Starting points to tune by playing.
@@ -34,6 +34,10 @@ const STATE_NAMES: Array[String] = [
 ## How much heavier the fighter falls for each hit of a juggle: 0.25 is a quarter more gravity per hit.
 @export var juggle_gravity_growth: float = 0.25
 @export var knockdown_ticks: int = 40
+## Share of a blocked hit's knockback that pushes the blocker back.
+@export var block_pushback: float = 0.6
+## Share of a blocked hit's hitstop that both fighters freeze for (at least 2 ticks).
+@export var block_hitstop: float = 0.5
 @export var getup_ticks: int = 20
 
 var input: PlayerInput
@@ -75,6 +79,7 @@ var swing_targets: Array[Fighter] = []
 var swing_froze: bool = false
 
 var _stun_ticks: int = 0
+var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
 var _knock_speed: float = 0.0
 var _air_speed: float = 0.0
 var _ground_y: float = 0.0
@@ -136,6 +141,8 @@ func tick() -> void:
 				_enter(State.IDLE)
 		State.AIR_ATTACK:
 			_tick_air_attack()
+		State.BLOCK:
+			_tick_block()
 	_place()
 
 
@@ -162,6 +169,25 @@ func hurt_rect() -> Rect2:
 ## A fighter on the floor or getting up can't be hit.
 func can_be_hit() -> bool:
 	return state != State.KNOCKDOWN and state != State.GETUP
+
+
+## Whether a hit pushing in `direction` is stopped by the guard: the fighter is
+## blocking and faces the hit. Hits from behind are never blocked.
+func blocks(direction: int) -> bool:
+	return state == State.BLOCK and facing == -direction
+
+
+## Called by Combat for a hit the guard stopped: no damage, blockstun and a push instead.
+func take_block(hit: HitBox, direction: int) -> void:
+	hitstop = blocked_hitstop(hit)
+	_blockstun = maxi(_blockstun, hit.blockstun)
+	_knock_speed = direction * hit.knockback * block_pushback
+	state_ticks = 0
+
+
+## The freeze a blocked hit gives both fighters: shorter than a clean hit's.
+func blocked_hitstop(hit: HitBox) -> int:
+	return maxi(2, int(hit.hitstop * block_hitstop))
 
 
 ## Still reeling from a hit, so the next hit continues the combo.
@@ -213,6 +239,11 @@ func _tick_standing() -> void:
 	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
 	if direction != 0:
 		facing = direction
+	if input.held(Buttons.GUARD):
+		_blockstun = 0
+		_knock_speed = 0.0
+		_enter(State.BLOCK)
+		return
 	if _try_moves(false):
 		return
 	if input.pressed(Buttons.LANE_UP) and lane > 0:
@@ -303,6 +334,17 @@ func _tick_lane_change() -> void:
 	height = sin(t * PI) * lane_hop
 	if state_ticks >= lane_change_ticks:
 		height = 0.0
+		_enter(State.IDLE)
+
+
+## Holding the guard. A blocked hit holds the fighter in it for its blockstun
+## and slides it back; letting go after that stands the fighter up.
+func _tick_block() -> void:
+	x = clampf(x + _knock_speed, bounds.x, bounds.y)
+	_knock_speed *= knockback_friction
+	if _blockstun > 0:
+		_blockstun -= 1
+	elif not input.held(Buttons.GUARD):
 		_enter(State.IDLE)
 
 

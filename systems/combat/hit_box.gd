@@ -10,6 +10,8 @@ extends Resource
 @export var damage: int = 0
 @export var hitstun: int = 0  # ticks
 @export var hitstop: int = 0  # ticks
+## Ticks a blocking target is held in its guard by this hit. Blocked hits do no damage.
+@export var blockstun: int = 0
 ## Speed the target is pushed away at, in pixels per tick. On the ground it fades out.
 @export var knockback: float = 0.0
 ## Upward speed given to the target, in pixels per tick. Above 0 the hit launches.

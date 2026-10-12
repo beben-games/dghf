@@ -12,6 +12,7 @@ rect = Rect2(40, -210, 225, 210)
 damage = 12
 hitstun = 18
 hitstop = 6
+blockstun = 10
 knockback = 7.0
 
 [sub_resource type="Resource" id="Resource_cancel"]

@@ -45,7 +45,8 @@ var _combo_linger: int = 0
 var _shake: float = 0.0
 var _tick: int = 0
 var _history: Array[int] = []  # recent stick positions, for the readout
-var _preset: int = 0  # index into PRESETS
+## The preset the stage starts in: lanes 50 pixels apart with depth (Ben's pick, 2026-10-11). F2 cycles.
+var _preset: int = 2  # index into PRESETS
 var _shading: bool = false
 var _dummy_guards: bool = false
 var _dummy_fights: bool = false

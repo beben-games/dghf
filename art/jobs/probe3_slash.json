@@ -1,0 +1,22 @@
+{
+    "concept": "probe3",
+    "note": "The attack animation question (issue #11): a sword slash on the 256 three-quarter v3 man-at-arms with mode pixminimax, which gives up to 40 frames and is priced by size and frame count. One direction. The estimate is a guess; the run measures it.",
+    "calls": [
+        {
+            "id": "slash_pixminimax_256_12f",
+            "endpoint": "/animate-character",
+            "estimate": 25,
+            "body": {
+                "character_id": "efb930e5-ce08-47af-80e3-e520c548f75e",
+                "animation_name": "slash_pixminimax_256_12f",
+                "mode": "pixminimax",
+                "action_description": "a two-handed overhead longsword slash: raises the sword above the head, steps forward and swings it down to the ground in front, then recovers to the ready stance",
+                "subject_description": "a French man-at-arms of 1430 in full plate armour with a sallet helmet and a longsword",
+                "frame_count": 12,
+                "directions": [
+                    "east"
+                ]
+            }
+        }
+    ]
+}

@@ -59,7 +59,7 @@ The game is a proof of concept for now: one character and a training dummy on an
 | Fireball | Down, down-forward, forward, then light attack | The same |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Show hitboxes and hurtboxes | F1 | |
-| Try another lane spacing (120, 80, 50, 35 pixels) | F2 | |
+| Try another lane spacing and depth (fighters smaller further back) | F2 | |
 | Shade the back lanes | F3 | |
 
 ## Contributing

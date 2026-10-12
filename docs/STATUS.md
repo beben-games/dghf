@@ -4,7 +4,7 @@
 
 ## In one paragraph
 
-Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, and throws a fireball, and a training dummy that takes the hits. T and E have played it. They want more overlap between the lanes, a lower camera and more depth; a lane-spacing experiment is in the proof of concept (F2 and F3). They also want to know how to make floors, backgrounds, destructibles and pickups, which is the art pipeline (#11). The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three.
+Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, and throws a fireball, and a training dummy that takes the hits. T and E have played it. They want more overlap between the lanes, a lower camera and more depth; a depth experiment is in the proof of concept (F2 cycles lane spacing and fighter size by lane, F3 shades the back lanes). They also want to know how to make floors, backgrounds, destructibles and pickups, which is the art pipeline (#11). The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three.
 
 ## What runs today
 
@@ -71,7 +71,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #10 Milestone 1 build | Not started. The build script exists. |
 | #11 Port the PixelLab art pipeline | Next. Ben's direction is on the issue: open to other generators (PixelLab may not do parallax backgrounds), character creation as one workflow from concept to playable, and characters that appear as bosses before being unlocked. Deliverables: a guide for T and E (floors, backgrounds, destructibles, pickups, characters) and a probe at two sprite sizes, about 110 and 200 pixels. |
-| #17 1080p proof of concept | Open. Played by all three. The lane-spacing experiment (F2, F3) is in review. Done when the meeting has settled lanes and spacing. |
+| #17 1080p proof of concept | Open. Played by all three. The depth experiment (F2: lane spacing and fighter size by lane, F3: shading) is in. Done when the meeting has settled lanes, spacing and depth. |
 
 ## Waiting on people
 
@@ -99,7 +99,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 ## Suggested next steps
 
-1. T and E try the lane spacings (F2) and say which one reads best, on #17. E's stress-test numbers into issue #3.
+1. T and E try the depth presets (F2) and say which one reads best, on #17. E's stress-test numbers into issue #3.
 2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
 3. The art pipeline (#11): the guide for T and E, and the probe at two sprite sizes with a walk and an attack, so the meeting picks the resolution looking at real sprites. Then rewrite issues #4 and #5 for the chosen size.
 4. Play the training dummy (#9) and the combos (#8), and tune the hit values with the move preview tool. T or E changing a move with it closes #8.

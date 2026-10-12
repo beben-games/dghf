@@ -16,6 +16,7 @@ var _age: PackedInt32Array = PackedInt32Array()
 var _lane: PackedInt32Array = PackedInt32Array()
 var _team: PackedInt32Array = PackedInt32Array()
 var _hit: Array[HitBox] = []  # null for a projectile that can't hit
+var _scale: PackedFloat32Array = PackedFloat32Array()  # drawn size, from the lane's depth
 
 
 func _init() -> void:
@@ -26,6 +27,7 @@ func _init() -> void:
 	_lane.resize(CAPACITY)
 	_team.resize(CAPACITY)
 	_hit.resize(CAPACITY)
+	_scale.resize(CAPACITY)
 
 
 func count() -> int:
@@ -33,7 +35,7 @@ func count() -> int:
 
 
 ## `hit` is what it does to a target of another team in its lane, or null for none.
-func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null) -> void:
+func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null, size: float = 1.0) -> void:
 	if _count == CAPACITY:
 		return
 	_x[_count] = at.x
@@ -43,6 +45,7 @@ func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, h
 	_lane[_count] = in_lane
 	_team[_count] = of_team
 	_hit[_count] = hit
+	_scale[_count] = size
 	_count += 1
 
 
@@ -60,7 +63,8 @@ func tick() -> void:
 
 ## The box projectile `i` hits with, in screen space.
 func rect(i: int) -> Rect2:
-	return Rect2(_x[i] - RADIUS, _y[i] - RADIUS, RADIUS * 2.0, RADIUS * 2.0)
+	var r: float = RADIUS * _scale[i]
+	return Rect2(_x[i] - r, _y[i] - r, r * 2.0, r * 2.0)
 
 
 func lane(i: int) -> int:
@@ -91,6 +95,7 @@ func remove(i: int) -> void:
 	_team[i] = _team[_count]
 	_hit[i] = _hit[_count]
 	_hit[_count] = null
+	_scale[i] = _scale[_count]
 	queue_redraw()
 
 
@@ -100,7 +105,8 @@ func _draw() -> void:
 		var centre := Vector2(_x[i], _y[i])
 		var back: float = -signf(_vx[i])
 		var flicker: float = 1.0 + 0.12 * sin(_age[i] * 0.9)
+		var r: float = RADIUS * _scale[i]
 		for k in range(4, 0, -1):
-			draw_circle(centre + Vector2(back * k * 20.0, 0.0), RADIUS * (1.0 - k * 0.18), Color(0.85, 0.25, 0.08, 0.5))
-		draw_circle(centre, RADIUS * flicker, Color(0.95, 0.45, 0.1))
-		draw_circle(centre, RADIUS * 0.6 * flicker, Color(1.0, 0.85, 0.35))
+			draw_circle(centre + Vector2(back * k * 20.0 * _scale[i], 0.0), r * (1.0 - k * 0.18), Color(0.85, 0.25, 0.08, 0.5))
+		draw_circle(centre, r * flicker, Color(0.95, 0.45, 0.1))
+		draw_circle(centre, r * 0.6 * flicker, Color(1.0, 0.85, 0.35))

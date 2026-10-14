@@ -21,6 +21,8 @@ func _initialize() -> void:
 	_test_death_and_pool()
 	_test_player_dies()
 	_test_spacing()
+	_test_follow_across_lanes()
+	_test_surround()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -98,11 +100,11 @@ func _test_spawn_and_approach() -> void:
 		if absf(body.x - _player.x) < _crowd.reach + _crowd.spacing * 4:
 			near += 1
 	_check(near >= 15, "after 200 ticks most of the crowd has walked up to the player (%d of 20 near)" % near)
-	var facing_right: bool = true
+	var facing_player: int = 0
 	for body in _crowd.alive():
-		if (body.x < _player.x) != (body.facing == 1) and absf(body.x - _player.x) > 10.0:
-			facing_right = false
-	_check(facing_right, "each body faces the player")
+		if (body.x < _player.x) == (body.facing == 1) or absf(body.x - _player.x) <= 10.0:
+			facing_player += 1
+	_check(facing_player >= 12, "most bodies face the player; the rest are walking round to the other side (%d of 20)" % facing_player)
 
 
 func _test_tokens_and_damage() -> void:
@@ -150,10 +152,48 @@ func _test_spacing() -> void:
 	_fight()
 	for i in 6:
 		_crowd.spawn(1, 700.0, 1)
-	_run(60)
+	_run(240)  # long enough for the ones that go around to have crossed
 	var closest: float = 9999.0
 	var alive: Array[CrowdBody] = _crowd.alive()
 	for i in alive.size():
 		for j in range(i + 1, alive.size()):
 			closest = minf(closest, absf(alive[i].x - alive[j].x))
 	_check(closest > _crowd.spacing * 0.5, "bodies spawned on one spot spread out along the lane (closest pair %.0f apart)" % closest)
+
+
+func _test_follow_across_lanes() -> void:
+	_fight()
+	# Ten in the front lane, the player in the back one.
+	_player.lane = 0
+	_player.set_lanes(LANES, SCALES)
+	for i in 10:
+		_crowd.spawn(2, 600.0 + 60.0 * i, 1)
+	_run(30)
+	var moved: int = 0
+	for body in _crowd.alive():
+		if body.lane != 2 or body.state == Body.State.LANE_CHANGE:
+			moved += 1
+	_check(moved == 0, "nobody follows a lane change at once")
+	_run(400)
+	var in_lane: int = 0
+	var in_middle: int = 0
+	for body in _crowd.alive():
+		if body.lane == 0:
+			in_lane += 1
+		elif body.lane == 1:
+			in_middle += 1
+	_check(in_lane > 0 and in_lane <= _crowd.max_per_lane, "after a moment some follow to the player's lane, up to %d (%d did)" % [_crowd.max_per_lane, in_lane])
+	_check(in_middle > 0, "the rest wait in the lane beside (%d in the middle lane)" % in_middle)
+
+
+func _test_surround() -> void:
+	_fight()
+	# Six from the left only: some should end up on the player's right.
+	for i in 6:
+		_crowd.spawn(1, 300.0 + 50.0 * i, 1)
+	_run(400)
+	var right: int = 0
+	for body in _crowd.alive():
+		if body.x > _player.x:
+			right += 1
+	_check(right >= 2, "a crowd that arrives from one side goes around to both sides (%d of 6 on the right)" % right)

@@ -23,6 +23,12 @@ var has_token: bool = false
 var rest: int = 0
 ## Which think turn this body is on: it thinks when the director's tick matches.
 var think_slot: int = 0
+## The side of the target this body tries to stand on: 1 for its right, -1 for its left, 0 not chosen yet.
+var side: int = 0
+## Walking through to the other side of the target: others don't push it while it crosses.
+var crossing: bool = false
+## Ticks the target has been in another lane, counted by the director.
+var off_lane_ticks: int = 0
 
 static var _flash_shader: Shader
 var _shade: float = 1.0
@@ -54,6 +60,9 @@ func revive(lanes: PackedFloat32Array, scales: PackedFloat32Array, start_lane: i
 	has_token = false
 	wants_attack = false
 	wanted_direction = 0
+	off_lane_ticks = 0
+	side = 0
+	crossing = false
 	facing = face
 	place_on(lanes, start_lane, start_x)
 	set_lanes(lanes, scales)

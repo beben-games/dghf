@@ -18,6 +18,14 @@ extends Node2D
 ## Ticks a body waits after a swing before it may swing again, between these two.
 @export var rest_min: int = 40
 @export var rest_max: int = 90
+## Ticks the target has to be in another lane before a body follows it there (issue #49).
+@export var lane_follow_ticks: int = 45
+## How many bodies may crowd the target's lane near it; the rest wait in the lanes beside.
+@export var max_per_lane: int = 6
+## How far from the target's x a body counts as crowding its lane.
+@export var crowd_width: float = 500.0
+## How many bodies may stand on one side of the target in its lane before the next one goes around.
+@export var max_per_side: int = 3
 
 var lane_y: PackedFloat32Array = PackedFloat32Array()
 var lane_scale: PackedFloat32Array = PackedFloat32Array()
@@ -99,6 +107,8 @@ func tick() -> void:
 			body.has_token = false
 			tokens_out -= 1
 			body.rest = _rng.randi_range(rest_min, rest_max)
+		if target != null:
+			body.off_lane_ticks = body.off_lane_ticks + 1 if body.lane != target.lane else 0
 		if _tick % think_every == body.think_slot and target != null:
 			tokens_out += _think(body, tokens_out)
 		body.tick()
@@ -122,16 +132,34 @@ func _think(body: CrowdBody, tokens_out: int) -> int:
 	var gap: float = target.x - body.x
 	body.wanted_direction = 0
 	body.wants_attack = false
-	if absf(gap) > 10.0:
-		body.facing = 1 if gap > 0.0 else -1
 	if body.lane != target.lane:
-		# Smart following is issue #49: for now a body stays in its lane and shadows the target's x.
+		# Follow across lanes after a moment, one lane at a time, unless the target's lane is full.
+		# Meanwhile shadow the target's x from this lane.
+		if body.off_lane_ticks >= lane_follow_ticks and _in_target_lane() < max_per_lane:
+			body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
+			return 0
 		if absf(gap) > reach:
 			body.wanted_direction = 1 if gap > 0.0 else -1
+		if absf(gap) > 10.0:
+			body.facing = 1 if gap > 0.0 else -1
+		return 0
+	# In the target's lane. A body keeps to the side of the target it arrived on, unless that
+	# side is full and the other has room: then it goes around, walking through the target
+	# (there is no body collision) with nobody pushing it on the way. Then it closes in and
+	# swings from its side.
+	var here: int = 1 if body.x > target.x else -1
+	if body.side == 0:
+		body.side = here
+	if body.side == here and _on_side(here) > max_per_side and _on_side(-here) < max_per_side and _room(-here):
+		body.side = -here
+	body.crossing = body.side != here
+	if body.crossing:
+		body.wanted_direction = body.side
 		return 0
 	if absf(gap) > reach:
 		body.wanted_direction = 1 if gap > 0.0 else -1
 		return 0
+	body.facing = 1 if gap > 0.0 else -1
 	if body.rest == 0 and not body.has_token and tokens_out < attack_tokens and target.can_be_hit():
 		body.has_token = true
 		body.wants_attack = true
@@ -139,16 +167,40 @@ func _think(body: CrowdBody, tokens_out: int) -> int:
 	return 0
 
 
+## How many bodies stand on `side` of the target in its lane, near it.
+func _on_side(side: int) -> int:
+	var n: int = 0
+	for body in _alive:
+		if body.lane == target.lane and not body.crossing and (body.x - target.x) * side > 0.0 and absf(body.x - target.x) < crowd_width:
+			n += 1
+	return n
+
+
+## Whether there is stage on `side` of the target for a body to stand on.
+func _room(side: int) -> bool:
+	var there: float = target.x + side * reach
+	return there > bounds.x and there < bounds.y
+
+
+## How many bodies are in the target's lane within crowd_width of it.
+func _in_target_lane() -> int:
+	var n: int = 0
+	for body in _alive:
+		if body.lane == target.lane and absf(body.x - target.x) < crowd_width:
+			n += 1
+	return n
+
+
 ## Bodies in the same lane that stand too close push each other apart a little,
 ## so a crowd spreads along the lane instead of stacking in one spot.
 func _keep_apart() -> void:
 	for i in _alive.size():
 		var a: CrowdBody = _alive[i]
-		if a.state == Body.State.LAUNCHED or a.state == Body.State.DEAD:
+		if a.state == Body.State.LAUNCHED or a.state == Body.State.DEAD or a.crossing:
 			continue
 		for j in range(i + 1, _alive.size()):
 			var b: CrowdBody = _alive[j]
-			if b.lane != a.lane or b.state == Body.State.LAUNCHED or b.state == Body.State.DEAD:
+			if b.lane != a.lane or b.state == Body.State.LAUNCHED or b.state == Body.State.DEAD or b.crossing:
 				continue
 			var gap: float = b.x - a.x
 			if absf(gap) < spacing:

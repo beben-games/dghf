@@ -146,6 +146,17 @@ func _test_player_dies() -> void:
 	_run(2400)
 	_check(_player.health == 0 and _player.state == Fighter.State.DEAD, "a player who does nothing against six is beaten and ends dead (health %d, %s)" % [_player.health, Fighter.STATE_NAMES[_player.state]])
 	_check(not _player.can_be_hit(), "a dead player can't be hit any more")
+	_run(60)  # any swing in progress ends
+	var swinging: int = 0
+	var walking: int = 0
+	for i in 200:
+		_run(1)
+		for body in _crowd.alive():
+			if body.state == Body.State.ATTACK:
+				swinging += 1
+			if body.state == Body.State.WALK:
+				walking += 1
+	_check(swinging == 0 and walking == 0, "once the player is down the crowd stops attacking and stands still (%d attack ticks, %d walk ticks)" % [swinging, walking])
 
 
 func _test_spacing() -> void:

@@ -132,6 +132,10 @@ func _think(body: CrowdBody, tokens_out: int) -> int:
 	var gap: float = target.x - body.x
 	body.wanted_direction = 0
 	body.wants_attack = false
+	if target.state == Body.State.DEAD:
+		# The fight is over: stand where you are.
+		body.crossing = false
+		return 0
 	if body.lane != target.lane:
 		# Follow across lanes after a moment, one lane at a time, unless the target's lane is full.
 		# Meanwhile shadow the target's x from this lane.

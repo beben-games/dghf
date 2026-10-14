@@ -20,7 +20,7 @@ Visuals wait: the plain figure and private placeholder skins carry the game unti
 
 | What | Where | How |
 |---|---|---|
-| The proof of concept (the main scene) | `scenes/levels/poc_stage/` | `scripts/run.sh`, or F5 in the editor (in the game, F5 makes the dummy fight, F6 adds ten small fry, R starts over) |
+| The sandbox (the main scene) | `scenes/main/` (the menu) and `scenes/levels/poc_stage/` (the stage) | `scripts/run.sh`, or F5 in the editor. The menu offers the boss fight and the melee; in a fight, Tab lists every key |
 | The crowd stress test | `scenes/stress_test/` | `scripts/run.sh res://scenes/stress_test/stress_test.tscn` (add `-- --benchmark` for the timed table) |
 | The fighter test | `tests/poc_player_test.gd` | `godot --headless --path . -s tests/poc_player_test.gd` prints `all passed` |
 | The move preview tool | `scenes/tools/move_preview/` | `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Steps through a move frame by frame and reloads it when its file is saved |
@@ -84,6 +84,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #41 Guard | Open. Merged. Hold K (B) to block hits from the front: blockstun and pushback instead of damage. F4 makes the dummy guard. Done when the team agrees on what a guard stops. |
 | #45 The first enemy that attacks | Open. Merged. F5 makes the dummy fight back: a brain presses the buttons of the same full fighter. Walks up, swings light and heavy, rests, guards sometimes, follows a lane change after 45 ticks. No health. Done when the team has fought it. |
 | #48 The crowd | In review. F6 adds ten small fry at a time, up to 48: a pooled crowd body with one jab and 30 health, a director with thinking in turns, three attack tokens and spacing, the player with 100 health and a death, R to start over. 40 on screen at 110 to 120 fps. Done when the team says it feels like a crowd. |
+| #54 Sandbox menu | In review. The game opens on a menu: boss fight (the dummy fights back, lanes closest) or melee (endless waves of ten). Tab is the pause menu with every key. |
 | #49 Smart following | In review. Small fry follow a lane change after 45 ticks, at most 6 in the player's lane, and go around to the other side when theirs has more than 3. |
 | #50 Spells scale with the button | Milestone 2, not started. See the plan above. |
 | #43 Dodge | Open. Merged. Shift (right trigger) dashes along the lane with invincible ticks in the middle and a short recovery; neutral is a step back. Done when the team agrees on its timing. |

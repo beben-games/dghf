@@ -1,7 +1,9 @@
+class_name PocStage
 extends Node2D
-## Proof of concept (issues #17 and #9): one playable character and a training
-## dummy on an empty 1080p stage with three lanes. It tests positions that are
-## still proposed. Nothing here is a decision.
+## The sandbox stage (issues #17, #9, #48, #54): one playable character on an
+## empty 1080p stage with three lanes, against the big dummy (the boss fight)
+## or endless small fry (the melee). It tests positions that are still
+## proposed. Nothing here is a decision.
 ##
 ## The Player and Dummy nodes are in the scene, so their values can be tuned in
 ## the editor's inspector.
@@ -9,7 +11,17 @@ extends Node2D
 ## This scene owns the clock: everything is ticked from _physics_process, in a
 ## fixed order, 60 times a second.
 
+enum Mode { BOSS_FIGHT, MELEE }
+
+## Which fight the menu picked. The menu sets it before changing scene.
+static var mode: Mode = Mode.BOSS_FIGHT
+
 const SCREEN := Vector2(1920.0, 1080.0)
+## The melee keeps this many small fry coming: a new wave of ten whenever fewer are left,
+## with at least `WAVE_GAP` ticks between waves.
+const MELEE_WAVE: int = 10
+const WAVE_GAP: int = 240
+const MENU: String = "res://scenes/main/main.tscn"
 ## The front lane's screen y. The other two sit above it, `spacing` apart.
 const FRONT_LANE_Y: float = 1000.0
 ## Ways of showing depth to try, cycled with F2 (issue #17: T and E asked for a lower camera and
@@ -27,9 +39,17 @@ const MARGIN: float = 120.0
 const LOCAL_SKIN: String = "res://local/skins/player"
 ## A built game has no local folder. It looks for a skin in this folder beside its executable.
 const BUILD_SKIN: String = "skins/player"
-const HELP: String = "Move: A D or stick    Jump: W, Space or (A)    Crouch: S    Lane: Q E or shoulders
-Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Guard: hold K or (B)    Dodge: Shift or (RT), with a direction or back    Fireball: down, down-forward, forward + attack
-F1: boxes    F2: lane spacing and depth    F3: shade the back lanes    F4: the dummy guards    F5: the dummy fights back    F6: ten more enemies    R: start over"
+const HELP: String = "Tab: pause menu, with every control and key"
+const PAUSE_HELP: String = """PAUSED        Tab or Esc: back to the fight        M: main menu
+
+Move: A, D or the stick         Jump: W, Space or (A)         Crouch: S         Change lane: Q, E or the shoulders
+Light attack: J or (X)          Heavy attack, a launcher: L or (Y)          Both work in a jump
+Guard: hold K or (B)            Dodge: Shift or the right trigger, with a direction or alone to step back
+Fireball: down, down-forward, forward, then J
+Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
+
+F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
+F4: the dummy guards            F5: the dummy fights back       F6: ten more small fry      R: start over"""
 
 var _player_input: PlayerInput
 var _view: FighterView
@@ -51,6 +71,9 @@ var _crowd: CrowdDirector
 var _health_bar: ColorRect
 var _health_back: ColorRect
 var _dead_label: Label
+var _pause_label: Label
+var _paused: bool = false
+var _wave_tick: int = -100000
 
 @onready var _fighter: Fighter = $Player
 @onready var _dummy: Fighter = $Dummy
@@ -105,6 +128,7 @@ func _ready() -> void:
 	_crowd.target = _fighter
 	add_child(_crowd)
 	_combat.fighters = [_fighter, _dummy]
+	_apply_mode()
 	_combat.projectiles = _projectiles
 	_combat.sparks = _sparks
 
@@ -141,6 +165,14 @@ func _ready() -> void:
 	_dead_label.text = "DOWN    R to start over"
 	_dead_label.visible = false
 	layer.add_child(_dead_label)
+	_pause_label = Label.new()
+	_pause_label.position = Vector2(120.0, 300.0)
+	_pause_label.add_theme_font_size_override("font_size", 30)
+	_pause_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_pause_label.add_theme_constant_override("outline_size", 10)
+	_pause_label.text = PAUSE_HELP
+	_pause_label.visible = false
+	layer.add_child(_pause_label)
 
 
 ## The player's skin, or null for the plain figure. Run from the project it is
@@ -152,13 +184,41 @@ func _find_skin() -> FighterSkin:
 	return FighterSkin.load_from(LOCAL_SKIN)
 
 
+## The boss fight: the dummy fights back and the lanes are closest (the camera "closer").
+## The melee: no dummy, ten small fry to start and a wave of ten whenever fewer are left.
+func _apply_mode() -> void:
+	if mode == Mode.BOSS_FIGHT:
+		_preset = 3
+		_dummy_fights = true
+		_dummy.input.source = _brain()
+		_dummy.visible = true
+	else:
+		_preset = 2
+		_dummy_fights = false
+		_dummy.input.source = InputSource.new()
+		_dummy.visible = false
+		_dummy.x = -10000.0  # out of everyone's reach
+	for fighter in _combat.fighters:
+		fighter.set_lanes(lanes(), scales())
+	_crowd.set_lanes(lanes(), scales())
+	queue_redraw()
+
+
 func _physics_process(_delta: float) -> void:
+	if _paused:
+		return
 	_tick += 1
+	if mode == Mode.MELEE and _crowd.count() < MELEE_WAVE and _tick - _wave_tick >= WAVE_GAP and _fighter.state != Fighter.State.DEAD:
+		_wave_tick = _tick
+		_spawn_wave(MELEE_WAVE)
 	_fighter.tick()
 	_dummy.tick()
 	_crowd.tick()
-	_combat.fighters = [_fighter, _dummy]
-	_combat.fighters.append_array(_crowd.alive())
+	var bodies: Array[Body] = [_fighter]
+	if mode == Mode.BOSS_FIGHT:
+		bodies.append(_dummy)
+	bodies.append_array(_crowd.alive())
+	_combat.fighters = bodies
 	_projectiles.tick()
 	_sparks.tick()
 	_combat.resolve()
@@ -171,6 +231,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	# A debug key, read directly on purpose: it is not a player's input.
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
+			KEY_TAB:
+				_paused = not _paused
+				_pause_label.visible = _paused
+			KEY_ESCAPE:
+				_paused = false
+				_pause_label.visible = false
+			KEY_M:
+				if _paused:
+					get_tree().change_scene_to_file(MENU)
 			KEY_F1:
 				_view.show_boxes = not _view.show_boxes
 				_dummy_view.show_boxes = _view.show_boxes
@@ -221,6 +290,8 @@ func _start_over() -> void:
 	_dummy.set_lanes(lanes(), scales())
 	_dummy.state = Fighter.State.IDLE
 	_dummy.facing = -1
+	_wave_tick = -100000
+	_apply_mode()
 
 
 ## A brain for the dummy, fighting the player.

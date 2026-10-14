@@ -56,6 +56,8 @@ func sample(_player: int) -> int:
 
 
 func _decide() -> int:
+	if target.state == Body.State.DEAD:
+		return 0  # the fight is over
 	var gap: float = target.x - fighter.x
 	var toward: int = Buttons.RIGHT if gap > 0.0 else Buttons.LEFT
 	if target.lane != fighter.lane:

@@ -88,7 +88,7 @@ func _animation() -> StringName:
 			return &"hurt"
 		Fighter.State.LAUNCHED:
 			return &"launched"
-		Fighter.State.KNOCKDOWN:
+		Fighter.State.KNOCKDOWN, Fighter.State.DEAD:
 			return &"knockdown"
 		Fighter.State.GETUP:
 			return &"getup"
@@ -178,7 +178,7 @@ func _tilt_figure() -> void:
 			draw_set_transform(Vector2.ZERO, back * 0.3)
 		Fighter.State.LAUNCHED:
 			draw_set_transform(Vector2.ZERO, back * minf(0.3 + ticks * 0.08, 1.4))
-		Fighter.State.KNOCKDOWN:
+		Fighter.State.KNOCKDOWN, Fighter.State.DEAD:
 			draw_set_transform(Vector2(0.0, -40.0), back * PI / 2.0)
 		Fighter.State.GETUP:
 			var left: float = 1.0 - ticks / _fighter.getup_ticks

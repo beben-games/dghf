@@ -124,6 +124,14 @@ The first piece of Milestone 2, from Ben's direction of 2026-10-13: one player a
 
 **Proposed, to confirm or change:** 5 damage a jab and 100 health (twenty jabs), 30 health a small fry, three attackers at once, the rests, the reach of 170 pixels, the spacing of 90, the 45-tick delay before following, 6 per lane and 3 per side, no chip or guard-breaking from small fry, and whether a swing through six should count six hits on the counter or one.
 
+## The sandbox menu (issue #54)
+
+Ben's direction, 2026-10-13. The game opens on a menu (`scenes/main/`) with two fights, both the same stage (`PocStage.mode`):
+
+- **Boss fight:** the big dummy fights back from the start, and the lanes are at their closest (the 35-pixel preset: the camera "closer"). F2 still cycles the presets.
+- **Melee:** no dummy; ten small fry to start, and a new wave of ten whenever fewer than ten are left, at least 240 ticks apart, endlessly, until the player is down.
+- **One help line** on screen: Tab opens the pause menu. The pause menu stops the clock and recaps every control and debug key; Tab or Esc closes it, M goes back to the main menu. R starts the fight over in either mode.
+
 ## The move preview tool (issue #8)
 
 The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.

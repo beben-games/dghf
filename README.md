@@ -12,7 +12,7 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 
 What there is to play today, in about fifteen minutes. If you work with Claude, ask it to "show me around the game": it follows the same tour from `docs/STATUS.md` and runs the commands for you.
 
-1. **Run the game:** `scripts/run.sh`. You get one character and a red training dummy on an empty stage. Without a skin the character is a plain blue figure: that is expected.
+1. **Run the game:** `scripts/run.sh`. A menu offers two fights: **Boss fight** (the big red dummy fights back, with the lanes closer) and **Melee** (ten small fry at a time, endlessly). Pick with up, down and Enter. Without a skin your character is a plain blue figure: that is expected. In a fight, Tab opens the pause menu, which lists every control and key below.
 2. **Move around:** walk, jump, crouch, and change lane with Q and E. The controls are in the table below.
 3. **Hit the dummy:** light (J), heavy (L), and a fireball from a distance. Press F1 to see the hitboxes.
 4. **Do the combo:** stand next to the dummy and press J, J, L, each press after the hit before lands. As the L lands, hold W to jump after the dummy, then press J and L in the air. That is five hits.
@@ -48,7 +48,7 @@ Both are Bash scripts (on Windows, use Git Bash) and need Godot 4.7.2 on the `PA
 
 ## Controls
 
-The game is a proof of concept for now: one character and a training dummy on an empty stage. These controls are being tried out and are not final.
+The game is a sandbox for now: one character against the big dummy or a crowd of small fry on an empty stage. These controls are being tried out and are not final. Tab shows them all in the game.
 
 | Action | Keyboard | Gamepad |
 |---|---|---|
@@ -63,6 +63,8 @@ The game is a proof of concept for now: one character and a training dummy on an
 | Dodge | Shift, with a direction held, or alone for a step back | Right trigger |
 | Fireball | Down, down-forward, forward, then light attack | The same |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
+| Pause menu, with every control and key | Tab (Esc closes it) | |
+| Back to the main menu, from the pause menu | M | |
 | Show hitboxes and hurtboxes | F1 | |
 | Try another lane spacing and depth (fighters smaller further back) | F2 | |
 | Shade the back lanes | F3 | |

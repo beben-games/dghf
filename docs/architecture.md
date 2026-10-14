@@ -91,7 +91,7 @@ One generic piece of code plays any move from its data. A preview scene steps th
 
 ## 6. Crowds
 
-**Proposed.** Decided after the stress test (issue #3).
+**Proposed.** Decided after the stress test (issue #3). Built as proposed in the proof of concept (issue #48, `docs/design/2026-10-04-hits-landing.md`, "The crowd"): pooled nodes, thinking in turns, attack tokens. Ben chose nodes over plain arrays on 2026-10-13 since 30 to 40 on screen is the most wanted for now.
 
 **Proposal.**
 - Ordinary enemies use the crowd body decided in section 4: a sprite and a script, no physics body. They are pooled: dead enemies are reset and reused, never freed.

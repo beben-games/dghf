@@ -29,9 +29,7 @@ const LOCAL_SKIN: String = "res://local/skins/player"
 const BUILD_SKIN: String = "skins/player"
 const HELP: String = "Move: A D or stick    Jump: W, Space or (A)    Crouch: S    Lane: Q E or shoulders
 Attack: J or (X)    Heavy: L or (Y)    Both work in a jump    Guard: hold K or (B)    Dodge: Shift or (RT), with a direction or back    Fireball: down, down-forward, forward + attack
-F1: boxes    F2: lane spacing and depth    F3: shade the back lanes    F4: the dummy guards    F5: the dummy fights back"
-## How long the combo counter stays after a combo ends, in ticks.
-const COMBO_LINGER: int = 60
+F1: boxes    F2: lane spacing and depth    F3: shade the back lanes    F4: the dummy guards    F5: the dummy fights back    F6: ten more enemies    R: start over"
 
 var _player_input: PlayerInput
 var _view: FighterView
@@ -41,7 +39,6 @@ var _sparks: HitSparks
 var _combat: Combat = Combat.new()
 var _label: Label
 var _combo_label: Label
-var _combo_linger: int = 0
 var _shake: float = 0.0
 var _tick: int = 0
 var _history: Array[int] = []  # recent stick positions, for the readout
@@ -50,6 +47,10 @@ var _preset: int = 2  # index into PRESETS
 var _shading: bool = false
 var _dummy_guards: bool = false
 var _dummy_fights: bool = false
+var _crowd: CrowdDirector
+var _health_bar: ColorRect
+var _health_back: ColorRect
+var _dead_label: Label
 
 @onready var _fighter: Fighter = $Player
 @onready var _dummy: Fighter = $Dummy
@@ -66,6 +67,7 @@ func _ready() -> void:
 		preload("res://data/moves/poc/air_light.tres"),
 		preload("res://data/moves/poc/air_heavy.tres"),
 	]
+	_fighter.max_health = 100
 	_fighter.setup(_player_input, lanes(), 1, SCREEN.x / 2.0)
 	_fighter.set_lanes(lanes(), scales())
 
@@ -98,6 +100,10 @@ func _ready() -> void:
 	_sparks.z_index = 3
 	add_child(_sparks)
 
+	_crowd = CrowdDirector.new()
+	_crowd.setup(lanes(), scales(), _fighter.bounds)
+	_crowd.target = _fighter
+	add_child(_crowd)
 	_combat.fighters = [_fighter, _dummy]
 	_combat.projectiles = _projectiles
 	_combat.sparks = _sparks
@@ -117,6 +123,24 @@ func _ready() -> void:
 	_combo_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_combo_label.add_theme_constant_override("outline_size", 16)
 	layer.add_child(_combo_label)
+	_health_back = ColorRect.new()
+	_health_back.position = Vector2(24.0, 196.0)
+	_health_back.size = Vector2(400.0, 22.0)
+	_health_back.color = Color(0.1, 0.1, 0.12, 0.8)
+	layer.add_child(_health_back)
+	_health_bar = ColorRect.new()
+	_health_bar.position = Vector2(26.0, 198.0)
+	_health_bar.size = Vector2(396.0, 18.0)
+	_health_bar.color = Color(0.85, 0.2, 0.2)
+	layer.add_child(_health_bar)
+	_dead_label = Label.new()
+	_dead_label.position = Vector2(SCREEN.x / 2.0 - 260.0, 400.0)
+	_dead_label.add_theme_font_size_override("font_size", 72)
+	_dead_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_dead_label.add_theme_constant_override("outline_size", 14)
+	_dead_label.text = "DOWN    R to start over"
+	_dead_label.visible = false
+	layer.add_child(_dead_label)
 
 
 ## The player's skin, or null for the plain figure. Run from the project it is
@@ -132,6 +156,9 @@ func _physics_process(_delta: float) -> void:
 	_tick += 1
 	_fighter.tick()
 	_dummy.tick()
+	_crowd.tick()
+	_combat.fighters = [_fighter, _dummy]
+	_combat.fighters.append_array(_crowd.alive())
 	_projectiles.tick()
 	_sparks.tick()
 	_combat.resolve()
@@ -151,6 +178,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				_preset = (_preset + 1) % PRESETS.size()
 				for fighter in _combat.fighters:
 					fighter.set_lanes(lanes(), scales())
+				_crowd.set_lanes(lanes(), scales())
 				queue_redraw()
 			KEY_F3:
 				_shading = not _shading
@@ -162,6 +190,37 @@ func _unhandled_input(event: InputEvent) -> void:
 				_dummy_fights = not _dummy_fights
 				_dummy_guards = false
 				_dummy.input.source = _brain() if _dummy_fights else InputSource.new()
+			KEY_F6:
+				_spawn_wave(10)
+			KEY_R:
+				_start_over()
+
+
+## Ten small fry at the edges of the screen, spread over the lanes, facing the player.
+func _spawn_wave(how_many: int) -> void:
+	for i in how_many:
+		var from_left: bool = i % 2 == 0
+		@warning_ignore("integer_division")
+		var at_x: float = MARGIN + 40.0 * (i / 2) if from_left else SCREEN.x - MARGIN - 40.0 * (i / 2)
+		_crowd.spawn(i % 3, at_x, 1 if from_left else -1)
+
+
+## The player back on its feet with full health, the crowd gone, the dummy still.
+func _start_over() -> void:
+	_crowd.clear()
+	_fighter.setup(_player_input, lanes(), 1, SCREEN.x / 2.0)
+	_fighter.set_lanes(lanes(), scales())
+	_fighter.state = Fighter.State.IDLE
+	_fighter.move = null
+	_fighter.hitstop = 0
+	_fighter.height = 0.0
+	_dummy_fights = false
+	_dummy_guards = false
+	_dummy.input.source = InputSource.new()
+	_dummy.setup(_dummy.input, lanes(), 1, SCREEN.x * 0.7)
+	_dummy.set_lanes(lanes(), scales())
+	_dummy.state = Fighter.State.IDLE
+	_dummy.facing = -1
 
 
 ## A brain for the dummy, fighting the player.
@@ -204,18 +263,23 @@ func _update_shake() -> void:
 	position = Vector2(_shake * side, -_shake * 0.5 * side)
 
 
-## The counter shows the dummy's combo from the second hit, and lingers a moment.
+## The counter shows the player's hits in a row, on anyone, from the second hit.
 func _update_combo() -> void:
-	_combo_linger = COMBO_LINGER if _dummy.in_hit_reaction() else maxi(_combo_linger - 1, 0)
-	_combo_label.visible = _dummy.combo_hits >= 2 and _combo_linger > 0
-	_combo_label.text = "%d HITS" % _dummy.combo_hits
+	var hits: int = _combat.combo_of(_fighter)
+	_combo_label.visible = hits >= 2
+	_combo_label.text = "%d HITS" % hits
+	_health_bar.size.x = 396.0 * float(_fighter.health) / _fighter.max_health
+	_dead_label.visible = _fighter.state == Fighter.State.DEAD
 
 
 func _update_readout() -> void:
-	for fighter in _combat.fighters:
-		var view: FighterView = _view if fighter == _fighter else _dummy_view
+	for body in _combat.fighters:
 		# The back lane is darkest: a cheap depth cue that keeps pixel art sharp.
-		view.shade = 1.0 - 0.12 * (2 - fighter.lane) if _shading else 1.0
+		var shade: float = 1.0 - 0.12 * (2 - body.lane) if _shading else 1.0
+		if body is CrowdBody:
+			(body as CrowdBody).set_shade(shade)
+		else:
+			(_view if body == _fighter else _dummy_view).shade = shade
 	var direction: int = _player_input.direction(_fighter.facing)
 	if _history.is_empty() or _history[-1] != direction:
 		_history.append(direction)
@@ -224,11 +288,11 @@ func _update_readout() -> void:
 	var move_text: String = ""
 	if _fighter.move != null:
 		move_text = "   %s %d/%d" % [_fighter.move.animation, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\ndummy (%s): %s   last combo %d hits, %d damage" % [
+	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\ndummy (%s): %s   last combo %d hits, %d damage   enemies: %d   health: %d" % [
 		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1,
 		"right" if _fighter.facing > 0 else "left", " ".join(_history),
 		"from a folder" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
 		int(PRESETS[_preset]["spacing"]), scales()[0], scales()[2], ", shaded" if _shading else "",
 		"fighting back" if _dummy_fights else "guarding" if _dummy_guards else "still",
-		Fighter.STATE_NAMES[_dummy.state], _dummy.combo_hits, _dummy.combo_damage,
+		Fighter.STATE_NAMES[_dummy.state], _dummy.combo_hits, _dummy.combo_damage, _crowd.count(), _fighter.health,
 	]

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+
+[sub_resource type="Resource" id="Resource_hit"]
+script = ExtResource("1_hbox")
+first_frame = 16
+last_frame = 20
+rect = Rect2(20, -180, 130, 110)
+damage = 5
+hitstun = 12
+hitstop = 4
+blockstun = 6
+knockback = 4.0
+
+[resource]
+script = ExtResource("2_move")
+id = &"jab"
+animation = &"jab"
+total_frames = 34
+hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])

@@ -19,7 +19,8 @@ What there is to play today, in about fifteen minutes. If you work with Claude, 
 5. **Look inside a move:** `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Step through a move with the left and right arrows, and change move with up and down.
 6. **Change a move yourself:** see "Tuning a move without code" below.
 7. **Fight it:** press F5 and the dummy walks up, attacks and sometimes guards. Guard (hold K) and dodge (Shift) against it.
-8. **Say what you think:** which parts felt good and which felt off. Comment on the issue for that part (the list is in `docs/STATUS.md`), or tell Ben.
+8. **Fight a crowd:** press F6 a few times for ten small fry at a time (up to 48). They surround you and jab; you have a health bar now, and R starts over when you go down.
+9. **Say what you think:** which parts felt good and which felt off. Comment on the issue for that part (the list is in `docs/STATUS.md`), or tell Ben.
 
 ## Tuning a move without code
 
@@ -67,6 +68,8 @@ The game is a proof of concept for now: one character and a training dummy on an
 | Shade the back lanes | F3 | |
 | The dummy guards | F4 | |
 | The dummy fights back | F5 | |
+| Ten more small-fry enemies | F6 | |
+| Start over (after going down, or any time) | R | |
 
 ## Contributing
 

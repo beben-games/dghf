@@ -109,6 +109,20 @@ Asked for by Ben on 2026-10-11: guard and dodge needed something to guard and do
 
 **Proposed, to confirm or change:** the reach, the rests, the guard chance, and that the enemy's moves are the player's. How it should beat a guard (today it can't: it has no grab and no attack from behind on purpose) is enemy design for Milestone 2. A player skin without `hurt`, `launched`, `knockdown` and `getup` animations shows the plain figure when hit.
 
+## The crowd (issue #48)
+
+The first piece of Milestone 2, from Ben's direction of 2026-10-13: one player against a large group of small fry that are a little dangerous when they gang up. Nothing here is decided; it is built to be played.
+
+- **F6** brings ten small fry from the edges of the screen, spread over the three lanes, up to 48 (`CrowdDirector.capacity`). **R** starts over.
+- **A `Body` base class** (`scenes/fighter/body.gd`) now holds what every body shares: x, lane, height, size by lane, team, health, and the whole of being hit: hitstop, flash, hitstun, launch, juggles, knockdown, getting up, death. The fighter extends it with its state machine, moves, cancels, jump, guard and dodge; the crowd body extends it with one attack. This is the "two bodies, one set of hit rules" of section 4 of the architecture, built as one base and two subclasses, pooled nodes rather than arrays (Ben's pick, 2026-10-13: 30 to 40 is the most wanted for now).
+- **A `CrowdBody`** (`scenes/enemies/crowd_body.gd`): a Body with one attack from move data (`data/moves/crowd/jab.tres`: 34 frames, a hitbox on frames 16 to 20, 5 damage, 12 hitstun, 4 hitstop), 30 health (three lights), a walk, and a plain figure that draws itself with the fighter's flash shader and a shadow. It knows how to walk, wait and swing; the director says when.
+- **A `CrowdDirector`** (`systems/enemies/crowd_director.gd`) owns a pool of 48 bodies, spawns and takes them back, ticks them, has each think every 6 ticks in turns, hands out 3 attack tokens so no more than three swing at once, rests a body 40 to 90 ticks after a swing, and pushes bodies in one lane apart so a crowd spreads along the lane instead of stacking. A body in another lane shadows the player's x and waits: following across lanes is issue #49.
+- **The player has 100 health** and goes down at 0 (the `dead` state: can't be hit, can't act). Small fry have 30 and fly off on the killing blow (`death_launch`), lie for a moment, and go back to the pool. The dummy has no health and can't die.
+- **The combo counter** is now the player's: hits in a row on anyone, with no gap longer than 90 ticks (`Combat.combo_window`). One swing through six small fry counts six.
+- 40 on screen run at 110 to 120 frames a second on Ben's MacBook Air with everything else on.
+
+**Proposed, to confirm or change:** 5 damage a jab and 100 health (twenty jabs), 30 health a small fry, three attackers at once, the rests, the reach of 170 pixels, the spacing of 90, no chip or guard-breaking from small fry, and whether a swing through six should count six hits on the counter or one.
+
 ## The move preview tool (issue #8)
 
 The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.

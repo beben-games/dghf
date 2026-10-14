@@ -1,10 +1,20 @@
 # Status
 
-**Updated 2026-10-11.** Where the project stands, for a person or a Claude starting a new session. To show someone what there is to play, go to "Showing someone around". Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
+**Updated 2026-10-13.** Where the project stands, for a person or a Claude starting a new session. To show someone what there is to play, go to "Showing someone around". Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
 
 ## In one paragraph
 
-Setup is done. Milestone 1 is under way. There is a playable proof of concept on `main`: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, guards, dodges, and throws a fireball, and a training dummy that takes or blocks the hits, or fights back (F5). T and E have played it. They want more overlap between the lanes, a lower camera and more depth; the proof of concept now starts with lanes 50 pixels apart and fighters scaled by lane (Ben's pick; F2 cycles the other presets, F3 shades the back lanes). They also want to know how to make floors, backgrounds, destructibles and pickups, which is the art pipeline (#11). The technical base of the combat core is decided, and everything a player feels (lanes, controls, screen and sprite size) is still proposed and waiting for a weekly meeting with all three.
+Setup is done and Milestone 1 is built: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, combos through cancels, guards, dodges and throws a fireball, and a training dummy that takes or blocks the hits or fights back (F5), with a move preview tool for tuning moves without code. T and E have played it; the stage now starts with lanes 50 pixels apart and fighters scaled by lane (Ben's pick; F2 cycles the other presets). The art pipeline is ported and the sprite-size probe is done (#11). **Milestone 2 starts with Ben's direction of 2026-10-13: nail the feel of one player against a large group of small-fry enemies that are dangerous when they gang up, before any big work on visuals.** Placeholder art stays in each person's `local/` and in private builds until then. The technical base of the combat core is decided; lanes, controls, screen and sprite size are still proposed and wait for a weekly meeting with all three.
+
+## Milestone 2: the plan (Ben, 2026-10-13)
+
+In this order, each its own issue:
+
+1. **The crowd** (#48): the crowd body, a pool and an enemy director; dozens of cheap small-fry enemies with one simple attack and small damage, taking hits by the same rules as a fighter. Done when the player fights twenty or more at once and it feels like a crowd.
+2. **Smart following** (#49): a maximum per lane, following across lanes with a slight delay, going around the player, attack tokens so ganging up stays readable.
+3. **Spells that scale with the button** (#50): light and heavy fireballs that feel different, and a harder motion for the strong one.
+
+Visuals wait: the plain figure and private placeholder skins carry the game until the feel is right. The sprite-size probe and `docs/art.md` are ready for when it is.
 
 ## What runs today
 
@@ -70,9 +80,10 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #6 2.5D movement, #7 Input router and buffer, #8 Moves from data | Not started as issues, but the proof of concept already has a first slice of each: lanes, the input buffer and command reader, and moves as data. Missing: a second player. Under #8, cancels are merged (light, light, heavy is a three-hit combo from data) and the move preview tool is in review. #8 is done when someone who doesn't code has changed a move with it. |
 | #9 Hits that feel good | Open. Merged. A training dummy takes hits: hitstop, hitstun, knockback, a white flash, a launcher, juggles, knockdown and getting up, screen shake and a combo counter. Done when the team has played it and agrees the hits feel solid. Its spec lists choices to confirm. |
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
-| #41 Guard | In review. Hold K (B) to block hits from the front: blockstun and pushback instead of damage. F4 makes the dummy guard. Done when the team agrees on what a guard stops. |
-| #45 The first enemy that attacks | In review. F5 makes the dummy fight back: a brain presses the buttons of the same full fighter. Walks up, swings light and heavy, rests, guards sometimes. No health. Done when the team has fought it. |
-| #43 Dodge | In review. Shift (right trigger) dashes along the lane with invincible ticks in the middle and a short recovery; neutral is a step back. Done when the team agrees on its timing. |
+| #41 Guard | Open. Merged. Hold K (B) to block hits from the front: blockstun and pushback instead of damage. F4 makes the dummy guard. Done when the team agrees on what a guard stops. |
+| #45 The first enemy that attacks | Open. Merged. F5 makes the dummy fight back: a brain presses the buttons of the same full fighter. Walks up, swings light and heavy, rests, guards sometimes, follows a lane change after 45 ticks. No health. Done when the team has fought it. |
+| #48 The crowd, #49 Smart following, #50 Spells scale with the button | Milestone 2, not started. See the plan above. |
+| #43 Dodge | Open. Merged. Shift (right trigger) dashes along the lane with invincible ticks in the middle and a short recovery; neutral is a step back. Done when the team agrees on its timing. |
 | #10 Milestone 1 build | Not started. The build script exists. |
 | #11 Port the PixelLab art pipeline | In review. The tools are ported and report the balance from here; `docs/art.md` is the guide for T and E (asset kinds and sizes at both candidate resolutions, the character workflow, the tools; everyone may generate with their own stack and keys, following the same art direction and palette). The sprite-size probe ran on 2026-10-11 (about 150 generations): the Pro character creator caps at 168 pixels and gave a small, big-headed look that Ben rejected; `create-character-v3` at 256 gives a 240-pixel man-at-arms that matches Ben's knight, now the approved reference (`art/refs/`). Results in `docs/probes/2026-10-11-size-probe/` and on the issue. Attacks: `pixminimax` gives 12 frames of a sword slash at 256 for 2 generations, so custom animations are cheap. Done when the meeting has picked the look and size. |
 | #17 1080p proof of concept | Open. Played by all three. The depth experiment (F2: lane spacing and fighter size by lane, F3: shading) is in. Done when the meeting has settled lanes, spacing and depth. |
@@ -104,7 +115,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 ## Suggested next steps
 
-1. T and E try the depth presets (F2) and say which one reads best, on #17. E's stress-test numbers into issue #3.
-2. Hold the meeting, then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
-3. The meeting picks the resolution and the character look from the probe (#11). Then rewrite issues #4 and #5 for the chosen size, and start the first character through the workflow in `docs/art.md`.
-4. Play the training dummy (#9) and the combos (#8), and tune the hit values with the move preview tool. T or E changing a move with it closes #8.
+1. **Build the crowd (#48)**, then smart following (#49), then the two fireballs (#50). Design choices that a player feels go in a spec in `docs/design/` marked proposed.
+2. Hold the meeting: lanes and depth (the 50-pixel preset), the resolution (the probe says keep 1080p), E's confirmation of two attacks plus guard, what guard and dodge should stop, the enemy's feel, and bosses-then-playable (#33). Then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
+3. T and E take the tour ("Showing someone around"), fight the dummy (F5), and tune a move with the preview tool; that closes #8. E's stress-test numbers into #3.
+4. After the meeting, rewrite issues #4 and #5 for the chosen size, and start the first character through the workflow in `docs/art.md`.

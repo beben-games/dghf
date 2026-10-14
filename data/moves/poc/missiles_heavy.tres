@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+
+[sub_resource type="Resource" id="Resource_hit"]
+script = ExtResource("1_hbox")
+damage = 18
+hitstun = 18
+hitstop = 6
+blockstun = 12
+knockback = 10.0
+launch = 16.0
+shake = 4.0
+
+[resource]
+script = ExtResource("2_move")
+id = &"missiles_heavy"
+animation = &"fireball"
+total_frames = 48
+button = 256
+motion = PackedInt32Array(6, 2, 3)
+motion_window = 18
+projectile_frame = 18
+projectile_offset = Vector2(120, -220)
+projectile_speed = 11.0
+projectile_hit = SubResource("Resource_hit")
+projectile_kind = 2
+projectile_size = 1.6
+projectile_lifetime = 200
+projectile_all_lanes = true
+projectile_homing = 1.4
+projectile_count = 3
+projectile_spread = 5.0

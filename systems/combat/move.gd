@@ -59,6 +59,17 @@ const JUMP: StringName = &"jump"
 @export var projectile_size: float = 1.0
 ## A piercing projectile goes through everything it hits, hitting each body once.
 @export var projectile_pierce: bool = false
+## A fireball flies along the lane; a burst grows around the point it leaves from and
+## hits every lane; a missile homes on the nearest enemy, across lanes.
+@export var projectile_kind: Projectiles.Kind = Projectiles.Kind.FIREBALL
+## Ticks it lasts, or 0 for until it leaves the screen.
+@export var projectile_lifetime: int = 0
+@export var projectile_all_lanes: bool = false
+## How hard a missile turns toward its target each tick (pixels a tick of speed change). 0 flies straight.
+@export var projectile_homing: float = 0.0
+## How many leave at once, fanned out vertically by `projectile_spread` pixels a tick each.
+@export var projectile_count: int = 1
+@export var projectile_spread: float = 0.0
 
 
 ## Whether `other` can start now, cutting this move short on `frame`.

@@ -139,22 +139,22 @@ Ben's direction, 2026-10-13: a spell's heavy version is twice as big and hits tw
 | Motion | Light (J) | Heavy (L) |
 |---|---|---|
 | Fireball: down, down-forward, forward | `fireball`: 14 damage, leaves on frame 14 of 36 | `fireball_heavy`: 28 damage, twice the size, leaves on frame 22 of 46, slower, and the motion must fit in 16 ticks instead of 24 |
-| Dragon punch: forward, down, down-forward | `dragon_punch_light`: 16 damage, launches, invincible on frames 1 to 8, rises on frame 3 | `dragon_punch_heavy`: 32 damage, higher, invincible to frame 12, the motion in 18 ticks |
-| Hurricane kick: down, down-back, back | `hurricane_light`: travels forward, two hits of 8 | `hurricane_heavy`: three hits of 12, the last launches, the motion in 18 ticks |
+| Missiles: forward, down, down-forward | `missiles_light`: one homing missile, 10 damage, finds the nearest enemy in any lane | `missiles_heavy`: three, 1.6 times the size, 18 damage each, launching, the motion in 18 ticks |
+| Blast: down, down-back, back | `blast_light`: a burst around the fighter that grows to about 220 pixels and hits every lane, 12 damage, pushes away from the centre | `blast_heavy`: about 340 pixels, 24 damage, launches, the motion in 18 ticks |
 | Super: the fireball motion twice, then L | | `super_fireball`: 40 damage, 2.6 times the size, pierces (hits everyone once), the motion in 40 ticks |
+
+Ben's first pass (2026-10-13) had a dragon punch and a hurricane kick on those two motions; he kept the motions and swapped the moves for the missiles and the blast, which reach across lanes and so matter against a crowd.
 
 What the moves needed, all as move data:
 
 - **`motion_window`**: ticks the whole motion may take. The light versions keep 24; the heavy ones ask 16 or 18, which is the "harder timing".
-- **Hit groups** (`HitBox.group`): a move hits each target once per group, so a spinning kick with boxes in groups 0, 1 and 2 hits three times.
-- **Rising moves** (`rise`, `rise_frame`, `rise_forward`): the user leaves the ground mid-move and the move keeps playing through the arc and the landing; if it ends in the air, the fall carries on as a jump.
-- **Travelling moves** (`travel`): the user moves forward while its boxes are out.
-- **Invincible frames** (`invincible_from`, `invincible_to`), for the dragon punch's start-up.
-- **Projectile size and piercing** (`projectile_size`, `projectile_pierce`).
+- **Projectile kinds** (`projectile_kind`): a fireball flies along its lane; a burst stays where it leaves from, grows over its `projectile_lifetime` and hits every lane (`projectile_all_lanes`); a missile homes on the nearest enemy it can hit, turning by `projectile_homing` a tick, across lanes. `projectile_count` and `projectile_spread` fan several out. `projectile_size` and `projectile_pierce` as before.
+- **Hit groups** (`HitBox.group`): a move hits each target once per group, for multi-hit moves.
+- **Rising and travelling moves** (`rise`, `rise_frame`, `rise_forward`, `travel`) and **invincible frames** (`invincible_from`, `invincible_to`) are in the move data too, from the dragon punch and hurricane kick, for whoever wants a move like that.
 
 The moves are tried in order: the super, then the heavy specials, then the light ones, then the normals. So a motion too slow for the heavy fireball with L gives the plain heavy, and the same motion with J still gives the light fireball.
 
-**Proposed, to confirm or change:** every number above; fireballs listed before the dragon punch (so walking forward into a fireball motion gives a fireball, not a dragon punch, the opposite of Street Fighter); no charge moves yet (hold back, then forward), which the command reader does not read; no mana, so the super is free. A skin may add `dragon_punch` and `hurricane` animations.
+**Proposed, to confirm or change:** every number above; fireballs listed before the missiles (so walking forward into a fireball motion gives a fireball); no charge moves yet (hold back, then forward), which the command reader does not read; no mana, so the super is free; the burst and the missiles are drawn in code until the team's effects arrive.
 
 ## The move preview tool (issue #8)
 

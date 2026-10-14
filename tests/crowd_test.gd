@@ -64,7 +64,7 @@ func _run(ticks: int) -> void:
 		_crowd.tick()
 		_combat.fighters = [_player]
 		_combat.fighters.append_array(_crowd.alive())
-		_projectiles.tick()
+		_projectiles.tick(_combat.fighters)
 		_combat.resolve()
 
 

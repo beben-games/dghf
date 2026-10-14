@@ -199,8 +199,7 @@ func _tick_attack() -> void:
 	if move_frame == move.projectile_frame and projectiles != null:
 		var offset: Vector2 = move.projectile_offset * depth_scale
 		offset.x *= facing
-		projectiles.spawn(position + offset, move.projectile_speed * facing, lane, team, move.projectile_hit,
-				depth_scale * move.projectile_size, move.projectile_pierce)
+		projectiles.spawn_from(move, position + offset, lane, team, facing, depth_scale)
 	if move.rise > 0.0 and move_frame == move.rise_frame:
 		vertical_speed = move.rise
 		_air_speed = facing * move.rise_forward

@@ -12,6 +12,7 @@ const H: int = Buttons.HEAVY
 const U: int = Buttons.UP
 const G: int = Buttons.GUARD
 const X: int = Buttons.DODGE
+const L: int = Buttons.LEFT
 
 var _failures: int = 0
 var _combat: Combat
@@ -50,6 +51,11 @@ func _initialize() -> void:
 	_test_dodge_through_a_hit()
 	_test_dodge_direction_and_recovery()
 	_test_dodge_from_guard_not_from_the_air()
+	_test_heavy_fireball()
+	_test_heavy_fireball_needs_a_clean_motion()
+	_test_dragon_punch()
+	_test_hurricane_kick()
+	_test_super_fireball_pierces()
 	_test_enemy_walks_up_and_attacks()
 	_test_enemy_changes_lane_and_sometimes_guards()
 	_free_all()
@@ -81,7 +87,13 @@ func _fighter(x: float, team: int, samples: Array = [], lane: int = 1) -> Fighte
 	fighter.team = team
 	fighter.bounds = Vector2(120.0, 1800.0)
 	fighter.moves = [
+		load("res://data/moves/poc/super_fireball.tres"),
+		load("res://data/moves/poc/fireball_heavy.tres"),
 		load("res://data/moves/poc/fireball.tres"),
+		load("res://data/moves/poc/dragon_punch_heavy.tres"),
+		load("res://data/moves/poc/dragon_punch_light.tres"),
+		load("res://data/moves/poc/hurricane_heavy.tres"),
+		load("res://data/moves/poc/hurricane_light.tres"),
 		load("res://data/moves/poc/light_2.tres"), load("res://data/moves/poc/light.tres"),
 		load("res://data/moves/poc/heavy.tres"),
 		load("res://data/moves/poc/air_light.tres"),
@@ -591,3 +603,78 @@ func _test_enemy_changes_lane_and_sometimes_guards() -> void:
 		if enemy.state == Fighter.State.BLOCK:
 			blocked_ticks += 1
 	_check(blocked_ticks > 0, "an enemy within reach guards sometimes when the player swings (%d ticks guarding)" % blocked_ticks)
+
+
+const QCF: Array = [D, D, D | R, D | R, R, R]
+
+
+func _test_heavy_fireball() -> void:
+	_clear()
+	var attacker := _fighter(620.0, 1, QCF + [R | H])
+	var target := _fighter(1200.0, 2)
+	_run(7)
+	_check(attacker.move != null and attacker.move.id == &"fireball_heavy", "the fireball motion with heavy is the heavy fireball")
+	var ticks: int = 0
+	while target.combo_hits == 0 and ticks < 150:
+		_run(1)
+		ticks += 1
+	_check(target.combo_damage == 28, "it hits twice as hard as the light one (%d)" % target.combo_damage)
+	_clear()
+	attacker = _fighter(620.0, 1, QCF + [R | H])
+	_run(7 + 23)
+	_check(_projectiles.count() == 1 and is_equal_approx(_projectiles.rect(0).size.x, Projectiles.RADIUS * 4.0), "and is twice as big (%.0f wide)" % _projectiles.rect(0).size.x)
+
+
+func _test_heavy_fireball_needs_a_clean_motion() -> void:
+	_clear()
+	# The same motion, stretched over 30 ticks: its "down" is inside the light's 24-tick window, outside the heavy's 16.
+	var slow: Array = _repeat(D, 12) + _repeat(D | R, 12) + _repeat(R, 6)
+	var attacker := _fighter(620.0, 1, slow + [R | H])
+	_run(slow.size() + 1)
+	_check(attacker.move != null and attacker.move.id == &"heavy", "a slow motion with heavy gives the plain heavy, not the heavy fireball (got %s)" % attacker.move.id)
+	_clear()
+	attacker = _fighter(620.0, 1, slow + [R | A])
+	_run(slow.size() + 1)
+	_check(attacker.move != null and attacker.move.id == &"fireball", "the same slow motion with light still gives the light fireball")
+
+
+func _test_dragon_punch() -> void:
+	_clear()
+	var attacker := _fighter(700.0, 1, _repeat(R, 3) + _repeat(D, 3) + [D | R | A])
+	var target := _fighter(800.0, 2)
+	_run(7)
+	_check(attacker.move != null and attacker.move.id == &"dragon_punch_light", "forward, down, down-forward and light is the dragon punch")
+	_run(2)
+	_check(attacker.is_invincible() and not attacker.can_be_hit(), "its start-up can't be hit")
+	_run(2)
+	_check(target.state == Fighter.State.LAUNCHED, "it launches the target on its first active frame")
+	_run(10)  # through the hitstop of that hit
+	_check(attacker.height > 0.0, "then it rises off the ground (height %.0f)" % attacker.height)
+	var ticks: int = 0
+	while attacker.state == Fighter.State.ATTACK and ticks < 100:
+		_run(1)
+		ticks += 1
+	_check(attacker.state == Fighter.State.IDLE and attacker.height == 0.0, "it lands and recovers on the ground (%s after %d ticks)" % [Fighter.STATE_NAMES[attacker.state], ticks])
+
+
+func _test_hurricane_kick() -> void:
+	_clear()
+	var attacker := _fighter(600.0, 1, _repeat(D, 3) + _repeat(D | L, 3) + [L | A])
+	var target := _fighter(850.0, 2)
+	_run(7)
+	_check(attacker.move != null and attacker.move.id == &"hurricane_light", "down, down-back, back and light is the hurricane kick")
+	_run(40)
+	_check(attacker.x > 600.0, "it travels forward (to %.0f)" % attacker.x)
+	_check(target.combo_hits == 2, "and hits the same target twice (%d)" % target.combo_hits)
+
+
+func _test_super_fireball_pierces() -> void:
+	_clear()
+	var attacker := _fighter(400.0, 1, QCF + QCF + [R | H])
+	var first := _fighter(900.0, 2)
+	var second := _fighter(1200.0, 2)
+	_run(13)
+	_check(attacker.move != null and attacker.move.id == &"super_fireball", "the fireball motion twice with heavy is the super")
+	_run(200)
+	_check(first.combo_damage == 40 and second.combo_damage == 40, "it goes through the first target and hits the second (%d, %d)" % [first.combo_damage, second.combo_damage])
+	_check(first.combo_hits == 1, "each only once")

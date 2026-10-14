@@ -132,6 +132,30 @@ Ben's direction, 2026-10-13. The game opens on a menu (`scenes/main/`) with two 
 - **Melee:** no dummy; ten small fry to start, and a new wave of ten whenever fewer than ten are left, at least 240 ticks apart, endlessly, until the player is down.
 - **One help line** on screen: Tab opens the pause menu. The pause menu stops the clock and recaps every control and debug key; Tab or Esc closes it, M goes back to the main menu. R starts the fight over in either mode.
 
+## Specials that scale with the button (issue #50)
+
+Ben's direction, 2026-10-13: a spell's heavy version is twice as big and hits twice as hard, but asks a slightly harder timing. Every special is move data in `data/moves/poc/`; the heavy version is its own file.
+
+| Motion | Light (J) | Heavy (L) |
+|---|---|---|
+| Fireball: down, down-forward, forward | `fireball`: 14 damage, leaves on frame 14 of 36 | `fireball_heavy`: 28 damage, twice the size, leaves on frame 22 of 46, slower, and the motion must fit in 16 ticks instead of 24 |
+| Dragon punch: forward, down, down-forward | `dragon_punch_light`: 16 damage, launches, invincible on frames 1 to 8, rises on frame 3 | `dragon_punch_heavy`: 32 damage, higher, invincible to frame 12, the motion in 18 ticks |
+| Hurricane kick: down, down-back, back | `hurricane_light`: travels forward, two hits of 8 | `hurricane_heavy`: three hits of 12, the last launches, the motion in 18 ticks |
+| Super: the fireball motion twice, then L | | `super_fireball`: 40 damage, 2.6 times the size, pierces (hits everyone once), the motion in 40 ticks |
+
+What the moves needed, all as move data:
+
+- **`motion_window`**: ticks the whole motion may take. The light versions keep 24; the heavy ones ask 16 or 18, which is the "harder timing".
+- **Hit groups** (`HitBox.group`): a move hits each target once per group, so a spinning kick with boxes in groups 0, 1 and 2 hits three times.
+- **Rising moves** (`rise`, `rise_frame`, `rise_forward`): the user leaves the ground mid-move and the move keeps playing through the arc and the landing; if it ends in the air, the fall carries on as a jump.
+- **Travelling moves** (`travel`): the user moves forward while its boxes are out.
+- **Invincible frames** (`invincible_from`, `invincible_to`), for the dragon punch's start-up.
+- **Projectile size and piercing** (`projectile_size`, `projectile_pierce`).
+
+The moves are tried in order: the super, then the heavy specials, then the light ones, then the normals. So a motion too slow for the heavy fireball with L gives the plain heavy, and the same motion with J still gives the light fireball.
+
+**Proposed, to confirm or change:** every number above; fireballs listed before the dragon punch (so walking forward into a fireball motion gives a fireball, not a dragon punch, the opposite of Street Fighter); no charge moves yet (hold back, then forward), which the command reader does not read; no mana, so the super is free. A skin may add `dragon_punch` and `hurricane` animations.
+
 ## The move preview tool (issue #8)
 
 The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.

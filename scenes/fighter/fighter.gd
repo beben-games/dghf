@@ -88,8 +88,10 @@ func hurt_rect() -> Rect2:
 	return _faced(crouch_hurt_box if state == State.CROUCH else hurt_box)
 
 
-## In the invincible ticks of a dodge.
+## In the invincible ticks of a dodge, or of a move that has some (a rising uppercut's start-up).
 func is_invincible() -> bool:
+	if is_attacking() and move_frame >= move.invincible_from and move_frame <= move.invincible_to:
+		return true
 	return state == State.DODGE and state_ticks >= dodge_invincible_from and state_ticks <= dodge_invincible_to
 
 
@@ -197,11 +199,28 @@ func _tick_attack() -> void:
 	if move_frame == move.projectile_frame and projectiles != null:
 		var offset: Vector2 = move.projectile_offset * depth_scale
 		offset.x *= facing
-		projectiles.spawn(position + offset, move.projectile_speed * facing, lane, team, move.projectile_hit, depth_scale)
+		projectiles.spawn(position + offset, move.projectile_speed * facing, lane, team, move.projectile_hit,
+				depth_scale * move.projectile_size, move.projectile_pierce)
+	if move.rise > 0.0 and move_frame == move.rise_frame:
+		vertical_speed = move.rise
+		_air_speed = facing * move.rise_forward
+	if height > 0.0 or vertical_speed > 0.0:
+		_fall()  # a rising move follows its arc; landing just carries on with the move's recovery
+	elif move.travel > 0.0 and _boxes_active():
+		x = clampf(x + facing * move.travel, bounds.x, bounds.y)
 	move_frame += 1
 	if move_frame >= move.total_frames:
 		move = null
-		_enter(State.IDLE)
+		# A rising move that is still in the air when it ends falls as a jump.
+		_enter(State.JUMP if height > 0.0 else State.IDLE)
+
+
+## Whether any hitbox of the current move is out on this frame.
+func _boxes_active() -> bool:
+	for box in move.hit_boxes:
+		if box.active_on(move_frame):
+			return true
+	return false
 
 
 ## Holding the guard. A blocked hit holds the fighter in it for its blockstun
@@ -247,12 +266,11 @@ func _try_moves(in_air: bool) -> bool:
 	for candidate in moves:
 		if candidate.air != in_air or not _can_start(candidate):
 			continue
-		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing):
+		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing, candidate.motion_window):
 			input.consume(candidate.button)
 			move = candidate
 			move_frame = 0
-			swing_targets.clear()
-			swing_froze = false
+			start_swing()
 			_enter(State.AIR_ATTACK if in_air else State.ATTACK)
 			return true
 	return false

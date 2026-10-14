@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+
+[sub_resource type="Resource" id="Resource_hit_a"]
+script = ExtResource("1_hbox")
+first_frame = 8
+last_frame = 13
+rect = Rect2(-20, -270, 240, 210)
+damage = 12
+hitstun = 14
+hitstop = 5
+blockstun = 10
+knockback = 6.0
+group = 0
+
+[sub_resource type="Resource" id="Resource_hit_b"]
+script = ExtResource("1_hbox")
+first_frame = 20
+last_frame = 25
+rect = Rect2(-20, -270, 240, 210)
+damage = 12
+hitstun = 14
+hitstop = 5
+blockstun = 10
+knockback = 6.0
+group = 1
+
+[sub_resource type="Resource" id="Resource_hit_c"]
+script = ExtResource("1_hbox")
+first_frame = 32
+last_frame = 37
+rect = Rect2(-20, -270, 240, 210)
+damage = 12
+hitstun = 20
+hitstop = 7
+blockstun = 12
+knockback = 10.0
+launch = 20.0
+shake = 6.0
+group = 2
+
+[resource]
+script = ExtResource("2_move")
+id = &"hurricane_heavy"
+animation = &"hurricane"
+total_frames = 56
+button = 256
+motion = PackedInt32Array(2, 1, 4)
+motion_window = 18
+travel = 11.0
+hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit_a"), SubResource("Resource_hit_b"), SubResource("Resource_hit_c")])

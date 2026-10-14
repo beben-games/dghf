@@ -36,10 +36,12 @@ func _resolve_moves() -> void:
 		if not attacker.is_attacking():
 			continue
 		for target in fighters:
-			if not _can_hit(attacker.team, attacker.lane, target) or attacker.swing_targets.has(target):
+			if not _can_hit(attacker.team, attacker.lane, target):
 				continue
 			var hurt: Rect2 = target.hurt_rect()
 			for box in attacker.move.hit_boxes:
+				if attacker.has_hit(target, box.group):
+					continue
 				if box.active_on(attacker.move_frame) and attacker.hit_rect(box).intersects(hurt):
 					attackers.append(attacker)
 					targets.append(target)
@@ -51,7 +53,7 @@ func _resolve_moves() -> void:
 	# blocked hit freezes for less.
 	var freeze: Dictionary[Body, int] = {}
 	for i in hits.size():
-		attackers[i].swing_targets.append(targets[i])
+		attackers[i].mark_hit(targets[i], hits[i].group)
 		var stop: int = targets[i].blocked_hitstop(hits[i]) if targets[i].blocks(attackers[i].facing) else hits[i].hitstop
 		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), stop)
 	for i in hits.size():
@@ -70,15 +72,23 @@ func _resolve_projectiles() -> void:
 		var hit: HitBox = projectiles.hit(i)
 		if hit != null:
 			var box: Rect2 = projectiles.rect(i)
+			var spent: bool = false
 			for target in fighters:
-				if _can_hit(projectiles.team(i), projectiles.lane(i), target) and box.intersects(target.hurt_rect()):
+				if not _can_hit(projectiles.team(i), projectiles.lane(i), target) or projectiles.has_hit(i, target):
+					continue
+				if box.intersects(target.hurt_rect()):
 					_land(target, hit, projectiles.direction(i), box.intersection(target.hurt_rect()).get_center())
 					for body in fighters:
 						if body.team == projectiles.team(i) and not target.blocks(projectiles.direction(i)):
 							_count(body)
 							break
-					projectiles.remove(i)
-					break
+					if projectiles.pierces(i):
+						projectiles.mark_hit(i, target)  # and on it goes
+					else:
+						spent = true
+						break
+			if spent:
+				projectiles.remove(i)
 		i -= 1
 
 

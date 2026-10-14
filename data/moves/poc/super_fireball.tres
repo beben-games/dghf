@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+
+[sub_resource type="Resource" id="Resource_hit"]
+script = ExtResource("1_hbox")
+damage = 40
+hitstun = 30
+hitstop = 10
+blockstun = 20
+knockback = 12.0
+launch = 26.0
+shake = 16.0
+
+[resource]
+script = ExtResource("2_move")
+id = &"super_fireball"
+animation = &"fireball"
+total_frames = 60
+button = 256
+motion = PackedInt32Array(2, 3, 6, 2, 3, 6)
+motion_window = 40
+projectile_frame = 28
+projectile_offset = Vector2(190, -150)
+projectile_speed = 10.0
+projectile_hit = SubResource("Resource_hit")
+projectile_size = 2.6
+projectile_pierce = true

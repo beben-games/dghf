@@ -16,7 +16,9 @@ var _age: PackedInt32Array = PackedInt32Array()
 var _lane: PackedInt32Array = PackedInt32Array()
 var _team: PackedInt32Array = PackedInt32Array()
 var _hit: Array[HitBox] = []  # null for a projectile that can't hit
-var _scale: PackedFloat32Array = PackedFloat32Array()  # drawn size, from the lane's depth
+var _scale: PackedFloat32Array = PackedFloat32Array()  # drawn size: the move's size times the lane's depth
+var _pierce: PackedByteArray = PackedByteArray()  # 1 for one that goes through what it hits
+var _already_hit: Array[PackedInt64Array] = []  # the bodies a piercing one has hit, by instance id
 
 
 func _init() -> void:
@@ -28,6 +30,10 @@ func _init() -> void:
 	_team.resize(CAPACITY)
 	_hit.resize(CAPACITY)
 	_scale.resize(CAPACITY)
+	_pierce.resize(CAPACITY)
+	_already_hit.resize(CAPACITY)
+	for i in CAPACITY:
+		_already_hit[i] = PackedInt64Array()
 
 
 func count() -> int:
@@ -35,7 +41,7 @@ func count() -> int:
 
 
 ## `hit` is what it does to a target of another team in its lane, or null for none.
-func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null, size: float = 1.0) -> void:
+func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null, size: float = 1.0, pierce: bool = false) -> void:
 	if _count == CAPACITY:
 		return
 	_x[_count] = at.x
@@ -46,6 +52,8 @@ func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, h
 	_team[_count] = of_team
 	_hit[_count] = hit
 	_scale[_count] = size
+	_pierce[_count] = 1 if pierce else 0
+	_already_hit[_count] = PackedInt64Array()
 	_count += 1
 
 
@@ -79,6 +87,19 @@ func hit(i: int) -> HitBox:
 	return _hit[i]
 
 
+## Whether projectile `i` goes on after a hit, and whether it has hit `body` already.
+func pierces(i: int) -> bool:
+	return _pierce[i] == 1
+
+
+func has_hit(i: int, body: Node) -> bool:
+	return _already_hit[i].has(body.get_instance_id())
+
+
+func mark_hit(i: int, body: Node) -> void:
+	_already_hit[i].append(body.get_instance_id())
+
+
 ## 1 if it flies right, -1 if left.
 func direction(i: int) -> int:
 	return 1 if _vx[i] >= 0.0 else -1
@@ -96,6 +117,9 @@ func remove(i: int) -> void:
 	_hit[i] = _hit[_count]
 	_hit[_count] = null
 	_scale[i] = _scale[_count]
+	_pierce[i] = _pierce[_count]
+	_already_hit[i] = _already_hit[_count]
+	_already_hit[_count] = PackedInt64Array()
 	queue_redraw()
 
 

@@ -61,7 +61,10 @@ The game is a sandbox for now: one character against the big dummy or a crowd of
 | Air attacks | J or L during a jump | X or Y during a jump |
 | Guard | Hold K | Hold B |
 | Dodge | Shift, with a direction held, or alone for a step back | Right trigger |
-| Fireball | Down, down-forward, forward, then light attack | The same |
+| Fireball | Down, down-forward, forward, then J (light) or L (heavy: twice as big, twice as hard, needs a cleaner motion) | The same with X or Y |
+| Dragon punch | Forward, down, down-forward, then J or L | The same |
+| Hurricane kick | Down, down-back, back, then J or L | The same |
+| Super fireball | The fireball motion twice, then L: huge, and goes through everyone | The same |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Pause menu, with every control and key | Tab (Esc closes it) | |
 | Back to the main menu, from the pause menu | M | |

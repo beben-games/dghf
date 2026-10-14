@@ -82,8 +82,7 @@ func _tick_state() -> void:
 				wants_attack = false
 				move = attack
 				move_frame = 0
-				swing_targets.clear()
-				swing_froze = false
+				start_swing()
 				_enter(State.ATTACK)
 			elif wanted_direction != 0:
 				facing = wanted_direction

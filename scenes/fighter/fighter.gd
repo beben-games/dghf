@@ -10,9 +10,6 @@ extends Body
 # Tuning, in pixels and ticks. Starting points to tune by playing.
 @export var walk_speed: float = 7.0
 @export var jump_speed: float = 30.0
-@export var lane_change_ticks: int = 10
-## How high the hop between two lanes goes, in pixels.
-@export var lane_hop: float = 40.0
 ## Where the fighter can be hit while crouching, relative to the feet.
 @export var crouch_hurt_box: Rect2 = Rect2(-55.0, -160.0, 110.0, 160.0)
 
@@ -66,8 +63,6 @@ func _tick_state() -> void:
 			_tick_jump()
 		State.ATTACK:
 			_tick_attack()
-		State.LANE_CHANGE:
-			_tick_lane_change()
 		State.AIR_ATTACK:
 			_tick_air_attack()
 		State.BLOCK:
@@ -117,14 +112,6 @@ func blocked_hitstop(hit: HitBox) -> int:
 	return maxi(2, int(hit.hitstop * block_hitstop))
 
 
-## A hit ends a lane change on the lane it was heading for.
-func _interrupted() -> void:
-	if state == State.LANE_CHANGE:
-		_ground_y = lane_y[lane]
-		depth_scale = lane_scale[lane]
-		height = 0.0
-
-
 func _tick_standing() -> void:
 	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
 	if direction != 0:
@@ -140,10 +127,10 @@ func _tick_standing() -> void:
 		return
 	if input.pressed(Buttons.LANE_UP) and lane > 0:
 		input.consume(Buttons.LANE_UP)
-		_start_lane_change(lane - 1)
+		start_lane_change(lane - 1)
 	elif input.pressed(Buttons.LANE_DOWN) and lane < lane_y.size() - 1:
 		input.consume(Buttons.LANE_DOWN)
-		_start_lane_change(lane + 1)
+		start_lane_change(lane + 1)
 	elif _wants_jump():
 		_start_jump(direction)
 	elif input.held(Buttons.DOWN):
@@ -217,18 +204,6 @@ func _tick_attack() -> void:
 		_enter(State.IDLE)
 
 
-## A hop from one lane to the next: the ground line and the size slide to the
-## new lane's while the fighter rises and lands.
-func _tick_lane_change() -> void:
-	var t: float = minf(float(state_ticks) / lane_change_ticks, 1.0)
-	_ground_y = lerpf(_lane_from_y, lane_y[lane], t)
-	depth_scale = lerpf(_scale_from, lane_scale[lane], t)
-	height = sin(t * PI) * lane_hop
-	if state_ticks >= lane_change_ticks:
-		height = 0.0
-		_enter(State.IDLE)
-
-
 ## Holding the guard. A blocked hit holds the fighter in it for its blockstun
 ## and slides it back; letting go after that stands the fighter up.
 func _tick_block() -> void:
@@ -299,10 +274,3 @@ func _can_start(candidate: Move) -> bool:
 	if move == null:
 		return not candidate.follow_up
 	return move.can_cancel_into(candidate, move_frame, not swing_targets.is_empty())
-
-
-func _start_lane_change(to_lane: int) -> void:
-	_lane_from_y = _ground_y
-	_scale_from = depth_scale
-	lane = to_lane
-	_enter(State.LANE_CHANGE)

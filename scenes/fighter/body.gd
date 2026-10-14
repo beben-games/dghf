@@ -20,6 +20,9 @@ const STATE_NAMES: Array[String] = [
 ## Health at the start, and the most a body can have. 0 means it can't die.
 @export var max_health: int = 0
 @export var gravity: float = 1.9
+@export var lane_change_ticks: int = 10
+## How high the hop between two lanes goes, in pixels.
+@export var lane_hop: float = 40.0
 
 @export_group("Getting hit")
 ## Where the body can be hit, relative to the feet. Up is negative y.
@@ -123,6 +126,8 @@ func _tick_frozen() -> void:
 ## this for the ones every body shares.
 func _tick_state() -> void:
 	match state:
+		State.LANE_CHANGE:
+			_tick_lane_change()
 		State.HITSTUN:
 			_tick_hitstun()
 		State.LAUNCHED:
@@ -221,9 +226,31 @@ func take_hit(hit: HitBox, direction: int) -> void:
 	_place()
 
 
-## What a subclass drops when a hit lands (a lane change in progress, for example).
+## What a subclass drops when a hit lands. A hit ends a lane change on the lane it was heading for.
 func _interrupted() -> void:
-	pass
+	if state == State.LANE_CHANGE:
+		_ground_y = lane_y[lane]
+		depth_scale = lane_scale[lane]
+		height = 0.0
+
+
+## Hops to `to_lane`: the ground line and the size slide to the new lane's
+## while the body rises and lands.
+func start_lane_change(to_lane: int) -> void:
+	_lane_from_y = _ground_y
+	_scale_from = depth_scale
+	lane = to_lane
+	_enter(State.LANE_CHANGE)
+
+
+func _tick_lane_change() -> void:
+	var t: float = minf(float(state_ticks) / lane_change_ticks, 1.0)
+	_ground_y = lerpf(_lane_from_y, lane_y[lane], t)
+	depth_scale = lerpf(_scale_from, lane_scale[lane], t)
+	height = sin(t * PI) * lane_hop
+	if state_ticks >= lane_change_ticks:
+		height = 0.0
+		_enter(State.IDLE)
 
 
 ## The hitboxes active this tick, in screen space.

@@ -4,14 +4,21 @@ extends RefCounted
 ## they were added, then projectiles (docs/architecture.md, section 7). Call
 ## resolve() after everything has moved this tick.
 
-var fighters: Array[Fighter] = []
+var fighters: Array[Body] = []
 var projectiles: Projectiles
 var sparks: HitSparks
 ## The strongest shake asked for by this tick's hits, in pixels.
 var shake: float = 0.0
+## Ticks without landing a hit after which an attacker's combo count ends.
+var combo_window: int = 90
+
+var _tick: int = 0
+var _combo: Dictionary[Body, int] = {}
+var _last_hit: Dictionary[Body, int] = {}
 
 
 func resolve() -> void:
+	_tick += 1
 	shake = 0.0
 	_resolve_moves()
 	if projectiles != null:
@@ -21,8 +28,8 @@ func resolve() -> void:
 func _resolve_moves() -> void:
 	# Find every hit before applying any, so two fighters who hit each other
 	# on the same tick both land.
-	var attackers: Array[Fighter] = []
-	var targets: Array[Fighter] = []
+	var attackers: Array[Body] = []
+	var targets: Array[Body] = []
 	var hits: Array[HitBox] = []
 	var points: PackedVector2Array = PackedVector2Array()
 	for attacker in fighters:
@@ -42,14 +49,16 @@ func _resolve_moves() -> void:
 
 	# The attacker freezes once per swing, for the longest hitstop it landed. A
 	# blocked hit freezes for less.
-	var freeze: Dictionary[Fighter, int] = {}
+	var freeze: Dictionary[Body, int] = {}
 	for i in hits.size():
 		attackers[i].swing_targets.append(targets[i])
 		var stop: int = targets[i].blocked_hitstop(hits[i]) if targets[i].blocks(attackers[i].facing) else hits[i].hitstop
 		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), stop)
 	for i in hits.size():
 		_land(targets[i], hits[i], attackers[i].facing, points[i])
-	for attacker: Fighter in freeze:
+		if not targets[i].blocks(attackers[i].facing):
+			_count(attackers[i])
+	for attacker: Body in freeze:
 		if not attacker.swing_froze:
 			attacker.swing_froze = true
 			attacker.hitstop = maxi(attacker.hitstop, freeze[attacker])
@@ -64,16 +73,33 @@ func _resolve_projectiles() -> void:
 			for target in fighters:
 				if _can_hit(projectiles.team(i), projectiles.lane(i), target) and box.intersects(target.hurt_rect()):
 					_land(target, hit, projectiles.direction(i), box.intersection(target.hurt_rect()).get_center())
+					for body in fighters:
+						if body.team == projectiles.team(i) and not target.blocks(projectiles.direction(i)):
+							_count(body)
+							break
 					projectiles.remove(i)
 					break
 		i -= 1
 
 
-func _can_hit(team: int, lane: int, target: Fighter) -> bool:
+## How many hits `attacker` has landed in a row, on any targets, with no gap
+## longer than combo_window. 0 once the window has passed.
+func combo_of(attacker: Body) -> int:
+	if _tick - _last_hit.get(attacker, -combo_window * 2) > combo_window:
+		return 0
+	return _combo.get(attacker, 0)
+
+
+func _count(attacker: Body) -> void:
+	_combo[attacker] = 1 if _tick - _last_hit.get(attacker, -combo_window * 2) > combo_window else _combo.get(attacker, 0) + 1
+	_last_hit[attacker] = _tick
+
+
+func _can_hit(team: int, lane: int, target: Body) -> bool:
 	return target.team != team and target.lane == lane and target.can_be_hit()
 
 
-func _land(target: Fighter, hit: HitBox, direction: int, at: Vector2) -> void:
+func _land(target: Body, hit: HitBox, direction: int, at: Vector2) -> void:
 	if target.blocks(direction):
 		target.take_block(hit, direction)
 		if sparks != null:

@@ -10,6 +10,9 @@ extends Body
 # Tuning, in pixels and ticks. Starting points to tune by playing.
 @export var walk_speed: float = 7.0
 @export var jump_speed: float = 30.0
+## Ticks the other way must be held before the fighter turns around. A quick tap, as in
+## a motion input, does not turn it, so a motion read relative to the facing holds up.
+@export var turn_ticks: int = 4
 ## Where the fighter can be hit while crouching, relative to the feet.
 @export var crouch_hurt_box: Rect2 = Rect2(-55.0, -160.0, 110.0, 160.0)
 
@@ -34,6 +37,7 @@ var projectiles: Projectiles
 var moves: Array[Move] = []
 
 var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
+var _turning: int = 0  # ticks the other way has been held
 ## The way the current dodge goes: 1 right, -1 left.
 var dodge_direction: int = 1
 
@@ -116,8 +120,12 @@ func blocked_hitstop(hit: HitBox) -> int:
 
 func _tick_standing() -> void:
 	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
-	if direction != 0:
-		facing = direction
+	if direction != 0 and direction != facing:
+		_turning += 1
+		if _turning >= turn_ticks:
+			facing = direction
+	else:
+		_turning = 0
 	if _try_dodge():
 		return
 	if input.held(Buttons.GUARD):

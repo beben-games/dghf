@@ -46,7 +46,7 @@ Move: A, D or the stick         Jump: W, Space or (A)         Crouch: S         
 Light attack: J or (X)          Heavy attack, a launcher: L or (Y)          Both work in a jump
 Guard: hold K or (B)            Dodge: Shift or the right trigger, with a direction or alone to step back
 Specials, with J for the light version or L for the heavy one, twice as big and twice as hard but asking a cleaner motion:
-Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, down, down-forward        Blast around you, every lane: down, down-back, back
+Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, then down-forward        Blast around you, every lane: tap down twice
 Super fireball: the fireball motion twice, then L: huge, and goes through everyone
 Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 

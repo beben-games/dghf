@@ -62,8 +62,8 @@ The game is a sandbox for now: one character against the big dummy or a crowd of
 | Guard | Hold K | Hold B |
 | Dodge | Shift, with a direction held, or alone for a step back | Right trigger |
 | Fireball | Down, down-forward, forward, then J (light) or L (heavy: twice as big, twice as hard, needs a cleaner motion) | The same with X or Y |
-| Homing missiles, across lanes | Forward, down, down-forward, then J (one) or L (three, bigger) | The same |
-| Blast around you, every lane | Down, down-back, back, then J or L (bigger, launches) | The same |
+| Homing missiles, across lanes | Forward, then down-forward, then J (one) or L (three, bigger) | The same |
+| Blast around you, every lane | Tap down twice, then J or L (bigger, launches) | The same |
 | Super fireball | The fireball motion twice, then L: huge, and goes through everyone | The same |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Pause menu, with every control and key | Tab (Esc closes it) | |

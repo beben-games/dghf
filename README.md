@@ -74,7 +74,7 @@ The game is a sandbox for now: one character against the big dummy or a crowd of
 | The big dummies guard | F4 | |
 | Every enemy fights back, or stands still (big and small at once) | F5 | |
 | Ten more small-fry enemies | F6 | |
-| A small fry in front of you; a big dummy in front of you | 1; 2 | |
+| A small fry in front of you in a random lane; a big dummy in front of you | 1; 2 | |
 | Start over (after going down, or any time) | R | |
 
 ## Contributing

@@ -66,7 +66,6 @@ var _label: Label
 var _combo_label: Label
 var _shake: float = 0.0
 var _tick: int = 0
-var _history: Array[int] = []  # recent stick positions, for the readout
 ## The preset the stage starts in: lanes 50 pixels apart with depth (Ben's pick, 2026-10-11). F2 cycles.
 var _preset: int = 2  # index into PRESETS
 var _shading: bool = false
@@ -79,6 +78,7 @@ var _health_bar: ColorRect
 var _health_back: ColorRect
 var _dead_label: Label
 var _pause_label: Label
+var _pause_back: ColorRect
 var _paused: bool = false
 var _wave_tick: int = -100000
 
@@ -164,6 +164,12 @@ func _ready() -> void:
 	_dead_label.text = "DOWN    R to start over"
 	_dead_label.visible = false
 	layer.add_child(_dead_label)
+	_pause_back = ColorRect.new()
+	_pause_back.position = Vector2(80.0, 260.0)
+	_pause_back.size = Vector2(SCREEN.x - 160.0, 440.0)
+	_pause_back.color = Color(0.05, 0.05, 0.07, 0.88)
+	_pause_back.visible = false
+	layer.add_child(_pause_back)
 	_pause_label = Label.new()
 	_pause_label.position = Vector2(120.0, 300.0)
 	_pause_label.add_theme_font_size_override("font_size", 30)
@@ -273,9 +279,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_TAB:
 				_paused = not _paused
 				_pause_label.visible = _paused
+				_pause_back.visible = _paused
 			KEY_ESCAPE:
 				_paused = false
 				_pause_label.visible = false
+				_pause_back.visible = false
 			KEY_M:
 				if _paused:
 					get_tree().change_scene_to_file(MENU)
@@ -304,7 +312,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F6:
 				_spawn_wave(10)
 			KEY_1:
-				_crowd.spawn(_fighter.lane, _in_front(), -_fighter.facing)
+				_crowd.spawn(randi_range(0, 2), _in_front(), -_fighter.facing)
 			KEY_2:
 				_add_dummy(_fighter.lane, _in_front(), -_fighter.facing)
 			KEY_R:
@@ -397,18 +405,11 @@ func _update_readout() -> void:
 			_view.shade = shade
 		else:
 			_dummy_views[_dummies.find(body)].shade = shade
-	var direction: int = _player_input.direction(_fighter.facing)
-	if _history.is_empty() or _history[-1] != direction:
-		_history.append(direction)
-		if _history.size() > 12:
-			_history.pop_front()
+	# The readout: what the player is doing, who is on the stage, and the frame rate.
 	var move_text: String = ""
 	if _fighter.move != null:
-		move_text = "   %s %d/%d" % [_fighter.move.animation, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\nenemies: %d big, %d small, %s   health: %d" % [
-		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1,
-		"right" if _fighter.facing > 0 else "left", " ".join(_history),
-		"from a folder" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
-		int(PRESETS[_preset]["spacing"]), scales()[0], scales()[2], ", shaded" if _shading else "",
-		_dummies.size(), _crowd.count(), "fighting back" if _fighting else "guarding" if _dummy_guards else "standing still", _fighter.health,
+		move_text = " %s %d/%d" % [_fighter.move.id, _fighter.move_frame, _fighter.move.total_frames]
+	_label.text = "%s\n%s%s   lane %d   %d fps\nenemies: %d big, %d small, %s" % [
+		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, Engine.get_frames_per_second(),
+		_dummies.size(), _crowd.count(), "fighting back" if _fighting else "guarding" if _dummy_guards else "standing still",
 	]

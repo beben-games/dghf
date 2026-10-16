@@ -409,7 +409,7 @@ func _update_readout() -> void:
 	var move_text: String = ""
 	if _fighter.move != null:
 		move_text = " %s %d/%d" % [_fighter.move.id, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %d fps\nenemies: %d big, %d small, %s" % [
+	_label.text = "%s\n%s%s   lane %d   %d fps   enemies %s" % [
 		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, Engine.get_frames_per_second(),
-		_dummies.size(), _crowd.count(), "fighting back" if _fighting else "guarding" if _dummy_guards else "standing still",
+		"fighting back" if _fighting else "guarding" if _dummy_guards else "standing still",
 	]

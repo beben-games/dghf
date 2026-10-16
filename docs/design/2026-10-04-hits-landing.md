@@ -102,7 +102,7 @@ Asked for by Ben on 2026-10-11, the other half of "block and dodge".
 
 Asked for by Ben on 2026-10-11: guard and dodge needed something to guard and dodge.
 
-- **F5** makes the training dummy fight back. It is the same full fighter, driven by a `FighterBrain` (`systems/enemies/fighter_brain.gd`) instead of a device: an input source that presses buttons, so the enemy moves, attacks, guards and gets hit exactly as a player does. This is the decided split of section 4 of the architecture. The crowd body and the enemy director are Milestone 2.
+- **F5** makes the training dummy fight back (since 2026-10-15 it starts and stops every enemy on the stage, the small fry included). It is the same full fighter, driven by a `FighterBrain` (`systems/enemies/fighter_brain.gd`) instead of a device: an input source that presses buttons, so the enemy moves, attacks, guards and gets hit exactly as a player does. This is the decided split of section 4 of the architecture. The crowd body and the enemy director are Milestone 2.
 - **What it does:** follows the player to another lane only after the player has been there 45 ticks (`lane_follow_ticks`: a lane hop buys a moment, and the enemy doesn't shadow every hop), walks within reach (220 pixels), swings light or heavy (one heavy in three), rests 30 to 70 ticks between swings, turns to face the player, and guards for 24 ticks about half the time the player swings within reach. It thinks every 6 ticks, as section 6 proposes, with a seeded random so a fight replays.
 - Its moves are the light, the second light and the heavy: no fireball, no air moves. Every number is a value on the brain.
 - No health, no death: it fights until the player stops it or presses F5 again.
@@ -130,6 +130,7 @@ Ben's direction, 2026-10-13. The game opens on a menu (`scenes/main/`) with two 
 
 - **Boss fight:** the big dummy fights back from the start, and the lanes are at their closest (the 35-pixel preset: the camera "closer"). F2 still cycles the presets.
 - **Melee:** no dummy; ten small fry to start, and a new wave of ten whenever fewer than ten are left, at least 240 ticks apart, endlessly, until the player is down.
+- **Sandbox** (Ben, 2026-10-15): an empty stage, the 50-pixel preset. **1** adds a small fry 320 pixels in front of the player in a random lane, **2** a big dummy there in the player's lane, as many of each as wanted. Everything added stands still: the crowd director is passive and the big dummies have no brain. **F5 starts and stops every enemy at once**, big and small (it does that in every scene now); F4 makes the big dummies guard. F6 and R work too. The big dummies are made in code, so the Player is the only fighter left in the scene file for the inspector.
 - **One help line** on screen: Tab opens the pause menu. The pause menu stops the clock and recaps every control and debug key; Tab or Esc closes it, M goes back to the main menu. R starts the fight over in either mode.
 
 ## Specials that scale with the button (issue #50)

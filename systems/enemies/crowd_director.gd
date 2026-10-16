@@ -32,6 +32,8 @@ var lane_scale: PackedFloat32Array = PackedFloat32Array()
 var bounds: Vector2 = Vector2(0.0, 1920.0)
 ## Who the crowd fights. Set by the stage.
 var target: Body
+## Passive bodies stand where they are and never think: for a sandbox where enemies wait to be hit.
+var passive: bool = false
 ## The attack data every body uses.
 var attack: Move = preload("res://data/moves/crowd/jab.tres")
 
@@ -109,7 +111,7 @@ func tick() -> void:
 			body.rest = _rng.randi_range(rest_min, rest_max)
 		if target != null:
 			body.off_lane_ticks = body.off_lane_ticks + 1 if body.lane != target.lane else 0
-		if _tick % think_every == body.think_slot and target != null:
+		if _tick % think_every == body.think_slot and target != null and not passive:
 			tokens_out += _think(body, tokens_out)
 		body.tick()
 	_keep_apart()

@@ -12,13 +12,13 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 
 What there is to play today, in about fifteen minutes. If you work with Claude, ask it to "show me around the game": it follows the same tour from `docs/STATUS.md` and runs the commands for you.
 
-1. **Run the game:** `scripts/run.sh`. A menu offers two fights: **Boss fight** (the big red dummy fights back, with the lanes closer) and **Melee** (ten small fry at a time, endlessly). Pick with up, down and Enter. Without a skin your character is a plain blue figure: that is expected. In a fight, Tab opens the pause menu, which lists every control and key below.
+1. **Run the game:** `scripts/run.sh`. A menu offers three scenes: **Boss fight** (the big red dummy fights back, with the lanes closer), **Melee** (ten small fry at a time, endlessly) and **Sandbox** (an empty stage: 1 adds a small fry in front of you, 2 a big dummy, as many as you like, and they all stand still until F5 tells them to fight). Pick with up, down and Enter. Without a skin your character is a plain blue figure: that is expected. In a fight, Tab opens the pause menu, which lists every control and key below.
 2. **Move around:** walk, jump, crouch, and change lane with Q and E. The controls are in the table below.
 3. **Hit the dummy:** light (J), heavy (L), and a fireball from a distance. Press F1 to see the hitboxes.
 4. **Do the combo:** stand next to the dummy and press J, J, L, each press after the hit before lands. As the L lands, hold W to jump after the dummy, then press J and L in the air. That is five hits.
 5. **Look inside a move:** `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Step through a move with the left and right arrows, and change move with up and down.
 6. **Change a move yourself:** see "Tuning a move without code" below.
-7. **Fight it:** press F5 and the dummy walks up, attacks and sometimes guards. Guard (hold K) and dodge (Shift) against it.
+7. **Fight it:** press F5 and the dummy walks up, attacks and sometimes guards (F5 starts and stops every enemy on the stage, big and small). Guard (hold K) and dodge (Shift) against it.
 8. **Fight a crowd:** press F6 a few times for ten small fry at a time (up to 48). They surround you and jab; you have a health bar now, and R starts over when you go down.
 9. **Say what you think:** which parts felt good and which felt off. Comment on the issue for that part (the list is in `docs/STATUS.md`), or tell Ben.
 
@@ -71,9 +71,10 @@ The game is a sandbox for now: one character against the big dummy or a crowd of
 | Show hitboxes and hurtboxes | F1 | |
 | Try another lane spacing and depth (fighters smaller further back) | F2 | |
 | Shade the back lanes | F3 | |
-| The dummy guards | F4 | |
-| The dummy fights back | F5 | |
+| The big dummies guard | F4 | |
+| Every enemy fights back, or stands still (big and small at once) | F5 | |
 | Ten more small-fry enemies | F6 | |
+| A small fry in front of you in a random lane; a big dummy in front of you | 1; 2 | |
 | Start over (after going down, or any time) | R | |
 
 ## Contributing

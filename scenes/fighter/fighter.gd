@@ -204,10 +204,13 @@ func _tick_attack() -> void:
 		move = null
 		_start_jump(int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT)))
 		return
-	if move_frame == move.projectile_frame and projectiles != null:
-		var offset: Vector2 = move.projectile_offset * depth_scale
-		offset.x *= facing
-		projectiles.spawn_from(move, position + offset, lane, team, facing, depth_scale)
+	if projectiles != null and move.projectile_frame >= 0:
+		# Several projectiles leave one after the other, projectile_interval ticks apart.
+		for i in maxi(move.projectile_count, 1):
+			if move_frame == move.projectile_frame + i * move.projectile_interval:
+				var offset: Vector2 = move.projectile_offset * depth_scale
+				offset.x *= facing
+				projectiles.spawn_from(move, position + offset, lane, team, facing, depth_scale, i)
 	if move.rise > 0.0 and move_frame == move.rise_frame:
 		vertical_speed = move.rise
 		_air_speed = facing * move.rise_forward

@@ -67,9 +67,13 @@ const JUMP: StringName = &"jump"
 @export var projectile_all_lanes: bool = false
 ## How hard a missile turns toward its target each tick (pixels a tick of speed change). 0 flies straight.
 @export var projectile_homing: float = 0.0
-## How many leave at once, fanned out vertically by `projectile_spread` pixels a tick each.
+## How many leave, one every `projectile_interval` ticks from `projectile_frame`, fanned out
+## vertically by `projectile_spread` pixels a tick each.
 @export var projectile_count: int = 1
 @export var projectile_spread: float = 0.0
+@export var projectile_interval: int = 0
+## Ticks a missile flies straight before it starts to home, so a fan opens before it closes in.
+@export var projectile_homing_delay: int = 0
 
 
 ## Whether `other` can start now, cutting this move short on `frame`.

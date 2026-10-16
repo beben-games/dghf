@@ -678,11 +678,25 @@ func _test_homing_missiles() -> void:
 	_clear()
 	attacker = _fighter(600.0, 1, _repeat(R, 3) + _repeat(D, 3) + [D | R | H])
 	target = _fighter(1300.0, 2, [], 2)
-	_run(7 + 19)
-	_check(_projectiles.count() == 3, "three missiles for the heavy version (%d)" % _projectiles.count())
+	_run(7 + 19 + 12)
+	_check(_projectiles.count() == 3, "three missiles for the heavy version, one every 6 ticks (%d)" % _projectiles.count())
 	_check(_projectiles.rect(0).size.x > Projectiles.RADIUS * 1.5 * 2.0, "and bigger ones")
+	var apart: bool = true
+	for a in 3:
+		for b in range(a + 1, 3):
+			if _projectiles.rect(a).get_center().distance_to(_projectiles.rect(b).get_center()) < Projectiles.RADIUS:
+				apart = false
+	_check(apart, "they fan out instead of stacking on one another")
 	_run(200)
 	_check(target.combo_hits == 3, "all three reach a target in another lane (%d hits)" % target.combo_hits)
+	# Against several enemies, a volley spreads over them.
+	_clear()
+	attacker = _fighter(600.0, 1, _repeat(R, 3) + _repeat(D, 3) + [D | R | H])
+	var one := _fighter(1300.0, 2, [], 0)
+	var two := _fighter(1350.0, 2, [], 1)
+	var three := _fighter(1400.0, 2, [], 2)
+	_run(240)
+	_check(one.combo_hits == 1 and two.combo_hits == 1 and three.combo_hits == 1, "three missiles against three enemies take one each (%d, %d, %d)" % [one.combo_hits, two.combo_hits, three.combo_hits])
 
 
 func _test_super_fireball_pierces() -> void:

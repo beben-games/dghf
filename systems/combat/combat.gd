@@ -84,6 +84,9 @@ func _resolve_projectiles() -> void:
 				var in_lane: bool = projectiles.hits_every_lane(i) or target.lane == projectiles.lane(i)
 				if target.team == projectiles.team(i) or not in_lane or not target.can_be_hit() or projectiles.has_hit(i, target):
 					continue
+				var after: Body = projectiles.target_of(i)
+				if after != null and after != target:
+					continue  # a missile flies through the others to the one it is after
 				if box.intersects(target.hurt_rect()):
 					var direction: int = _projectile_direction(i, target)
 					_land(target, hit, direction, box.intersection(target.hurt_rect()).get_center())

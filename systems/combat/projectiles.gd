@@ -27,12 +27,13 @@ var _scale: PackedFloat32Array = PackedFloat32Array()  # drawn size: the move's 
 var _pierce: PackedByteArray = PackedByteArray()  # 1 for one that goes through what it hits
 var _all_lanes: PackedByteArray = PackedByteArray()  # 1 for one that hits in every lane
 var _homing: PackedFloat32Array = PackedFloat32Array()  # how hard a missile turns toward its target, 0 for none
+var _homing_from: PackedInt32Array = PackedInt32Array()  # the age from which it turns
 var _target: Array[Body] = []  # what a missile homes on
 var _already_hit: Array[PackedInt64Array] = []  # the bodies a piercing one has hit, by instance id
 
 
 func _init() -> void:
-	for arr in [_kind, _age, _life, _lane, _team]:
+	for arr in [_kind, _age, _life, _lane, _team, _homing_from]:
 		arr.resize(CAPACITY)
 	for arr in [_x, _y, _vx, _vy, _scale, _homing]:
 		arr.resize(CAPACITY)
@@ -49,22 +50,21 @@ func count() -> int:
 	return _count
 
 
-## Sends out what `move` describes from `at`, for a body of `team` in `lane`
-## facing `facing` and drawn at `depth`. A move with several projectiles fans
-## them out vertically.
-func spawn_from(move: Move, at: Vector2, lane: int, team: int, facing: int, depth: float) -> void:
+## Sends out projectile number `index` of what `move` describes from `at`, for
+## a body of `team` in `lane` facing `facing` and drawn at `depth`. A move with
+## several fans them out vertically by their index.
+func spawn_from(move: Move, at: Vector2, lane: int, team: int, facing: int, depth: float, index: int = 0) -> void:
 	var n: int = maxi(move.projectile_count, 1)
-	for i in n:
-		var vy: float = (i - (n - 1) / 2.0) * move.projectile_spread
-		spawn(at, move.projectile_speed * facing, lane, team, move.projectile_hit, depth * move.projectile_size,
-				move.projectile_pierce, move.projectile_kind, move.projectile_lifetime, move.projectile_all_lanes,
-				move.projectile_homing, vy)
+	var vy: float = (index - (n - 1) / 2.0) * move.projectile_spread
+	spawn(at, move.projectile_speed * facing, lane, team, move.projectile_hit, depth * move.projectile_size,
+			move.projectile_pierce, move.projectile_kind, move.projectile_lifetime, move.projectile_all_lanes,
+			move.projectile_homing, vy, move.projectile_homing_delay)
 
 
 ## `hit` is what it does to a target of another team in its lane, or null for none.
 func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null, size: float = 1.0,
 		pierce: bool = false, kind: Kind = Kind.FIREBALL, life: int = 0, all_lanes: bool = false, homing: float = 0.0,
-		velocity_y: float = 0.0) -> void:
+		velocity_y: float = 0.0, homing_delay: int = 0) -> void:
 	if _count == CAPACITY:
 		return
 	_kind[_count] = kind
@@ -81,6 +81,7 @@ func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, h
 	_pierce[_count] = 1 if pierce else 0
 	_all_lanes[_count] = 1 if all_lanes else 0
 	_homing[_count] = homing
+	_homing_from[_count] = homing_delay
 	_target[_count] = null
 	_already_hit[_count] = PackedInt64Array()
 	_count += 1
@@ -90,7 +91,7 @@ func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, h
 func tick(bodies: Array[Body] = []) -> void:
 	var i: int = 0
 	while i < _count:
-		if _homing[i] > 0.0:
+		if _homing[i] > 0.0 and _age[i] >= _homing_from[i]:
 			_home(i, bodies)
 		if _kind[i] != Kind.BURST:
 			_x[i] += _vx[i]
@@ -106,7 +107,9 @@ func tick(bodies: Array[Body] = []) -> void:
 	queue_redraw()
 
 
-## A missile keeps its speed and turns toward the nearest enemy body it can hit.
+## A missile keeps its speed and turns toward the nearest enemy body it can
+## hit, preferring one no other missile of its side is already after, so a
+## volley spreads over a crowd instead of piling on one body.
 func _home(i: int, bodies: Array[Body]) -> void:
 	var target: Body = _target[i]
 	if target == null or not is_instance_valid(target) or not target.can_be_hit() or _already_hit[i].has(target.get_instance_id()):
@@ -118,6 +121,10 @@ func _home(i: int, bodies: Array[Body]) -> void:
 			if not _all_lanes[i] and body.lane != _lane[i]:
 				continue
 			var d: float = Vector2(_x[i], _y[i]).distance_to(body.hurt_rect().get_center())
+			# A body with a missile already on it, or still reeling from one, counts as far away.
+			d += 600.0 * _missiles_after(body, i)
+			if body.in_hit_reaction():
+				d += 600.0
 			if d < best:
 				best = d
 				target = body
@@ -130,6 +137,15 @@ func _home(i: int, bodies: Array[Body]) -> void:
 	v = v.normalized() * speed
 	_vx[i] = v.x
 	_vy[i] = v.y
+
+
+## How many other live missiles of projectile `i`'s team are heading for `body`.
+func _missiles_after(body: Body, except: int) -> int:
+	var n: int = 0
+	for j in _count:
+		if j != except and _team[j] == _team[except] and _target[j] == body:
+			n += 1
+	return n
 
 
 ## The box projectile `i` hits with, in screen space. A burst grows over its life.
@@ -161,6 +177,11 @@ func hits_every_lane(i: int) -> bool:
 	return _all_lanes[i] == 1
 
 
+## The body a missile is after, or null: a missile with a target hits only that target.
+func target_of(i: int) -> Body:
+	return _target[i] if _target[i] != null and is_instance_valid(_target[i]) else null
+
+
 ## Whether projectile `i` goes on after a hit, and whether it has hit `body` already.
 func pierces(i: int) -> bool:
 	return _pierce[i] == 1
@@ -182,7 +203,7 @@ func direction(i: int) -> int:
 func remove(i: int) -> void:
 	# Fill the hole with the last one: order doesn't matter.
 	_count -= 1
-	for arr in [_kind, _age, _life, _lane, _team]:
+	for arr in [_kind, _age, _life, _lane, _team, _homing_from]:
 		arr[i] = arr[_count]
 	for arr in [_x, _y, _vx, _vy, _scale, _homing]:
 		arr[i] = arr[_count]

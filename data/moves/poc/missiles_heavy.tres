@@ -31,4 +31,6 @@ projectile_lifetime = 200
 projectile_all_lanes = true
 projectile_homing = 1.4
 projectile_count = 3
-projectile_spread = 5.0
+projectile_spread = 7.0
+projectile_interval = 6
+projectile_homing_delay = 10

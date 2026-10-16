@@ -12,6 +12,7 @@ const H: int = Buttons.HEAVY
 const U: int = Buttons.UP
 const G: int = Buttons.GUARD
 const X: int = Buttons.DODGE
+const L: int = Buttons.LEFT
 
 var _failures: int = 0
 var _combat: Combat
@@ -50,6 +51,13 @@ func _initialize() -> void:
 	_test_dodge_through_a_hit()
 	_test_dodge_direction_and_recovery()
 	_test_dodge_from_guard_not_from_the_air()
+	_test_heavy_fireball()
+	_test_heavy_fireball_needs_a_clean_motion()
+	_test_blast_every_lane()
+	_test_homing_missiles()
+	_test_holding_down_is_not_two_taps()
+	_test_a_quick_back_tap_does_not_turn()
+	_test_super_fireball_pierces()
 	_test_enemy_walks_up_and_attacks()
 	_test_enemy_changes_lane_and_sometimes_guards()
 	_free_all()
@@ -81,7 +89,13 @@ func _fighter(x: float, team: int, samples: Array = [], lane: int = 1) -> Fighte
 	fighter.team = team
 	fighter.bounds = Vector2(120.0, 1800.0)
 	fighter.moves = [
+		load("res://data/moves/poc/super_fireball.tres"),
+		load("res://data/moves/poc/fireball_heavy.tres"),
 		load("res://data/moves/poc/fireball.tres"),
+		load("res://data/moves/poc/missiles_heavy.tres"),
+		load("res://data/moves/poc/missiles_light.tres"),
+		load("res://data/moves/poc/blast_heavy.tres"),
+		load("res://data/moves/poc/blast_light.tres"),
 		load("res://data/moves/poc/light_2.tres"), load("res://data/moves/poc/light.tres"),
 		load("res://data/moves/poc/heavy.tres"),
 		load("res://data/moves/poc/air_light.tres"),
@@ -99,7 +113,7 @@ func _run(ticks: int) -> void:
 	for i in ticks:
 		for fighter in _combat.fighters:
 			fighter.tick()
-		_projectiles.tick()
+		_projectiles.tick(_combat.fighters)
 		_combat.resolve()
 
 
@@ -591,3 +605,123 @@ func _test_enemy_changes_lane_and_sometimes_guards() -> void:
 		if enemy.state == Fighter.State.BLOCK:
 			blocked_ticks += 1
 	_check(blocked_ticks > 0, "an enemy within reach guards sometimes when the player swings (%d ticks guarding)" % blocked_ticks)
+
+
+const QCF: Array = [D, D, D | R, D | R, R, R]
+
+
+func _test_heavy_fireball() -> void:
+	_clear()
+	var attacker := _fighter(620.0, 1, QCF + [R | H])
+	var target := _fighter(1200.0, 2)
+	_run(7)
+	_check(attacker.move != null and attacker.move.id == &"fireball_heavy", "the fireball motion with heavy is the heavy fireball")
+	var ticks: int = 0
+	while target.combo_hits == 0 and ticks < 150:
+		_run(1)
+		ticks += 1
+	_check(target.combo_damage == 28, "it hits twice as hard as the light one (%d)" % target.combo_damage)
+	_clear()
+	attacker = _fighter(620.0, 1, QCF + [R | H])
+	_run(7 + 23)
+	_check(_projectiles.count() == 1 and is_equal_approx(_projectiles.rect(0).size.x, Projectiles.RADIUS * 4.0), "and is twice as big (%.0f wide)" % _projectiles.rect(0).size.x)
+
+
+func _test_heavy_fireball_needs_a_clean_motion() -> void:
+	_clear()
+	# The same motion, stretched over 30 ticks: its "down" is inside the light's 24-tick window, outside the heavy's 16.
+	var slow: Array = _repeat(D, 12) + _repeat(D | R, 12) + _repeat(R, 6)
+	var attacker := _fighter(620.0, 1, slow + [R | H])
+	_run(slow.size() + 1)
+	_check(attacker.move != null and attacker.move.id == &"heavy", "a slow motion with heavy gives the plain heavy, not the heavy fireball (got %s)" % attacker.move.id)
+	_clear()
+	attacker = _fighter(620.0, 1, slow + [R | A])
+	_run(slow.size() + 1)
+	_check(attacker.move != null and attacker.move.id == &"fireball", "the same slow motion with light still gives the light fireball")
+
+
+func _test_blast_every_lane() -> void:
+	_clear()
+	var attacker := _fighter(900.0, 1, _repeat(D, 2) + [0] + _repeat(D, 2) + [D | A])
+	var near := _fighter(1050.0, 2, [], 0)  # another lane, close
+	var far := _fighter(1250.0, 2, [], 2)  # too far for the light blast, not for the heavy
+	var behind := _fighter(760.0, 2, [], 1)
+	_run(7)
+	_check(attacker.move != null and attacker.move.id == &"blast_light", "two taps of down and light is the blast")
+	_run(30)
+	_check(near.combo_damage == 12, "the blast hits a body in another lane (%d damage)" % near.combo_damage)
+	_check(behind.combo_damage == 12 and behind.x < 760.0, "and one behind, pushed away from the centre")
+	_check(far.combo_hits == 0, "but not one out of its reach")
+	_check(near.combo_hits == 1, "each body once")
+	_clear()
+	attacker = _fighter(900.0, 1, _repeat(D, 2) + [0] + _repeat(D, 2) + [D | H])
+	far = _fighter(1250.0, 2, [], 2)
+	_run(7)
+	_check(attacker.move != null and attacker.move.id == &"blast_heavy", "with heavy it is the big blast")
+	_run(45)
+	_check(far.combo_damage == 24 and far.state == Fighter.State.LAUNCHED, "which reaches further, hits twice as hard and launches")
+
+
+func _test_homing_missiles() -> void:
+	_clear()
+	var attacker := _fighter(600.0, 1, _repeat(R, 3) + _repeat(D, 3) + [D | R | A])
+	var target := _fighter(1300.0, 2, [], 0)  # another lane
+	_run(7)
+	_check(attacker.move != null and attacker.move.id == &"missiles_light", "forward then down-forward and light fires a missile")
+	_run(13)
+	_check(_projectiles.count() == 1, "one missile for the light version")
+	var ticks: int = 0
+	while target.combo_hits == 0 and ticks < 200:
+		_run(1)
+		ticks += 1
+	_check(target.combo_damage == 10, "it homes on a target in another lane and hits it (after %d ticks)" % ticks)
+	_clear()
+	attacker = _fighter(600.0, 1, _repeat(R, 3) + _repeat(D, 3) + [D | R | H])
+	target = _fighter(1300.0, 2, [], 2)
+	_run(7 + 19 + 12)
+	_check(_projectiles.count() == 3, "three missiles for the heavy version, one every 6 ticks (%d)" % _projectiles.count())
+	_check(_projectiles.rect(0).size.x > Projectiles.RADIUS * 1.5 * 2.0, "and bigger ones")
+	var apart: bool = true
+	for a in 3:
+		for b in range(a + 1, 3):
+			if _projectiles.rect(a).get_center().distance_to(_projectiles.rect(b).get_center()) < Projectiles.RADIUS:
+				apart = false
+	_check(apart, "they fan out instead of stacking on one another")
+	_run(200)
+	_check(target.combo_hits == 3, "all three reach a target in another lane (%d hits)" % target.combo_hits)
+	# Against several enemies, a volley spreads over them.
+	_clear()
+	attacker = _fighter(600.0, 1, _repeat(R, 3) + _repeat(D, 3) + [D | R | H])
+	var one := _fighter(1300.0, 2, [], 0)
+	var two := _fighter(1350.0, 2, [], 1)
+	var three := _fighter(1400.0, 2, [], 2)
+	_run(240)
+	_check(one.combo_hits == 1 and two.combo_hits == 1 and three.combo_hits == 1, "three missiles against three enemies take one each (%d, %d, %d)" % [one.combo_hits, two.combo_hits, three.combo_hits])
+
+
+func _test_super_fireball_pierces() -> void:
+	_clear()
+	var attacker := _fighter(400.0, 1, QCF + QCF + [R | H])
+	var first := _fighter(900.0, 2)
+	var second := _fighter(1200.0, 2)
+	_run(13)
+	_check(attacker.move != null and attacker.move.id == &"super_fireball", "the fireball motion twice with heavy is the super")
+	_run(200)
+	_check(first.combo_damage == 40 and second.combo_damage == 40, "it goes through the first target and hits the second (%d, %d)" % [first.combo_damage, second.combo_damage])
+	_check(first.combo_hits == 1, "each only once")
+
+
+func _test_holding_down_is_not_two_taps() -> void:
+	_clear()
+	var crouched := _fighter(900.0, 1, _repeat(D, 10) + [D | A])
+	_run(11)
+	_check(crouched.move != null and crouched.move.id == &"light", "holding down then light is a plain light, not the blast (got %s)" % crouched.move.id)
+
+
+func _test_a_quick_back_tap_does_not_turn() -> void:
+	_clear()
+	var f := _fighter(900.0, 1, _repeat(L, 3) + _repeat(0, 2) + _repeat(L, 6))
+	_run(3)
+	_check(f.facing == 1, "three ticks of back do not turn the fighter")
+	_run(8)
+	_check(f.facing == -1, "holding it longer does")

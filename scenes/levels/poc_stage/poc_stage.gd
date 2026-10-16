@@ -45,7 +45,9 @@ const PAUSE_HELP: String = """PAUSED        Tab or Esc: back to the fight       
 Move: A, D or the stick         Jump: W, Space or (A)         Crouch: S         Change lane: Q, E or the shoulders
 Light attack: J or (X)          Heavy attack, a launcher: L or (Y)          Both work in a jump
 Guard: hold K or (B)            Dodge: Shift or the right trigger, with a direction or alone to step back
-Fireball: down, down-forward, forward, then J
+Specials, with J for the light version or L for the heavy one, twice as big and twice as hard but asking a cleaner motion:
+Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, then down-forward        Blast around you, every lane: tap down twice
+Super fireball: the fireball motion twice, then L: huge, and goes through everyone
 Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
@@ -83,8 +85,16 @@ func _ready() -> void:
 	_player_input = PlayerInput.new(1, InputSource.Device.new(1))
 
 	_fighter.bounds = Vector2(MARGIN, SCREEN.x - MARGIN)
+	# Tried in order: the super first, then the specials (heavy before light, since the heavy
+	# version asks for a cleaner motion), then the normals.
 	_fighter.moves = [
+		preload("res://data/moves/poc/super_fireball.tres"),
+		preload("res://data/moves/poc/fireball_heavy.tres"),
 		preload("res://data/moves/poc/fireball.tres"),
+		preload("res://data/moves/poc/missiles_heavy.tres"),
+		preload("res://data/moves/poc/missiles_light.tres"),
+		preload("res://data/moves/poc/blast_heavy.tres"),
+		preload("res://data/moves/poc/blast_light.tres"),
 		preload("res://data/moves/poc/light_2.tres"), preload("res://data/moves/poc/light.tres"),
 		preload("res://data/moves/poc/heavy.tres"),
 		preload("res://data/moves/poc/air_light.tres"),
@@ -219,7 +229,7 @@ func _physics_process(_delta: float) -> void:
 		bodies.append(_dummy)
 	bodies.append_array(_crowd.alive())
 	_combat.fighters = bodies
-	_projectiles.tick()
+	_projectiles.tick(bodies)
 	_sparks.tick()
 	_combat.resolve()
 	_update_shake()

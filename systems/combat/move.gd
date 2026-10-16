@@ -18,6 +18,8 @@ const JUMP: StringName = &"jump"
 ## Stick motion needed before the button, in numpad notation relative to the
 ## way the fighter faces. Empty means the button alone.
 @export var motion: PackedInt32Array = PackedInt32Array()
+## Ticks the whole motion may take. Shorter is stricter: a heavy special can ask for a cleaner input.
+@export var motion_window: int = 24
 ## An air move starts during a jump and ends on landing. Other moves start on the ground.
 @export var air: bool = false
 ## A follow-up never starts on its own, only as a cancel from another move.
@@ -25,6 +27,19 @@ const JUMP: StringName = &"jump"
 
 @export_group("Hits")
 @export var hit_boxes: Array[HitBox] = []
+
+@export_group("Movement")
+## Frames during which nothing can hit the user (a rising uppercut's start-up). Last below first means none.
+@export var invincible_from: int = 1
+@export var invincible_to: int = 0
+## On `rise_frame` the user leaves the ground at this upward speed (a rising uppercut), drifting
+## `rise_forward` pixels a tick. The move keeps playing in the air and after landing; if it ends
+## before the landing, the fall carries on as a jump.
+@export var rise: float = 0.0
+@export var rise_frame: int = 0
+@export var rise_forward: float = 0.0
+## Pixels a tick the user moves forward while the move's boxes are active (a spinning kick that travels).
+@export var travel: float = 0.0
 
 @export_group("Cancels")
 ## When this move can be cut short, and by which moves.
@@ -40,6 +55,25 @@ const JUMP: StringName = &"jump"
 ## launch and shake are used. The projectile has its own shape, so the rectangle
 ## and the frames are not.
 @export var projectile_hit: HitBox
+## How large the projectile is, against the plain fireball. 2 is twice as wide and tall.
+@export var projectile_size: float = 1.0
+## A piercing projectile goes through everything it hits, hitting each body once.
+@export var projectile_pierce: bool = false
+## A fireball flies along the lane; a burst grows around the point it leaves from and
+## hits every lane; a missile homes on the nearest enemy, across lanes.
+@export var projectile_kind: Projectiles.Kind = Projectiles.Kind.FIREBALL
+## Ticks it lasts, or 0 for until it leaves the screen.
+@export var projectile_lifetime: int = 0
+@export var projectile_all_lanes: bool = false
+## How hard a missile turns toward its target each tick (pixels a tick of speed change). 0 flies straight.
+@export var projectile_homing: float = 0.0
+## How many leave, one every `projectile_interval` ticks from `projectile_frame`, fanned out
+## vertically by `projectile_spread` pixels a tick each.
+@export var projectile_count: int = 1
+@export var projectile_spread: float = 0.0
+@export var projectile_interval: int = 0
+## Ticks a missile flies straight before it starts to home, so a fan opens before it closes in.
+@export var projectile_homing_delay: int = 0
 
 
 ## Whether `other` can start now, cutting this move short on `frame`.

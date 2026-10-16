@@ -10,6 +10,9 @@ extends Body
 # Tuning, in pixels and ticks. Starting points to tune by playing.
 @export var walk_speed: float = 7.0
 @export var jump_speed: float = 30.0
+## Ticks the other way must be held before the fighter turns around. A quick tap, as in
+## a motion input, does not turn it, so a motion read relative to the facing holds up.
+@export var turn_ticks: int = 4
 ## Where the fighter can be hit while crouching, relative to the feet.
 @export var crouch_hurt_box: Rect2 = Rect2(-55.0, -160.0, 110.0, 160.0)
 
@@ -34,6 +37,7 @@ var projectiles: Projectiles
 var moves: Array[Move] = []
 
 var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
+var _turning: int = 0  # ticks the other way has been held
 ## The way the current dodge goes: 1 right, -1 left.
 var dodge_direction: int = 1
 
@@ -88,8 +92,10 @@ func hurt_rect() -> Rect2:
 	return _faced(crouch_hurt_box if state == State.CROUCH else hurt_box)
 
 
-## In the invincible ticks of a dodge.
+## In the invincible ticks of a dodge, or of a move that has some (a rising uppercut's start-up).
 func is_invincible() -> bool:
+	if is_attacking() and move_frame >= move.invincible_from and move_frame <= move.invincible_to:
+		return true
 	return state == State.DODGE and state_ticks >= dodge_invincible_from and state_ticks <= dodge_invincible_to
 
 
@@ -114,8 +120,12 @@ func blocked_hitstop(hit: HitBox) -> int:
 
 func _tick_standing() -> void:
 	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
-	if direction != 0:
-		facing = direction
+	if direction != 0 and direction != facing:
+		_turning += 1
+		if _turning >= turn_ticks:
+			facing = direction
+	else:
+		_turning = 0
 	if _try_dodge():
 		return
 	if input.held(Buttons.GUARD):
@@ -194,14 +204,33 @@ func _tick_attack() -> void:
 		move = null
 		_start_jump(int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT)))
 		return
-	if move_frame == move.projectile_frame and projectiles != null:
-		var offset: Vector2 = move.projectile_offset * depth_scale
-		offset.x *= facing
-		projectiles.spawn(position + offset, move.projectile_speed * facing, lane, team, move.projectile_hit, depth_scale)
+	if projectiles != null and move.projectile_frame >= 0:
+		# Several projectiles leave one after the other, projectile_interval ticks apart.
+		for i in maxi(move.projectile_count, 1):
+			if move_frame == move.projectile_frame + i * move.projectile_interval:
+				var offset: Vector2 = move.projectile_offset * depth_scale
+				offset.x *= facing
+				projectiles.spawn_from(move, position + offset, lane, team, facing, depth_scale, i)
+	if move.rise > 0.0 and move_frame == move.rise_frame:
+		vertical_speed = move.rise
+		_air_speed = facing * move.rise_forward
+	if height > 0.0 or vertical_speed > 0.0:
+		_fall()  # a rising move follows its arc; landing just carries on with the move's recovery
+	elif move.travel > 0.0 and _boxes_active():
+		x = clampf(x + facing * move.travel, bounds.x, bounds.y)
 	move_frame += 1
 	if move_frame >= move.total_frames:
 		move = null
-		_enter(State.IDLE)
+		# A rising move that is still in the air when it ends falls as a jump.
+		_enter(State.JUMP if height > 0.0 else State.IDLE)
+
+
+## Whether any hitbox of the current move is out on this frame.
+func _boxes_active() -> bool:
+	for box in move.hit_boxes:
+		if box.active_on(move_frame):
+			return true
+	return false
 
 
 ## Holding the guard. A blocked hit holds the fighter in it for its blockstun
@@ -247,12 +276,11 @@ func _try_moves(in_air: bool) -> bool:
 	for candidate in moves:
 		if candidate.air != in_air or not _can_start(candidate):
 			continue
-		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing):
+		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing, candidate.motion_window):
 			input.consume(candidate.button)
 			move = candidate
 			move_frame = 0
-			swing_targets.clear()
-			swing_froze = false
+			start_swing()
 			_enter(State.AIR_ATTACK if in_air else State.ATTACK)
 			return true
 	return false

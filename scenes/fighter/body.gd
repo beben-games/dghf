@@ -69,9 +69,11 @@ var combo_hits: int = 0
 var combo_damage: int = 0
 ## Hits taken in the air since the launch, not counting the launch itself.
 var juggle_hits: int = 0
-## Who the current move has already hit, and whether it has frozen its user: a
-## move hits each target once and freezes its user once. Kept by Combat.
+## Who the current move has already hit, per hitbox group, and whether it has
+## frozen its user: a move hits each target once per group and freezes its user
+## once. Kept by Combat.
 var swing_targets: Array[Body] = []
+var swing_groups: PackedInt32Array = PackedInt32Array()
 var swing_froze: bool = false
 
 var _stun_ticks: int = 0
@@ -155,6 +157,26 @@ func is_jumping() -> bool:
 ## Out of health: it falls on the next knockdown and stays down.
 func is_dying() -> bool:
 	return max_health > 0 and health <= 0
+
+
+## Whether the current move has hit `target` with a box of `group` already.
+func has_hit(target: Body, group: int) -> bool:
+	for i in swing_targets.size():
+		if swing_targets[i] == target and swing_groups[i] == group:
+			return true
+	return false
+
+
+func mark_hit(target: Body, group: int) -> void:
+	swing_targets.append(target)
+	swing_groups.append(group)
+
+
+## Forgets who the current move has hit: called when a move starts.
+func start_swing() -> void:
+	swing_targets.clear()
+	swing_groups.clear()
+	swing_froze = false
 
 
 ## A box of the current move in screen space.

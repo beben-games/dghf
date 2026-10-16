@@ -132,6 +132,30 @@ Ben's direction, 2026-10-13. The game opens on a menu (`scenes/main/`) with two 
 - **Melee:** no dummy; ten small fry to start, and a new wave of ten whenever fewer than ten are left, at least 240 ticks apart, endlessly, until the player is down.
 - **One help line** on screen: Tab opens the pause menu. The pause menu stops the clock and recaps every control and debug key; Tab or Esc closes it, M goes back to the main menu. R starts the fight over in either mode.
 
+## Specials that scale with the button (issue #50)
+
+Ben's direction, 2026-10-13: a spell's heavy version is twice as big and hits twice as hard, but asks a slightly harder timing. Every special is move data in `data/moves/poc/`; the heavy version is its own file.
+
+| Motion | Light (J) | Heavy (L) |
+|---|---|---|
+| Fireball: down, down-forward, forward | `fireball`: 14 damage, leaves on frame 14 of 36 | `fireball_heavy`: 28 damage, twice the size, leaves on frame 22 of 46, slower, and the motion must fit in 16 ticks instead of 24 |
+| Missiles: forward, then down-forward | `missiles_light`: one homing missile, 10 damage, finds the nearest enemy in any lane | `missiles_heavy`: three, 1.6 times the size, 18 damage each, launching, the motion in 18 ticks |
+| Blast: down, down (two taps) | `blast_light`: a burst around the fighter that grows to about 220 pixels and hits every lane, 12 damage, pushes away from the centre | `blast_heavy`: about 340 pixels, 24 damage, launches, the motion in 18 ticks |
+| Super: the fireball motion twice, then L | | `super_fireball`: 40 damage, 2.6 times the size, pierces (hits everyone once), the motion in 40 ticks |
+
+Ben's first pass (2026-10-13) had a dragon punch and a hurricane kick on the Street Fighter motions; he kept the idea and swapped the moves for the missiles and the blast, which reach across lanes and so matter against a crowd. Then the motions changed too: the quarter circle back turned the fighter around half the time (a beat 'em up fighter faces whichever way it walks, so "back" flips mid-motion and the reader saw a quarter circle forward the other way), and the full dragon punch motion was near impossible on a keyboard. So the fighter now turns only after the other way has been held 4 ticks (`turn_ticks`), the blast is two taps of down (the command reader reads a repeated direction as two taps, so holding down is not "down, down"), and the missiles are forward then down-forward.
+
+What the moves needed, all as move data:
+
+- **`motion_window`**: ticks the whole motion may take. The light versions keep 24; the heavy ones ask 16 or 18, which is the "harder timing".
+- **Projectile kinds** (`projectile_kind`): a fireball flies along its lane; a burst stays where it leaves from, grows over its `projectile_lifetime` and hits every lane (`projectile_all_lanes`); a missile homes on the nearest enemy it can hit, turning by `projectile_homing` a tick, across lanes. `projectile_count` and `projectile_spread` fan several out. `projectile_size` and `projectile_pierce` as before.
+- **Hit groups** (`HitBox.group`): a move hits each target once per group, for multi-hit moves.
+- **Rising and travelling moves** (`rise`, `rise_frame`, `rise_forward`, `travel`) and **invincible frames** (`invincible_from`, `invincible_to`) are in the move data too, from the dragon punch and hurricane kick, for whoever wants a move like that.
+
+The moves are tried in order: the super, then the heavy specials, then the light ones, then the normals. So a motion too slow for the heavy fireball with L gives the plain heavy, and the same motion with J still gives the light fireball.
+
+**Proposed, to confirm or change:** every number above; fireballs listed before the missiles (so walking forward into a fireball motion gives a fireball); no charge moves yet (hold back, then forward), which the command reader does not read; no mana, so the super is free; the burst and the missiles are drawn in code until the team's effects arrive.
+
 ## The move preview tool (issue #8)
 
 The decided design asks for a preview scene, so that someone who doesn't code can tune a move (`docs/design/2026-10-03-combat-core.md`). It is `scenes/tools/move_preview/`.

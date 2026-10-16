@@ -25,6 +25,13 @@ func resolve() -> void:
 		_resolve_projectiles()
 
 
+## The push a projectile gives: away from a burst's centre, along a missile's or fireball's flight.
+func _projectile_direction(i: int, target: Body) -> int:
+	if projectiles.hits_every_lane(i) and projectiles.hit(i) != null and projectiles.radius(i) > Projectiles.RADIUS:
+		return 1 if target.x >= projectiles.rect(i).get_center().x else -1
+	return projectiles.direction(i)
+
+
 func _resolve_moves() -> void:
 	# Find every hit before applying any, so two fighters who hit each other
 	# on the same tick both land.
@@ -36,10 +43,12 @@ func _resolve_moves() -> void:
 		if not attacker.is_attacking():
 			continue
 		for target in fighters:
-			if not _can_hit(attacker.team, attacker.lane, target) or attacker.swing_targets.has(target):
+			if not _can_hit(attacker.team, attacker.lane, target):
 				continue
 			var hurt: Rect2 = target.hurt_rect()
 			for box in attacker.move.hit_boxes:
+				if attacker.has_hit(target, box.group):
+					continue
 				if box.active_on(attacker.move_frame) and attacker.hit_rect(box).intersects(hurt):
 					attackers.append(attacker)
 					targets.append(target)
@@ -51,7 +60,7 @@ func _resolve_moves() -> void:
 	# blocked hit freezes for less.
 	var freeze: Dictionary[Body, int] = {}
 	for i in hits.size():
-		attackers[i].swing_targets.append(targets[i])
+		attackers[i].mark_hit(targets[i], hits[i].group)
 		var stop: int = targets[i].blocked_hitstop(hits[i]) if targets[i].blocks(attackers[i].facing) else hits[i].hitstop
 		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), stop)
 	for i in hits.size():
@@ -70,15 +79,28 @@ func _resolve_projectiles() -> void:
 		var hit: HitBox = projectiles.hit(i)
 		if hit != null:
 			var box: Rect2 = projectiles.rect(i)
+			var spent: bool = false
 			for target in fighters:
-				if _can_hit(projectiles.team(i), projectiles.lane(i), target) and box.intersects(target.hurt_rect()):
-					_land(target, hit, projectiles.direction(i), box.intersection(target.hurt_rect()).get_center())
+				var in_lane: bool = projectiles.hits_every_lane(i) or target.lane == projectiles.lane(i)
+				if target.team == projectiles.team(i) or not in_lane or not target.can_be_hit() or projectiles.has_hit(i, target):
+					continue
+				var after: Body = projectiles.target_of(i)
+				if after != null and after != target:
+					continue  # a missile flies through the others to the one it is after
+				if box.intersects(target.hurt_rect()):
+					var direction: int = _projectile_direction(i, target)
+					_land(target, hit, direction, box.intersection(target.hurt_rect()).get_center())
 					for body in fighters:
-						if body.team == projectiles.team(i) and not target.blocks(projectiles.direction(i)):
+						if body.team == projectiles.team(i) and not target.blocks(direction):
 							_count(body)
 							break
-					projectiles.remove(i)
-					break
+					if projectiles.pierces(i):
+						projectiles.mark_hit(i, target)  # and on it goes
+					else:
+						spent = true
+						break
+			if spent:
+				projectiles.remove(i)
 		i -= 1
 
 

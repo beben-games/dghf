@@ -51,13 +51,14 @@ Super fireball: the fireball motion twice, then L: huge, and goes through everyo
 Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
-F4: the dummy guards            F5: the dummy fights back       F6: ten more small fry      R: start over
-
-In the sandbox:   1: a small fry in front of you      2: the big dummy in front of you      3: the small fry fight back or stand still"""
+F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      R: start over
+1: a small fry in front of you          2: a big dummy in front of you"""
 
 var _player_input: PlayerInput
 var _view: FighterView
-var _dummy_view: FighterView
+## The big dummies: full fighters of team 2, as many as the sandbox adds (one in the boss fight).
+var _dummies: Array[Fighter] = []
+var _dummy_views: Array[FighterView] = []
 var _projectiles: Projectiles
 var _sparks: HitSparks
 var _combat: Combat = Combat.new()
@@ -69,8 +70,10 @@ var _history: Array[int] = []  # recent stick positions, for the readout
 ## The preset the stage starts in: lanes 50 pixels apart with depth (Ben's pick, 2026-10-11). F2 cycles.
 var _preset: int = 2  # index into PRESETS
 var _shading: bool = false
+## Whether the enemies, big and small alike, fight back or stand still (F5).
+var _fighting: bool = false
+## Whether the big dummies hold their guard (F4).
 var _dummy_guards: bool = false
-var _dummy_fights: bool = false
 var _crowd: CrowdDirector
 var _health_bar: ColorRect
 var _health_back: ColorRect
@@ -80,7 +83,6 @@ var _paused: bool = false
 var _wave_tick: int = -100000
 
 @onready var _fighter: Fighter = $Player
-@onready var _dummy: Fighter = $Dummy
 
 
 func _ready() -> void:
@@ -110,21 +112,6 @@ func _ready() -> void:
 	_view.skin = _find_skin()
 	_fighter.add_child(_view)
 
-	# The dummy never presses anything: the plain input source is always empty.
-	_dummy.bounds = _fighter.bounds
-	_dummy.setup(PlayerInput.new(0, InputSource.new()), lanes(), 1, SCREEN.x * 0.7)
-	# Its moves, for when it fights back (F5): the two attacks, no fireball, no air moves.
-	_dummy.moves = [
-		preload("res://data/moves/poc/light_2.tres"),
-		preload("res://data/moves/poc/light.tres"),
-		preload("res://data/moves/poc/heavy.tres"),
-	]
-	_dummy.set_lanes(lanes(), scales())
-	_dummy.facing = -1
-	_dummy_view = FighterView.new()
-	_dummy_view.body_color = Color(0.75, 0.4, 0.3)
-	_dummy.add_child(_dummy_view)
-
 	_projectiles = Projectiles.new()
 	_projectiles.bounds = Vector2(0.0, SCREEN.x)
 	_projectiles.z_index = 3
@@ -139,7 +126,7 @@ func _ready() -> void:
 	_crowd.setup(lanes(), scales(), _fighter.bounds)
 	_crowd.target = _fighter
 	add_child(_crowd)
-	_combat.fighters = [_fighter, _dummy]
+	_combat.fighters = [_fighter]
 	_apply_mode()
 	_combat.projectiles = _projectiles
 	_combat.sparks = _sparks
@@ -199,22 +186,61 @@ func _find_skin() -> FighterSkin:
 ## The boss fight: the dummy fights back and the lanes are closest (the camera "closer").
 ## The melee: no dummy, ten small fry to start and a wave of ten whenever fewer are left.
 func _apply_mode() -> void:
+	_clear_dummies()
 	if mode == Mode.BOSS_FIGHT:
 		_preset = 3
-		_dummy_fights = true
-		_dummy.input.source = _brain()
-		_dummy.visible = true
+		_add_dummy(1, SCREEN.x * 0.7, -1)
 	else:
 		_preset = 2
-		_dummy_fights = false
-		_dummy.input.source = InputSource.new()
-		_dummy.visible = false
-		_dummy.x = -10000.0  # out of everyone's reach, until the sandbox's 2 brings it
-	_crowd.passive = mode == Mode.SANDBOX
-	for fighter in _combat.fighters:
-		fighter.set_lanes(lanes(), scales())
+	_set_fighting(mode != Mode.SANDBOX)
+	_dummy_guards = false
+	_fighter.set_lanes(lanes(), scales())
+	for dummy in _dummies:
+		dummy.set_lanes(lanes(), scales())
 	_crowd.set_lanes(lanes(), scales())
 	queue_redraw()
+
+
+## Everyone fights back, or everyone stands still: the small fry through the
+## director, the big dummies through a brain each.
+func _set_fighting(on: bool) -> void:
+	_fighting = on
+	_crowd.passive = not on
+	for dummy in _dummies:
+		dummy.input.source = _brain(dummy) if on else InputSource.new()
+
+
+## A big dummy on `dummy_lane` at `at_x`, facing `face`, standing still.
+func _add_dummy(dummy_lane: int, at_x: float, face: int) -> Fighter:
+	var dummy := Fighter.new()
+	dummy.team = 2
+	dummy.bounds = _fighter.bounds
+	# Its moves, for when it fights back: the two attacks, no specials, no air moves.
+	dummy.moves = [
+		preload("res://data/moves/poc/light_2.tres"),
+		preload("res://data/moves/poc/light.tres"),
+		preload("res://data/moves/poc/heavy.tres"),
+	]
+	add_child(dummy)
+	dummy.setup(PlayerInput.new(0, InputSource.new()), lanes(), dummy_lane, at_x)
+	dummy.set_lanes(lanes(), scales())
+	dummy.facing = face
+	var view := FighterView.new()
+	view.body_color = Color(0.75, 0.4, 0.3)
+	view.show_boxes = _view.show_boxes
+	dummy.add_child(view)
+	_dummies.append(dummy)
+	_dummy_views.append(view)
+	if _fighting:
+		dummy.input.source = _brain(dummy)
+	return dummy
+
+
+func _clear_dummies() -> void:
+	for dummy in _dummies:
+		dummy.queue_free()
+	_dummies.clear()
+	_dummy_views.clear()
 
 
 func _physics_process(_delta: float) -> void:
@@ -225,11 +251,11 @@ func _physics_process(_delta: float) -> void:
 		_wave_tick = _tick
 		_spawn_wave(MELEE_WAVE)
 	_fighter.tick()
-	_dummy.tick()
+	for dummy in _dummies:
+		dummy.tick()
 	_crowd.tick()
 	var bodies: Array[Body] = [_fighter]
-	if _dummy.visible:
-		bodies.append(_dummy)
+	bodies.append_array(_dummies)
 	bodies.append_array(_crowd.alive())
 	_combat.fighters = bodies
 	_projectiles.tick(bodies)
@@ -255,7 +281,8 @@ func _unhandled_input(event: InputEvent) -> void:
 					get_tree().change_scene_to_file(MENU)
 			KEY_F1:
 				_view.show_boxes = not _view.show_boxes
-				_dummy_view.show_boxes = _view.show_boxes
+				for view in _dummy_views:
+					view.show_boxes = _view.show_boxes
 			KEY_F2:
 				_preset = (_preset + 1) % PRESETS.size()
 				for fighter in _combat.fighters:
@@ -266,23 +293,20 @@ func _unhandled_input(event: InputEvent) -> void:
 				_shading = not _shading
 			KEY_F4:
 				_dummy_guards = not _dummy_guards
-				_dummy_fights = false
-				_dummy.input.source = InputSource.Held.new(Buttons.GUARD if _dummy_guards else 0)
+				if _dummy_guards:
+					_fighting = false
+					_crowd.passive = true
+				for dummy in _dummies:
+					dummy.input.source = InputSource.Held.new(Buttons.GUARD) if _dummy_guards else InputSource.new()
 			KEY_F5:
-				_dummy_fights = not _dummy_fights
 				_dummy_guards = false
-				_dummy.input.source = _brain() if _dummy_fights else InputSource.new()
+				_set_fighting(not _fighting)
 			KEY_F6:
 				_spawn_wave(10)
 			KEY_1:
-				if mode == Mode.SANDBOX:
-					_crowd.spawn(_fighter.lane, _in_front(), -_fighter.facing)
+				_crowd.spawn(_fighter.lane, _in_front(), -_fighter.facing)
 			KEY_2:
-				if mode == Mode.SANDBOX:
-					_place_dummy(_in_front())
-			KEY_3:
-				if mode == Mode.SANDBOX:
-					_crowd.passive = not _crowd.passive
+				_add_dummy(_fighter.lane, _in_front(), -_fighter.facing)
 			KEY_R:
 				_start_over()
 
@@ -290,21 +314,6 @@ func _unhandled_input(event: InputEvent) -> void:
 ## A spot 320 pixels in front of the player, kept on the stage.
 func _in_front() -> float:
 	return clampf(_fighter.x + _fighter.facing * 320.0, MARGIN, SCREEN.x - MARGIN)
-
-
-## Puts the big dummy on the player's lane at `at_x`, standing still, facing the player.
-func _place_dummy(at_x: float) -> void:
-	_dummy_fights = false
-	_dummy_guards = false
-	_dummy.input.source = InputSource.new()
-	_dummy.setup(_dummy.input, lanes(), _fighter.lane, at_x)
-	_dummy.set_lanes(lanes(), scales())
-	_dummy.state = Fighter.State.IDLE
-	_dummy.move = null
-	_dummy.hitstop = 0
-	_dummy.height = 0.0
-	_dummy.facing = -_fighter.facing
-	_dummy.visible = true
 
 
 ## Ten small fry at the edges of the screen, spread over the lanes, facing the player.
@@ -325,21 +334,14 @@ func _start_over() -> void:
 	_fighter.move = null
 	_fighter.hitstop = 0
 	_fighter.height = 0.0
-	_dummy_fights = false
-	_dummy_guards = false
-	_dummy.input.source = InputSource.new()
-	_dummy.setup(_dummy.input, lanes(), 1, SCREEN.x * 0.7)
-	_dummy.set_lanes(lanes(), scales())
-	_dummy.state = Fighter.State.IDLE
-	_dummy.facing = -1
 	_wave_tick = -100000
 	_apply_mode()
 
 
-## A brain for the dummy, fighting the player.
-func _brain() -> FighterBrain:
-	var brain := FighterBrain.new(_tick)
-	brain.fighter = _dummy
+## A brain for a big dummy, fighting the player.
+func _brain(dummy: Fighter) -> FighterBrain:
+	var brain := FighterBrain.new(_tick + _dummies.size())
+	brain.fighter = dummy
 	brain.target = _fighter
 	return brain
 
@@ -391,8 +393,10 @@ func _update_readout() -> void:
 		var shade: float = 1.0 - 0.12 * (2 - body.lane) if _shading else 1.0
 		if body is CrowdBody:
 			(body as CrowdBody).set_shade(shade)
+		elif body == _fighter:
+			_view.shade = shade
 		else:
-			(_view if body == _fighter else _dummy_view).shade = shade
+			_dummy_views[_dummies.find(body)].shade = shade
 	var direction: int = _player_input.direction(_fighter.facing)
 	if _history.is_empty() or _history[-1] != direction:
 		_history.append(direction)
@@ -401,11 +405,10 @@ func _update_readout() -> void:
 	var move_text: String = ""
 	if _fighter.move != null:
 		move_text = "   %s %d/%d" % [_fighter.move.animation, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\ndummy (%s): %s   last combo %d hits, %d damage   enemies: %d%s   health: %d" % [
+	_label.text = "%s\n%s%s   lane %d   %s   stick %s   skin: %s   %d fps   lanes %d px apart, back %.2fx front %.2fx%s\nenemies: %d big, %d small, %s   health: %d" % [
 		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1,
 		"right" if _fighter.facing > 0 else "left", " ".join(_history),
 		"from a folder" if _view.skin != null else "plain figure", Engine.get_frames_per_second(),
 		int(PRESETS[_preset]["spacing"]), scales()[0], scales()[2], ", shaded" if _shading else "",
-		"fighting back" if _dummy_fights else "guarding" if _dummy_guards else "still" if _dummy.visible else "away",
-		Fighter.STATE_NAMES[_dummy.state], _dummy.combo_hits, _dummy.combo_damage, _crowd.count(), " (standing still)" if _crowd.passive else "", _fighter.health,
+		_dummies.size(), _crowd.count(), "fighting back" if _fighting else "guarding" if _dummy_guards else "standing still", _fighter.health,
 	]

@@ -12,7 +12,7 @@ A 2D side-scrolling beat 'em up set in a Hundred Years' War with magic: huge cro
 
 What there is to play today, in about fifteen minutes. If you work with Claude, ask it to "show me around the game": it follows the same tour from `docs/STATUS.md` and runs the commands for you.
 
-1. **Run the game:** `scripts/run.sh`. A menu offers two fights: **Boss fight** (the big red dummy fights back, with the lanes closer) and **Melee** (ten small fry at a time, endlessly). Pick with up, down and Enter. Without a skin your character is a plain blue figure: that is expected. In a fight, Tab opens the pause menu, which lists every control and key below.
+1. **Run the game:** `scripts/run.sh`. A menu offers three scenes: **Boss fight** (the big red dummy fights back, with the lanes closer), **Melee** (ten small fry at a time, endlessly) and **Sandbox** (an empty stage: 1 adds a small fry in front of you, 2 the big dummy, and they stand still until 3 or F5 tells them to fight). Pick with up, down and Enter. Without a skin your character is a plain blue figure: that is expected. In a fight, Tab opens the pause menu, which lists every control and key below.
 2. **Move around:** walk, jump, crouch, and change lane with Q and E. The controls are in the table below.
 3. **Hit the dummy:** light (J), heavy (L), and a fireball from a distance. Press F1 to see the hitboxes.
 4. **Do the combo:** stand next to the dummy and press J, J, L, each press after the hit before lands. As the L lands, hold W to jump after the dummy, then press J and L in the air. That is five hits.
@@ -74,6 +74,7 @@ The game is a sandbox for now: one character against the big dummy or a crowd of
 | The dummy guards | F4 | |
 | The dummy fights back | F5 | |
 | Ten more small-fry enemies | F6 | |
+| In the sandbox: a small fry in front of you, the big dummy in front of you, the small fry fight back or stand still | 1, 2, 3 | |
 | Start over (after going down, or any time) | R | |
 
 ## Contributing

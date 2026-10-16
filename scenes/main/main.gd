@@ -5,7 +5,9 @@ extends Node2D
 const STAGE: String = "res://scenes/levels/poc_stage/poc_stage.tscn"
 const SCREEN := Vector2(1920.0, 1080.0)
 
-var _choice: int = 0  # 0 boss fight, 1 melee
+const CHOICES: Array[String] = ["Boss fight", "Melee", "Sandbox"]
+
+var _choice: int = 0  # index into CHOICES
 var _labels: Array[Label] = []
 
 
@@ -13,15 +15,15 @@ func _ready() -> void:
 	var title := _text(Vector2(0.0, 240.0), 84, "Hundred Years' War sandbox")
 	title.size.x = SCREEN.x
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_labels.append(_text(Vector2(0.0, 480.0), 56, "Boss fight"))
-	_labels.append(_text(Vector2(0.0, 580.0), 56, "Melee"))
+	for i in CHOICES.size():
+		_labels.append(_text(Vector2(0.0, 460.0 + 90.0 * i), 56, CHOICES[i]))
 	for label in _labels:
 		label.size.x = SCREEN.x
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var help := _text(Vector2(0.0, 760.0), 28, "Up and down, then Enter or Space.    In the fight, Tab opens the pause menu with every key.")
 	help.size.x = SCREEN.x
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var what := _text(Vector2(0.0, 820.0), 24, "Boss fight: the big dummy fights back, with the camera closer.    Melee: ten small fry at a time, endlessly.")
+	var what := _text(Vector2(0.0, 820.0), 24, "Boss fight: the big dummy fights back, with the camera closer.    Melee: ten small fry at a time, endlessly.\nSandbox: an empty stage; add the enemies you want, and they stand still until told.")
 	what.size.x = SCREEN.x
 	what.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_show_choice()
@@ -36,10 +38,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	match event.keycode:
 		KEY_UP, KEY_W:
-			_choice = 0
+			_choice = posmod(_choice - 1, CHOICES.size())
 			_show_choice()
 		KEY_DOWN, KEY_S:
-			_choice = 1
+			_choice = posmod(_choice + 1, CHOICES.size())
 			_show_choice()
 		KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_J:
 			_start()
@@ -49,16 +51,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_2:
 			_choice = 1
 			_start()
+		KEY_3:
+			_choice = 2
+			_start()
 
 
 func _start() -> void:
-	PocStage.mode = PocStage.Mode.BOSS_FIGHT if _choice == 0 else PocStage.Mode.MELEE
+	PocStage.mode = [PocStage.Mode.BOSS_FIGHT, PocStage.Mode.MELEE, PocStage.Mode.SANDBOX][_choice] as PocStage.Mode
 	get_tree().change_scene_to_file(STAGE)
 
 
 func _show_choice() -> void:
 	for i in _labels.size():
-		_labels[i].text = ("> %s <" if i == _choice else "%s") % ["Boss fight", "Melee"][i]
+		_labels[i].text = ("> %s <" if i == _choice else "%s") % CHOICES[i]
 		_labels[i].add_theme_color_override("font_color", Color(1.0, 0.85, 0.3) if i == _choice else Color.WHITE)
 
 

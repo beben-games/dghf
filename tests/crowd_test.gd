@@ -23,6 +23,7 @@ func _initialize() -> void:
 	_test_spacing()
 	_test_follow_across_lanes()
 	_test_surround()
+	_test_passive_crowd()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -208,3 +209,19 @@ func _test_surround() -> void:
 		if body.x > _player.x:
 			right += 1
 	_check(right >= 2, "a crowd that arrives from one side goes around to both sides (%d of 6 on the right)" % right)
+
+
+func _test_passive_crowd() -> void:
+	_fight()
+	_crowd.passive = true
+	for i in 4:
+		_crowd.spawn(1, 1200.0 + 100.0 * i, -1)
+	_run(300)
+	var still: bool = true
+	for body in _crowd.alive():
+		if body.state != Body.State.IDLE or body.x < 1200.0:
+			still = false
+	_check(still and _player.health == 100, "a passive crowd stands where it was put and never swings")
+	_crowd.passive = false
+	_run(300)
+	_check(_player.health < 100, "told to fight, it walks up and swings")

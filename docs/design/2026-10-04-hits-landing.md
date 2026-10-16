@@ -130,6 +130,7 @@ Ben's direction, 2026-10-13. The game opens on a menu (`scenes/main/`) with two 
 
 - **Boss fight:** the big dummy fights back from the start, and the lanes are at their closest (the 35-pixel preset: the camera "closer"). F2 still cycles the presets.
 - **Melee:** no dummy; ten small fry to start, and a new wave of ten whenever fewer than ten are left, at least 240 ticks apart, endlessly, until the player is down.
+- **Sandbox** (Ben, 2026-10-15): an empty stage, the 50-pixel preset. **1** adds a small fry 320 pixels in front of the player, **2** puts the big dummy there, and both stand still: the crowd director is passive and the dummy has no brain. **3** lets the small fry fight back (and stops them again); F4 and F5 do the dummy as everywhere else. F6 and R work too.
 - **One help line** on screen: Tab opens the pause menu. The pause menu stops the clock and recaps every control and debug key; Tab or Esc closes it, M goes back to the main menu. R starts the fight over in either mode.
 
 ## Specials that scale with the button (issue #50)

@@ -1,20 +1,16 @@
 # Status
 
-**Updated 2026-10-13.** Where the project stands, for a person or a Claude starting a new session. To show someone what there is to play, go to "Showing someone around". Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
+**Updated 2026-10-17.** Where the project stands, for a person or a Claude starting a new session. To show someone what there is to play, go to "Showing someone around". Read it after `CLAUDE.md`. Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
 
 ## In one paragraph
 
 Setup is done and Milestone 1 is built: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, combos through cancels, guards, dodges and throws a fireball, a training dummy that takes or blocks the hits or fights back (F5), and a crowd of small fry (F6) against a player with health, with a move preview tool for tuning moves without code. T and E have played it; the stage now starts with lanes 50 pixels apart and fighters scaled by lane (Ben's pick; F2 cycles the other presets). The art pipeline is ported and the sprite-size probe is done (#11). **Milestone 2 starts with Ben's direction of 2026-10-13: nail the feel of one player against a large group of small-fry enemies that are dangerous when they gang up, before any big work on visuals.** Placeholder art stays in each person's `local/` and in private builds until then. The technical base of the combat core is decided; lanes, controls, screen and sprite size are still proposed and wait for a weekly meeting with all three.
 
-## Milestone 2: the plan (Ben, 2026-10-13)
+## The plan: two vertical slices (Ben, 2026-10-17)
 
-In this order, each its own issue:
+Ben's Milestone 2 plan of 2026-10-13 (the crowd #48, smart following #49, spells that scale #50) is built. The next plan is `docs/plans/2026-10-17-vertical-slices.md`: eleven steps in order, each an issue (#58 to #68), toward a melee level (camera, mana, enemy variety, waves, feel, pickups, sound) and a boss fight (the fighting-game camera, a boss, rounds), with local co-op for three pads early. A fresh session takes the lowest-numbered open issue whose needs are done; the first is **#58, the camera and a scrolling stage**.
 
-1. **The crowd** (#48): the crowd body, a pool and an enemy director; dozens of cheap small-fry enemies with one simple attack and small damage, taking hits by the same rules as a fighter. Done when the player fights twenty or more at once and it feels like a crowd.
-2. **Smart following** (#49): a maximum per lane, following across lanes with a slight delay, going around the player, attack tokens so ganging up stays readable.
-3. **Spells that scale with the button** (#50): light and heavy fireballs that feel different, and a harder motion for the strong one.
-
-Visuals wait: the plain figure and private placeholder skins carry the game until the feel is right. The sprite-size probe and `docs/art.md` are ready for when it is.
+Visuals still wait: the plain figure and private placeholder skins carry the game until the feel is right. Ben supplies effects on request (asked: a missile, a blast ring, a fireball, hit sparks).
 
 ## What runs today
 
@@ -83,10 +79,11 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #41 Guard | Open. Merged. Hold K (B) to block hits from the front: blockstun and pushback instead of damage. F4 makes the dummy guard. Done when the team agrees on what a guard stops. |
 | #45 The first enemy that attacks | Open. Merged. F5 makes the dummy fight back: a brain presses the buttons of the same full fighter. Walks up, swings light and heavy, rests, guards sometimes, follows a lane change after 45 ticks. No health. Done when the team has fought it. |
-| #48 The crowd | In review. F6 adds ten small fry at a time, up to 48: a pooled crowd body with one jab and 30 health, a director with thinking in turns, three attack tokens and spacing, the player with 100 health and a death, R to start over. 40 on screen at 110 to 120 fps. Done when the team says it feels like a crowd. |
+| #58 to #68, the vertical-slice plan | Not started. See `docs/plans/2026-10-17-vertical-slices.md`. |
+| #48 The crowd | Open. Merged. F6 adds ten small fry at a time, up to 48: a pooled crowd body with one jab and 30 health, a director with thinking in turns, three attack tokens and spacing, the player with 100 health and a death, R to start over. 40 on screen at 110 to 120 fps. Done when the team says it feels like a crowd. |
 | #54 Sandbox menu | Open. Merged, plus a third scene in review: the sandbox, where 1 adds a small fry and 2 a big dummy, as many as wanted; F5 starts and stops every enemy at once in every scene. Tab is the pause menu with every key. |
-| #49 Smart following | In review. Small fry follow a lane change after 45 ticks, at most 6 in the player's lane, and go around to the other side when theirs has more than 3. |
-| #50 Spells scale with the button | In review. Light and heavy fireball, homing missiles and an every-lane blast on the dragon punch and hurricane motions, and a piercing super: the heavy version twice as big and hard with a tighter motion window. All move data; effects drawn in code until Ben's arrive. |
+| #49 Smart following | Open. Merged. Small fry follow a lane change after 45 ticks, at most 6 in the player's lane, and go around to the other side when theirs has more than 3. |
+| #50 Spells scale with the button | Open. Merged. Light and heavy fireball, homing missiles and an every-lane blast on the dragon punch and hurricane motions, and a piercing super: the heavy version twice as big and hard with a tighter motion window. All move data; effects drawn in code until Ben's arrive. |
 | #43 Dodge | Open. Merged. Shift (right trigger) dashes along the lane with invincible ticks in the middle and a short recovery; neutral is a step back. Done when the team agrees on its timing. |
 | #10 Milestone 1 build | Not started. The build script exists. |
 | #11 Port the PixelLab art pipeline | In review. The tools are ported and report the balance from here; `docs/art.md` is the guide for T and E (asset kinds and sizes at both candidate resolutions, the character workflow, the tools; everyone may generate with their own stack and keys, following the same art direction and palette). The sprite-size probe ran on 2026-10-11 (about 150 generations): the Pro character creator caps at 168 pixels and gave a small, big-headed look that Ben rejected; `create-character-v3` at 256 gives a 240-pixel man-at-arms that matches Ben's knight, now the approved reference (`art/refs/`). Results in `docs/probes/2026-10-11-size-probe/` and on the issue. Attacks: `pixminimax` gives 12 frames of a sword slash at 256 for 2 generations, so custom animations are cheap. Done when the meeting has picked the look and size. |
@@ -119,7 +116,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 ## Suggested next steps
 
-1. **Build the crowd (#48)**, then smart following (#49), then the two fireballs (#50). Design choices that a player feels go in a spec in `docs/design/` marked proposed.
+1. **Follow the plan** in `docs/plans/2026-10-17-vertical-slices.md`: the camera and a scrolling stage (#58) first, then co-op (#59), mana (#60), enemy variety (#61), waves (#62), and on. Design choices that a player feels go in a spec in `docs/design/` marked proposed.
 2. Hold the meeting: lanes and depth (the 50-pixel preset), the resolution (the probe says keep 1080p), E's confirmation of two attacks plus guard, what guard and dodge should stop, the enemy's feel, and bosses-then-playable (#33). Then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
 3. T and E take the tour ("Showing someone around"), fight the dummy (F5), and tune a move with the preview tool; that closes #8. E's stress-test numbers into #3.
 4. After the meeting, rewrite issues #4 and #5 for the chosen size, and start the first character through the workflow in `docs/art.md`.

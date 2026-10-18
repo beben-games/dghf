@@ -27,3 +27,4 @@ projectile_speed = 10.0
 projectile_hit = SubResource("Resource_hit")
 projectile_size = 2.6
 projectile_pierce = true
+mana_cost = 100

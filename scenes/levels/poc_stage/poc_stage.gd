@@ -54,6 +54,9 @@ const SKIN_TINT: float = 0.45
 const JOIN_GAP: float = 160.0
 ## After R, the players stand this far apart around the middle of the screen.
 const START_GAP: float = 220.0
+## The mana bar's colours (issue #60): filling, and full.
+const MANA_COLOR := Color(0.3, 0.55, 1.0)
+const MANA_FULL_COLOR := Color(0.7, 0.85, 1.0)
 ## Private art goes here. The folder is git-ignored and hidden from Godot's importer.
 const LOCAL_SKIN: String = "res://local/skins/player"
 ## A built game has no local folder. It looks for a skin in this folder beside its executable.
@@ -68,10 +71,11 @@ Guard: hold K or (B)            Dodge: Shift or the right trigger, with a direct
 Specials, with J for the light version or L for the heavy one, twice as big and twice as hard but asking a cleaner motion:
 Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, then down-forward        Blast around you, every lane: tap down twice
 Super fireball: the fireball motion twice, then L: huge, and goes through everyone
+Mana: hits fill the blue bar, specials cost some of it and the super all of it. The melee starts empty.
 Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
-F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      R: start over
+F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      F7: refill mana      R: start over
 1: a small fry in front of you          2: a big dummy in front of you
 Co-op (melee and sandbox): any button on a second or third pad joins. The screen's edges hold the players together."""
 
@@ -103,8 +107,9 @@ var _fighting: bool = false
 ## Whether the big dummies hold their guard (F4).
 var _dummy_guards: bool = false
 var crowd: CrowdDirector
-## A health bar per player, in its colour, with its tag.
+## A health bar per player, in its colour, with its tag, and a mana bar under it.
 var health_bars: Array[ColorRect] = []
+var mana_bars: Array[ColorRect] = []
 var _health_tags: Array[Label] = []
 var _layer: CanvasLayer
 ## The big line in the middle: DOWN, or CLEAR.
@@ -227,8 +232,10 @@ func _add_player(input: PlayerInput, fighter: Fighter, index: int, start_x: floa
 	fighter.bounds = camera.player_bounds(MARGIN)
 	fighter.moves = _player_moves
 	fighter.max_health = 100
+	fighter.max_mana = 100
 	fighter.projectiles = _projectiles
 	fighter.setup(input, lanes(), start_lane, start_x)
+	fighter.mana = _starting_mana(fighter)
 	fighter.set_lanes(lanes(), scales())
 	var view := FighterView.new()
 	view.skin = _skin
@@ -246,7 +253,14 @@ func _add_player(input: PlayerInput, fighter: Fighter, index: int, start_x: floa
 	return fighter
 
 
-## Player `slot`'s health bar (0 first), side by side at the top left, in `color`, with its tag.
+## Where the bar starts (issue #60, proposed): empty in the melee, since hits
+## fill it; full in the boss fight and the sandbox, so motions can be tried at once.
+func _starting_mana(fighter: Fighter) -> int:
+	return 0 if mode == Mode.MELEE else fighter.max_mana
+
+
+## Player `slot`'s health bar (0 first), side by side at the top left, in `color`, with its tag,
+## and its mana bar below.
 func _add_health_bar(slot: int, color: Color) -> void:
 	var left: float = 24.0 + 440.0 * slot
 	var back := ColorRect.new()
@@ -260,6 +274,17 @@ func _add_health_bar(slot: int, color: Color) -> void:
 	bar.color = color
 	_layer.add_child(bar)
 	health_bars.append(bar)
+	var mana_back := ColorRect.new()
+	mana_back.position = Vector2(left, 222.0)
+	mana_back.size = Vector2(400.0, 14.0)
+	mana_back.color = Color(0.1, 0.1, 0.12, 0.8)
+	_layer.add_child(mana_back)
+	var mana_bar := ColorRect.new()
+	mana_bar.position = Vector2(left + 2.0, 224.0)
+	mana_bar.size = Vector2(396.0, 10.0)
+	mana_bar.color = MANA_COLOR
+	_layer.add_child(mana_bar)
+	mana_bars.append(mana_bar)
 	var tag := Label.new()
 	tag.position = Vector2(left, 160.0)
 	tag.text = "P%d" % players[slot].input.player
@@ -468,6 +493,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				_set_fighting(not _fighting)
 			KEY_F6:
 				spawn_wave(10)
+			KEY_F7:
+				for player in players:
+					player.mana = player.max_mana
 			KEY_1:
 				crowd.spawn(randi_range(0, 2), _in_front(), -_leader().facing)
 			KEY_2:
@@ -509,6 +537,7 @@ func _start_over() -> void:
 	for i in players.size():
 		var player: Fighter = players[i]
 		player.setup(player.input, lanes(), 1, SCREEN.x / 2.0 + START_GAP * (i - (players.size() - 1) / 2.0))
+		player.mana = _starting_mana(player)
 		player.set_lanes(lanes(), scales())
 		player.state = Fighter.State.IDLE
 		player.move = null
@@ -586,6 +615,8 @@ func _update_combo() -> void:
 	var best: int = 0
 	for i in players.size():
 		health_bars[i].size.x = 396.0 * float(players[i].health) / players[i].max_health
+		mana_bars[i].size.x = 396.0 * float(players[i].mana) / players[i].max_mana
+		mana_bars[i].color = MANA_FULL_COLOR if players[i].mana >= players[i].max_mana else MANA_COLOR
 		var combo: int = _combat.combo_of(players[i])
 		if combo > hits:
 			hits = combo
@@ -623,8 +654,8 @@ func _update_readout() -> void:
 	elif _arenas.between():
 		where += "   walk on"
 	var help: String = HELP + (JOIN_HELP if mode != Mode.BOSS_FIGHT and players.size() < MAX_PLAYERS else "")
-	_label.text = "%s\n%s%s   lane %d   %s   %d fps   enemies %s   players %d" % [
-		help, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, where, Engine.get_frames_per_second(),
+	_label.text = "%s\n%s%s   lane %d   mana %d   %s   %d fps   enemies %s   players %d" % [
+		help, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, _fighter.mana, where, Engine.get_frames_per_second(),
 		"fighting back" if _fighting else "guarding" if _dummy_guards else "standing still", players.size(),
 	]
 

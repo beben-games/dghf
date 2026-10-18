@@ -227,6 +227,11 @@ func in_hit_reaction() -> bool:
 	return state == State.HITSTUN or state == State.LAUNCHED
 
 
+## Called by Combat when a hit of this body's lands clean: bodies with mana keep it.
+func gain_mana(_amount: int) -> void:
+	pass
+
+
 ## Called by Combat when a hit lands. `direction` is the way the hit pushes: 1 right, -1 left.
 func take_hit(hit: HitBox, direction: int) -> void:
 	if not in_hit_reaction():

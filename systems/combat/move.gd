@@ -1,7 +1,7 @@
 class_name Move
 extends Resource
 ## A move as data (docs/architecture.md, section 3). Durations are in ticks.
-## This is the first slice: hurtbox changes and costs come later.
+## This is the first slice: hurtbox changes come later.
 
 ## The id a cancel window lists to allow a jump.
 const JUMP: StringName = &"jump"
@@ -27,6 +27,10 @@ const JUMP: StringName = &"jump"
 
 @export_group("Hits")
 @export var hit_boxes: Array[HitBox] = []
+
+@export_group("Cost")
+## Mana the move takes to start (issue #60). A fighter that can't pay tries the next move in its list instead.
+@export var mana_cost: int = 0
 
 @export_group("Movement")
 ## Frames during which nothing can hit the user (a rising uppercut's start-up). Last below first means none.

@@ -6,6 +6,7 @@
 [sub_resource type="Resource" id="Resource_fbhit"]
 script = ExtResource("1_mqvml")
 damage = 14
+mana = 2
 hitstun = 18
 hitstop = 6
 blockstun = 10
@@ -21,3 +22,4 @@ projectile_frame = 14
 projectile_offset = Vector2(150, -130)
 projectile_speed = 16.0
 projectile_hit = SubResource("Resource_fbhit")
+mana_cost = 20

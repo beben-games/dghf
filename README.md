@@ -68,6 +68,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Blast around you, every lane | Tap down twice, then J or L (bigger, launches) | The same |
 | Super fireball | The fireball motion twice, then L: huge, and goes through everyone | The same |
 | Mana | Hits fill the blue bar. Light specials are free; heavy ones cost some, the super all of it, and a heavy you can't pay for comes out as its light version while the bar flashes red. The melee starts empty, the other scenes full | |
+| Guard bar | Blocking drains the white bar by the hit's damage; hits you land refill it, a quiet moment slowly. At zero the guard breaks and the hit launches you; below a quarter it can't be raised | |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Pause menu, with every control and key | Tab (Esc closes it) | |
 | Back to the main menu, from the pause menu | M | |
@@ -78,6 +79,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Every enemy fights back, or stands still (big and small at once) | F5 | |
 | Ten more small-fry enemies | F6 | |
 | Refill everyone's mana | F7 | |
+| A tank's guard bar for player 1, three times bigger | F8 | |
 | A small fry in front of you in a random lane; a big dummy in front of you | 1; 2 | |
 | Start over with everyone who joined (after going down, or any time) | R | |
 

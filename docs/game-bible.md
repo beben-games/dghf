@@ -15,6 +15,7 @@ Working title: **Open.**
 
 - **Decided (2026-09-27).** 3 playable characters in the first release.
 - **Open.** Who the three characters are, how each fights, and their signature spells.
+- **Proposed (Ben, 2026-10-17).** The characters differ as classes through their bars as much as their moves: a tank has a much bigger guard bar, to keep a swarm or a boss busy while the rest of the team blasts. The guard bar is built (`docs/design/2026-10-17-guard-bar.md`); which classes the three are goes with the question above.
 - **Decided (2026-09-27).** Solo and local co-op in the first release. Online play is out of scope.
 - **Proposed.** For remote sessions, the team streams one machine's game, for example with Parsec.
 

@@ -11,6 +11,8 @@ var sparks: HitSparks
 var shake: float = 0.0
 ## Ticks without landing a hit after which an attacker's combo count ends.
 var combo_window: int = 90
+## The shake a guard break gives (issue #72).
+const BREAK_SHAKE: float = 12.0
 
 var _tick: int = 0
 var _combo: Dictionary[Body, int] = {}
@@ -61,13 +63,13 @@ func _resolve_moves() -> void:
 	var freeze: Dictionary[Body, int] = {}
 	for i in hits.size():
 		attackers[i].mark_hit(targets[i], hits[i].group)
-		var stop: int = targets[i].blocked_hitstop(hits[i]) if targets[i].blocks(attackers[i].facing) else hits[i].hitstop
+		var stop: int = targets[i].blocked_hitstop(hits[i]) if targets[i].blocks_hit(hits[i], attackers[i].facing) else hits[i].hitstop
 		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), stop)
 	for i in hits.size():
 		_land(targets[i], hits[i], attackers[i].facing, points[i])
-		if not targets[i].blocks(attackers[i].facing):
+		if not targets[i].blocks_hit(hits[i], attackers[i].facing):
 			_count(attackers[i])
-			attackers[i].gain_mana(hits[i].mana)
+			attackers[i].on_hit_landed(hits[i])
 	for attacker: Body in freeze:
 		if not attacker.swing_froze:
 			attacker.swing_froze = true
@@ -91,7 +93,7 @@ func _resolve_projectiles() -> void:
 				if box.intersects(target.hurt_rect()):
 					var direction: int = _projectile_direction(i, target)
 					_land(target, hit, direction, box.intersection(target.hurt_rect()).get_center())
-					if not target.blocks(direction):
+					if not target.blocks_hit(hit, direction):
 						var caster: Body = projectiles.owner_of(i)
 						if caster == null:
 							# A projectile with no owner (a test's) counts for the first body of its team.
@@ -101,7 +103,7 @@ func _resolve_projectiles() -> void:
 									break
 						if caster != null:
 							_count(caster)
-							caster.gain_mana(hit.mana)
+							caster.on_hit_landed(hit)
 					if projectiles.pierces(i):
 						projectiles.mark_hit(i, target)  # and on it goes
 					else:
@@ -130,12 +132,12 @@ func _can_hit(team: int, lane: int, target: Body) -> bool:
 
 
 func _land(target: Body, hit: HitBox, direction: int, at: Vector2) -> void:
-	if target.blocks(direction):
+	if target.blocks_hit(hit, direction):
 		target.take_block(hit, direction)
 		if sparks != null:
 			sparks.spawn(at, 20.0 + hit.hitstop * 3.0, true)
 		return
 	target.take_hit(hit, direction)
-	shake = maxf(shake, hit.shake)
+	shake = maxf(shake, BREAK_SHAKE if target.just_broke else hit.shake)
 	if sparks != null:
 		sparks.spawn(at, 30.0 + hit.hitstop * 6.0)

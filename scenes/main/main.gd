@@ -23,7 +23,7 @@ func _ready() -> void:
 	var help := _text(Vector2(0.0, 760.0), 28, "Up and down, then Enter or Space.    In the fight, Tab opens the pause menu with every key.")
 	help.size.x = SCREEN.x
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var what := _text(Vector2(0.0, 820.0), 24, "Boss fight: the big dummy fights back, with the camera closer.    Melee: ten small fry at a time, endlessly.\nSandbox: an empty stage; add the enemies you want, and they stand still until told.")
+	var what := _text(Vector2(0.0, 820.0), 24, "Boss fight: the big dummy fights back, with the camera closer.    Melee: two arenas of waves along a stage three screens wide.\nSandbox: an empty stage that scrolls freely; add the enemies you want, and they stand still until told.")
 	what.size.x = SCREEN.x
 	what.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_show_choice()

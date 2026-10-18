@@ -143,7 +143,7 @@ Anything drawn per hit comes from a shared pool. Juggles have no hard height lim
 
 ## 9. Camera and screen
 
-**Proposed.** The resolution waits on the sprite size, which is in round three of the questionnaire.
+**Proposed.** The resolution waits on the sprite size, which is in round three of the questionnaire. The camera and the arenas are built as proposed below in the sandbox (issue #58, `docs/design/2026-10-17-camera-and-scrolling-stage.md`).
 
 **Proposal.**
 - Internal resolution 480 by 270 pixels as a placeholder, scaled by whole numbers to the window (four times for 1080p), so pixel art stays sharp.

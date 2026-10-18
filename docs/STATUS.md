@@ -4,11 +4,11 @@
 
 ## In one paragraph
 
-Setup is done and Milestone 1 is built: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, combos through cancels, guards, dodges and throws a fireball, a training dummy that takes or blocks the hits or fights back (F5), and a crowd of small fry (F6) against a player with health, with a move preview tool for tuning moves without code. T and E have played it; the stage now starts with lanes 50 pixels apart and fighters scaled by lane (Ben's pick; F2 cycles the other presets). The art pipeline is ported and the sprite-size probe is done (#11). **Milestone 2 starts with Ben's direction of 2026-10-13: nail the feel of one player against a large group of small-fry enemies that are dangerous when they gang up, before any big work on visuals.** Placeholder art stays in each person's `local/` and in private builds until then. The technical base of the combat core is decided; lanes, controls, screen and sprite size are still proposed and wait for a weekly meeting with all three.
+Setup is done and Milestone 1 is built: one character on an empty 1080p stage who walks, jumps, crouches, changes lane, attacks on the ground and in the air, combos through cancels, guards, dodges and throws a fireball, a training dummy that takes or blocks the hits or fights back (F5), and a crowd of small fry (F6) against a player with health, with a move preview tool for tuning moves without code. T and E have played it; the stage now starts with lanes 50 pixels apart and fighters scaled by lane (Ben's pick; F2 cycles the other presets). The art pipeline is ported and the sprite-size probe is done (#11). **Milestone 2 starts with Ben's direction of 2026-10-13: nail the feel of one player against a large group of small-fry enemies that are dangerous when they gang up, before any big work on visuals.** The first step of the vertical-slice plan is built: a camera that follows, a stage three screens wide with a placeholder parallax backdrop, and arenas that lock the camera until their waves are beaten (#58, in review). Placeholder art stays in each person's `local/` and in private builds until then. The technical base of the combat core is decided; lanes, controls, screen and sprite size are still proposed and wait for a weekly meeting with all three.
 
 ## The plan: two vertical slices (Ben, 2026-10-17)
 
-Ben's Milestone 2 plan of 2026-10-13 (the crowd #48, smart following #49, spells that scale #50) is built. The next plan is `docs/plans/2026-10-17-vertical-slices.md`: eleven steps in order, each an issue (#58 to #68), toward a melee level (camera, mana, enemy variety, waves, feel, pickups, sound) and a boss fight (the fighting-game camera, a boss, rounds), with local co-op for three pads early. A fresh session takes the lowest-numbered open issue whose needs are done; the first is **#58, the camera and a scrolling stage**.
+Ben's Milestone 2 plan of 2026-10-13 (the crowd #48, smart following #49, spells that scale #50) is built. The next plan is `docs/plans/2026-10-17-vertical-slices.md`: eleven steps in order, each an issue (#58 to #68), toward a melee level (camera, mana, enemy variety, waves, feel, pickups, sound) and a boss fight (the fighting-game camera, a boss, rounds), with local co-op for three pads early. A fresh session takes the lowest-numbered open issue whose needs are done. #58 (the camera and a scrolling stage) is in review; the next is **#59, local co-op**, or #60 (mana) or #61 (enemy variety), which need nothing.
 
 Visuals still wait: the plain figure and private placeholder skins carry the game until the feel is right. Ben supplies effects on request (asked: a missile, a blast ring, a fireball, hit sparks).
 
@@ -16,13 +16,14 @@ Visuals still wait: the plain figure and private placeholder skins carry the gam
 
 | What | Where | How |
 |---|---|---|
-| The sandbox (the main scene) | `scenes/main/` (the menu) and `scenes/levels/poc_stage/` (the stage) | `scripts/run.sh`, or F5 in the editor. The menu offers the boss fight, the melee and a sandbox (add enemies one by one, standing still until told); in a fight, Tab lists every key |
+| The sandbox (the main scene) | `scenes/main/` (the menu) and `scenes/levels/poc_stage/` (the stage), `systems/camera/` (the camera), `scenes/levels/arenas.gd` (the arenas) | `scripts/run.sh`, or F5 in the editor. The menu offers the boss fight (one screen), the melee (two arenas of waves along a stage three screens wide) and a sandbox (the same stage, free; add enemies one by one, standing still until told); in a fight, Tab lists every key |
 | The crowd stress test | `scenes/stress_test/` | `scripts/run.sh res://scenes/stress_test/stress_test.tscn` (add `-- --benchmark` for the timed table) |
 | The fighter test | `tests/poc_player_test.gd` | `godot --headless --path . -s tests/poc_player_test.gd` prints `all passed` |
 | The move preview tool | `scenes/tools/move_preview/` | `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Steps through a move frame by frame and reloads it when its file is saved |
 | The move preview test | `tests/move_preview_test.gd` | `godot --headless --path . -s tests/move_preview_test.gd` prints `all passed` |
 | The crowd test | `tests/crowd_test.gd` | `godot --headless --path . -s tests/crowd_test.gd` prints `all passed` |
 | The hits test | `tests/hits_test.gd` | `godot --headless --path . -s tests/hits_test.gd` prints `all passed` |
+| The camera test | `tests/camera_test.gd` | `godot --headless --path . -s tests/camera_test.gd` prints `all passed` |
 | The art pipeline | `tools/art/`, `docs/art.md` | `python3 tools/art/pixellab.py balance` and `python3 tools/art/budget.py` report from this repository (Ben's key, in his keychain). `gen.py plan art/jobs/probe_sizes.json` lists the sprite-size probe |
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/`. Add `--skin <folder>` for a playtest build with a skin beside the executable: its zips are named `-private` and must not be published |
 
@@ -79,7 +80,8 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #23 Air attacks | Open. Merged. Light and heavy work during a jump. Done when the team has played them. |
 | #41 Guard | Open. Merged. Hold K (B) to block hits from the front: blockstun and pushback instead of damage. F4 makes the dummy guard. Done when the team agrees on what a guard stops. |
 | #45 The first enemy that attacks | Open. Merged. F5 makes the dummy fight back: a brain presses the buttons of the same full fighter. Walks up, swings light and heavy, rests, guards sometimes, follows a lane change after 45 ticks. No health. Done when the team has fought it. |
-| #58 to #68, the vertical-slice plan | Not started. See `docs/plans/2026-10-17-vertical-slices.md`. |
+| #58 Camera and a scrolling stage | In review. A `StageCamera` follows the player with a look-ahead and holds it on screen; the melee and the sandbox are three screens wide with a two-layer placeholder backdrop; the melee is two arenas of waves (10 and 10, then 10 and 15) that lock the camera until beaten, then GO, then CLEAR. Spec: `docs/design/2026-10-17-camera-and-scrolling-stage.md`, proposed. Done when the melee scrolls through two arenas and the camera never loses the player: it does on Ben's Mac; the team has not played it. |
+| #59 to #68, the rest of the vertical-slice plan | Not started. See `docs/plans/2026-10-17-vertical-slices.md`. |
 | #48 The crowd | Open. Merged. F6 adds ten small fry at a time, up to 48: a pooled crowd body with one jab and 30 health, a director with thinking in turns, three attack tokens and spacing, the player with 100 health and a death, R to start over. 40 on screen at 110 to 120 fps. Done when the team says it feels like a crowd. |
 | #54 Sandbox menu | Open. Merged, plus a third scene in review: the sandbox, where 1 adds a small fry and 2 a big dummy, as many as wanted; F5 starts and stops every enemy at once in every scene. Tab is the pause menu with every key. |
 | #49 Smart following | Open. Merged. Small fry follow a lane change after 45 ticks, at most 6 in the player's lane, and go around to the other side when theirs has more than 3. |
@@ -113,10 +115,12 @@ This is not decided, and it pulls against two things the game bible has as decid
 - `draw_texture_rect_region` with a negative width mirrors the image in place. Don't also move the rectangle.
 - A `SceneTree` script's `_physics_process` quits the game if it returns anything but false, and a function that uses `await` returns something. Put the `await` in a helper.
 - Godot's movie writer records at a fixed frame rate, so a recording never shows real performance.
+- A new `class_name` script is unknown to a headless test run until `godot --headless --path . --import` rebuilds the class cache. The first run after adding one fails to parse with "Could not find type".
+- To capture the running stage, a `SceneTree` script run with a window (not headless) can `change_scene_to_file`, await some `physics_frame`s and save `root.get_viewport().get_texture().get_image()`.
 
 ## Suggested next steps
 
-1. **Follow the plan** in `docs/plans/2026-10-17-vertical-slices.md`: the camera and a scrolling stage (#58) first, then co-op (#59), mana (#60), enemy variety (#61), waves (#62), and on. Design choices that a player feels go in a spec in `docs/design/` marked proposed.
+1. **Follow the plan** in `docs/plans/2026-10-17-vertical-slices.md`: with the camera (#58) in review, co-op (#59), mana (#60), enemy variety (#61), waves (#62), and on. Design choices that a player feels go in a spec in `docs/design/` marked proposed. Ben plays the melee and says whether the smooth follow and the look-ahead feel right, or whether a dead zone would.
 2. Hold the meeting: lanes and depth (the 50-pixel preset), the resolution (the probe says keep 1080p), E's confirmation of two attacks plus guard, what guard and dodge should stop, the enemy's feel, and bosses-then-playable (#33). Then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
 3. T and E take the tour ("Showing someone around"), fight the dummy (F5), and tune a move with the preview tool; that closes #8. E's stress-test numbers into #3.
 4. After the meeting, rewrite issues #4 and #5 for the chosen size, and start the first character through the workflow in `docs/art.md`.

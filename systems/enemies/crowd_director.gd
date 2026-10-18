@@ -77,6 +77,7 @@ func spawn(spawn_lane: int, at_x: float, face: int) -> CrowdBody:
 	if _pool.is_empty():
 		return null
 	var body: CrowdBody = _pool.pop_back()
+	body.bounds = bounds
 	body.revive(lane_y, lane_scale, spawn_lane, at_x, face)
 	_alive.append(body)
 	return body
@@ -88,6 +89,15 @@ func clear() -> void:
 		body.visible = false
 		_pool.append(body)
 	_alive.clear()
+
+
+## Where the bodies may stand. The stage moves it with the camera: a little
+## past the view on each side, so a wave can walk in from off screen but
+## nobody wanders far.
+func set_bounds(stage_bounds: Vector2) -> void:
+	bounds = stage_bounds
+	for body in _alive:
+		body.bounds = bounds
 
 
 func set_lanes(lanes: PackedFloat32Array, scales: PackedFloat32Array) -> void:

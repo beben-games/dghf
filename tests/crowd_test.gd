@@ -327,7 +327,7 @@ func _test_held_back_by_another_player_goes_round() -> void:
 
 func _test_taunt_pulls_the_crowd_into_the_lane() -> void:
 	# A knight in the back lane holding its guard; ten small fry in the front lane.
-	_fight(960.0, _repeat(Buttons.GUARD, 400))
+	_fight(960.0, _repeat(Buttons.GUARD, 1000))
 	_player.taunts = true
 	_player.max_guard = 100
 	_player.guard = 100
@@ -336,18 +336,27 @@ func _test_taunt_pulls_the_crowd_into_the_lane() -> void:
 	_player.set_lanes(LANES, SCALES)
 	for i in 10:
 		_crowd.spawn(2, 300.0 + 60.0 * i, 1)
-	_run(30)
+	_run(40)
 	var moving: int = 0
 	for body in _crowd.alive():
 		if body.lane != 2 or body.state == Body.State.LANE_CHANGE:
 			moving += 1
-	_check(moving >= 8, "taunted, the crowd comes at once (%d of 10 on their way after 30 ticks)" % moving)
-	_run(300)
+	_check(moving >= 2 and moving <= 8, "taunted, the crowd converges: some have started after 40 ticks, not all (%d of 10)" % moving)
+	_run(80)
 	var in_lane: int = 0
 	for body in _crowd.alive():
 		if body.lane == 0:
 			in_lane += 1
-	_check(in_lane == 10, "and all ten end up in the knight's lane, past the cap of %d (%d did)" % [_crowd.max_per_lane, in_lane])
+	_check(in_lane >= 3 and in_lane < 10, "some are in the knight's lane after 120 ticks, with stragglers still coming (%d of 10)" % in_lane)
+	_run(600)
+	in_lane = 0
+	for body in _crowd.alive():
+		if body.lane == 0:
+			in_lane += 1
+	var where: String = ""
+	for body in _crowd.alive():
+		where += " [lane %d x %d %s wait %d flank %d]" % [body.lane, int(body.x), Body.STATE_NAMES[body.state], body.taunt_wait, body.flank_lane]
+	_check(in_lane == 10, "and all ten end up in the knight's lane, past the cap of %d (%d did:%s)" % [_crowd.max_per_lane, in_lane, where])
 	var right: int = 0
 	for body in _crowd.alive():
 		if body.lane == 0 and body.x > _player.x:
@@ -367,6 +376,16 @@ func _test_taunt_pulls_the_crowd_into_the_lane() -> void:
 		if body.lane != 2 or body.state == Body.State.LANE_CHANGE:
 			moving += 1
 	_check(moving == 0, "a knight not holding its guard draws nobody at once")
+	# Letting go of the guard forgets the waits, so the next taunt starts fresh.
+	_fight(960.0, _repeat(Buttons.GUARD, 20))
+	_player.taunts = true
+	_player.lane = 0
+	_player.set_lanes(LANES, SCALES)
+	var body: CrowdBody = _crowd.spawn(2, 500.0, 1)
+	_run(12)
+	_check(body.taunt_wait >= 0, "a taunted body rolls its wait")
+	_run(40)
+	_check(body.taunt_wait == -1, "and forgets it once the guard is down")
 
 
 func _test_taunt_draws_targets_from_another_player() -> void:

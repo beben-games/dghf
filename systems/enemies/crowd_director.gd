@@ -39,6 +39,13 @@ extends Node2D
 @export var blocked_ticks: int = 20
 ## A taunting player (a tank holding its guard, issue #72) draws every body within this range.
 @export var taunt_range: float = 900.0
+## Taunted bodies converge rather than all hop at once: each waits its own time before each hop,
+## between these two; and some, stragglers, wait between the long two instead.
+@export var taunt_wait_min: int = 10
+@export var taunt_wait_max: int = 50
+@export var straggler_chance: float = 0.2
+@export var straggler_wait_min: int = 180
+@export var straggler_wait_max: int = 360
 
 var lane_y: PackedFloat32Array = PackedFloat32Array()
 var lane_scale: PackedFloat32Array = PackedFloat32Array()
@@ -131,6 +138,8 @@ func tick() -> void:
 			body.rest = _rng.randi_range(rest_min, rest_max)
 		if body.target != null:
 			body.off_lane_ticks = body.off_lane_ticks + 1 if body.lane != body.target.lane else 0
+		if body.taunt_wait > 0:
+			body.taunt_wait -= 1
 		if _tick % think_every == body.think_slot and not targets.is_empty() and not passive:
 			_think(body)
 		body.tick()
@@ -166,11 +175,24 @@ func _think(body: CrowdBody) -> void:
 		body.flank_lane = -1
 	var gap: float = target.x - body.x
 	if body.lane != target.lane:
-		# Taunted: straight into the target's lane, one hop at a time, cap or no cap. A body going
-		# round behind gives it up; one going round another player in its way carries on.
-		if target.taunting() and (body.flank_lane < 0 or body.flank_dist == flank_past):
-			body.flank_lane = -1
-			body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
+		# Taunted: into the target's lane, one hop at a time, cap or no cap, each body after its
+		# own wait, so the crowd converges rather than jumps. A body going round behind gives it
+		# up; one going round another player in its way carries on.
+		if not target.taunting():
+			body.taunt_wait = -1
+		elif body.flank_lane < 0 or body.flank_dist == flank_past:
+			if body.taunt_wait < 0:
+				body.taunt_wait = _taunt_wait()
+			elif body.taunt_wait == 0:
+				body.flank_lane = -1
+				body.taunt_wait = -1
+				body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
+				return
+			# Meanwhile, close in along this lane.
+			if absf(gap) > reach:
+				body.wanted_direction = 1 if gap > 0.0 else -1
+			if absf(gap) > 10.0:
+				body.facing = 1 if gap > 0.0 else -1
 			return
 		if body.flank_lane >= 0:
 			_flank(body, target)
@@ -232,6 +254,14 @@ func _flank(body: CrowdBody, target: Body) -> void:
 		body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
 
 
+## How long a body waits before its next hop toward a taunting target: a short while, or a
+## long one for a straggler.
+func _taunt_wait() -> int:
+	if _rng.randf() < straggler_chance:
+		return _rng.randi_range(straggler_wait_min, straggler_wait_max)
+	return _rng.randi_range(taunt_wait_min, taunt_wait_max)
+
+
 ## The lane beside the target's with the most room, or -1 when both are full.
 func _flank_lane(target: Body) -> int:
 	var best: int = -1
@@ -264,8 +294,8 @@ func _sides_of(walls: Array[Body]) -> PackedInt32Array:
 		var body: CrowdBody = _alive[i]
 		for j in walls.size():
 			var wall: Body = walls[j]
-			var applies: bool = body.lane == wall.lane and body.state != Body.State.LAUNCHED and body.state != Body.State.DEAD and body.state != Body.State.LANE_CHANGE
-			sides[i * walls.size() + j] = (1 if body.x >= wall.x else -1) if applies else 0
+			var on_feet: bool = body.state != Body.State.LAUNCHED and body.state != Body.State.DEAD and body.state != Body.State.LANE_CHANGE
+			sides[i * walls.size() + j] = (1 if body.x >= wall.x else -1) if on_feet and _wall_holds(wall, body) else 0
 	return sides
 
 
@@ -281,10 +311,17 @@ func _hold_at_walls(walls: Array[Body], sides: PackedInt32Array) -> void:
 			if side == 0 or body.state == Body.State.LAUNCHED or body.state == Body.State.DEAD or body.state == Body.State.LANE_CHANGE:
 				continue
 			var wall: Body = walls[j]
-			if body.lane == wall.lane and (body.x - wall.x) * side < wall_gap:
+			if _wall_holds(wall, body) and (body.x - wall.x) * side < wall_gap:
 				body.x = clampf(wall.x + side * wall_gap, bounds.x, bounds.y)
-				held = held or body.wanted_direction == -side
+				# Held by a player in the way, not by the one it is after: that is where it wants to be.
+				held = held or (body.wanted_direction == -side and wall != body.target)
 		body.blocked = body.blocked + 1 if held else 0
+
+
+## Whether `wall` holds `body`: in its lane, or in every lane while it taunts the body
+## (issue #72), so a crowd converging on a tank stays on its side of it.
+func _wall_holds(wall: Body, body: CrowdBody) -> bool:
+	return body.lane == wall.lane or (wall.taunting() and body.target == wall)
 
 
 ## The nearest taunting player in range, else the living target nearest to

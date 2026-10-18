@@ -28,4 +28,3 @@ projectile_size = 6.5
 projectile_lifetime = 22
 projectile_all_lanes = true
 projectile_pierce = true
-mana_cost = 25

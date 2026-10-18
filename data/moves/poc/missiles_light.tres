@@ -29,4 +29,3 @@ projectile_lifetime = 180
 projectile_all_lanes = true
 projectile_homing = 1.4
 projectile_count = 1
-mana_cost = 20

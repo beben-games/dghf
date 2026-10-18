@@ -29,8 +29,10 @@ const JUMP: StringName = &"jump"
 @export var hit_boxes: Array[HitBox] = []
 
 @export_group("Cost")
-## Mana the move takes to start (issue #60). A fighter that can't pay tries the next move in its list instead.
+## Mana the move takes to start (issue #60). A fighter that can't pay does `fallback` instead.
 @export var mana_cost: int = 0
+## The id of the move to do instead when the fighter can't pay: a heavy spell's light version. Empty for none.
+@export var fallback: StringName = &""
 
 @export_group("Movement")
 ## Frames during which nothing can hit the user (a rising uppercut's start-up). Last below first means none.

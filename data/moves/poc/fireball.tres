@@ -22,4 +22,3 @@ projectile_frame = 14
 projectile_offset = Vector2(150, -130)
 projectile_speed = 16.0
 projectile_hit = SubResource("Resource_fbhit")
-mana_cost = 20

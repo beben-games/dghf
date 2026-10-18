@@ -54,9 +54,10 @@ const SKIN_TINT: float = 0.45
 const JOIN_GAP: float = 160.0
 ## After R, the players stand this far apart around the middle of the screen.
 const START_GAP: float = 220.0
-## The mana bar's colours (issue #60): filling, and full.
+## The mana bar's colours (issue #60): filling, full, and just short of a heavy spell.
 const MANA_COLOR := Color(0.3, 0.55, 1.0)
 const MANA_FULL_COLOR := Color(0.7, 0.85, 1.0)
+const MANA_SHORT_COLOR := Color(0.9, 0.35, 0.3)
 ## The guard bar (issue #72): its size, the tank preset's (F8), and its colours above and below the floor.
 const GUARD_BAR: int = 100
 const TANK_GUARD: int = 300
@@ -76,7 +77,8 @@ Guard: hold K or (B)            Dodge: Shift or the right trigger, with a direct
 Specials, with J for the light version or L for the heavy one, twice as big and twice as hard but asking a cleaner motion:
 Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, then down-forward        Blast around you, every lane: tap down twice
 Super fireball: the fireball motion twice, then L: huge, and goes through everyone
-Mana: hits fill the blue bar, specials cost some of it and the super all of it. The melee starts empty.
+Mana: hits fill the blue bar. Light specials are free; heavy ones cost some of it and the super all of it.
+A heavy you can't pay for comes out as its light version, and the bar flashes red. The melee starts empty.
 Guard: blocking drains the white bar by the hit's damage; hits you land refill it, and a quiet moment too, slowly.
 At zero the guard breaks: the hit launches you. Below a quarter the guard can't be raised.
 Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
@@ -643,7 +645,10 @@ func _update_combo() -> void:
 	for i in players.size():
 		health_bars[i].size.x = 396.0 * float(players[i].health) / players[i].max_health
 		mana_bars[i].size.x = 396.0 * float(players[i].mana) / players[i].max_mana
-		mana_bars[i].color = MANA_FULL_COLOR if players[i].mana >= players[i].max_mana else MANA_COLOR
+		if players[i].mana_short_ticks > 0:
+			mana_bars[i].color = MANA_SHORT_COLOR
+		else:
+			mana_bars[i].color = MANA_FULL_COLOR if players[i].mana >= players[i].max_mana else MANA_COLOR
 		guard_bars[i].size.x = 396.0 * float(players[i].guard) / players[i].max_guard
 		guard_bars[i].color = GUARD_COLOR if players[i].can_guard() else GUARD_LOW_COLOR
 		var combo: int = _combat.combo_of(players[i])
@@ -678,6 +683,8 @@ func _update_readout() -> void:
 	if _fighter.move != null:
 		move_text = " %s %d/%d" % [_fighter.move.id, _fighter.move_frame, _fighter.move.total_frames]
 	var where: String = "x %d" % int(_fighter.x)
+	if _fighter.mana_short_ticks > 0:
+		where = "no mana for the heavy   " + where
 	if _arenas.locked:
 		where += "   arena %d of %d, wave %d of %d" % [_arenas.index + 1, _arenas.arenas.size(), _arenas.waves_sent, _arenas.wave_count()]
 	elif _arenas.between():

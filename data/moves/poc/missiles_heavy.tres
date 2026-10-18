@@ -36,3 +36,4 @@ projectile_spread = 7.0
 projectile_interval = 6
 projectile_homing_delay = 10
 mana_cost = 35
+fallback = &"missiles_light"

@@ -28,6 +28,8 @@ func _initialize() -> void:
 	_test_players_are_walls()
 	_test_surround_goes_through_the_lanes()
 	_test_held_back_by_another_player_goes_round()
+	_test_taunt_pulls_the_crowd_into_the_lane()
+	_test_taunt_draws_targets_from_another_player()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -319,5 +321,82 @@ func _test_held_back_by_another_player_goes_round() -> void:
 	_check(reached >= 2, "bodies held back by the first player on their way to the second go round and reach it (%d of 3)" % reached)
 	_check(not crossed, "without crossing the first player")
 	_check(_player.health == 100 and other.health < 100, "the first player is untouched, the second is hit")
+	other.free()
+	_made_other = null
+
+
+func _test_taunt_pulls_the_crowd_into_the_lane() -> void:
+	# A knight in the back lane holding its guard; ten small fry in the front lane.
+	_fight(960.0, _repeat(Buttons.GUARD, 400))
+	_player.taunts = true
+	_player.max_guard = 100
+	_player.guard = 100
+	_player.facing = -1  # toward the crowd, so the guard takes the hits
+	_player.lane = 0
+	_player.set_lanes(LANES, SCALES)
+	for i in 10:
+		_crowd.spawn(2, 300.0 + 60.0 * i, 1)
+	_run(30)
+	var moving: int = 0
+	for body in _crowd.alive():
+		if body.lane != 2 or body.state == Body.State.LANE_CHANGE:
+			moving += 1
+	_check(moving >= 8, "taunted, the crowd comes at once (%d of 10 on their way after 30 ticks)" % moving)
+	_run(300)
+	var in_lane: int = 0
+	for body in _crowd.alive():
+		if body.lane == 0:
+			in_lane += 1
+	_check(in_lane == 10, "and all ten end up in the knight's lane, past the cap of %d (%d did)" % [_crowd.max_per_lane, in_lane])
+	var right: int = 0
+	for body in _crowd.alive():
+		if body.lane == 0 and body.x > _player.x:
+			right += 1
+	_check(right == 0, "piled on the side they came from, nobody round behind (%d on the right)" % right)
+	_check(_player.guard < _player.max_guard, "and they hit the guard")
+	# Without the guard held, a taunter is followed like anyone else.
+	_fight()
+	_player.taunts = true
+	_player.lane = 0
+	_player.set_lanes(LANES, SCALES)
+	for i in 10:
+		_crowd.spawn(2, 500.0 + 60.0 * i, 1)
+	_run(30)
+	moving = 0
+	for body in _crowd.alive():
+		if body.lane != 2 or body.state == Body.State.LANE_CHANGE:
+			moving += 1
+	_check(moving == 0, "a knight not holding its guard draws nobody at once")
+
+
+func _test_taunt_draws_targets_from_another_player() -> void:
+	# The knight guards on the left; a second player stands nearer the crowd, on the right.
+	_fight(900.0, _repeat(Buttons.GUARD, 500))
+	_player.taunts = true
+	_player.max_guard = 100
+	_player.guard = 100
+	var other := Fighter.new()
+	other.max_health = 100
+	other.bounds = _player.bounds
+	other.setup(PlayerInput.new(2, InputSource.new()), LANES, 1, 1600.0)
+	other.set_lanes(LANES, SCALES)
+	_made_other = other
+	_crowd.targets = [_player, other]
+	for i in 3:
+		_crowd.spawn(1, 1700.0 + 50.0 * i, -1)
+	for i in 500:
+		for fighter: Fighter in [_player, other]:
+			fighter.tick()
+		_crowd.tick()
+		_combat.fighters = [_player, other]
+		_combat.fighters.append_array(_crowd.alive())
+		_projectiles.tick(_combat.fighters)
+		_combat.resolve()
+	var on_knight: int = 0
+	for body in _crowd.alive():
+		if body.target == _player:
+			on_knight += 1
+	_check(on_knight == 3, "the crowd nearer the other player goes for the taunting knight instead (%d of 3)" % on_knight)
+	_check(_player.guard < _player.max_guard and other.health == 100, "hits the knight's guard and leaves the other alone")
 	other.free()
 	_made_other = null

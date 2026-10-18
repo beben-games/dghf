@@ -69,6 +69,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Super fireball | The fireball motion twice, then L: huge, and goes through everyone | The same |
 | Mana | Hits fill the blue bar. Light specials are free; heavy ones cost some, the super all of it, and a heavy you can't pay for comes out as its light version while the bar flashes red. The melee starts empty, the other scenes full | |
 | Guard bar | Blocking drains the white bar by the hit's damage; hits you land refill it, a quiet moment slowly. At zero the guard breaks and the hit launches you; below a quarter it can't be raised | |
+| Taunt | The knight is a tank: while you hold the guard, small fry within half a screen fight you, come to your lane at once and pile on from their side | |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Pause menu, with every control and key | Tab (Esc closes it) | |
 | Back to the main menu, from the pause menu | M | |

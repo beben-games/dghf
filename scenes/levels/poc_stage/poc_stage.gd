@@ -81,6 +81,7 @@ Mana: hits fill the blue bar. Light specials are free; heavy ones cost some of i
 A heavy you can't pay for comes out as its light version, and the bar flashes red. The melee starts empty.
 Guard: blocking drains the white bar by the hit's damage; hits you land refill it, and a quiet moment too, slowly.
 At zero the guard breaks: the hit launches you. Below a quarter the guard can't be raised.
+The knight is a tank: holding the guard taunts, and small fry nearby come to your lane and pile on you from their side.
 Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
@@ -247,6 +248,7 @@ func _add_player(input: PlayerInput, fighter: Fighter, index: int, start_x: floa
 	fighter.max_health = 100
 	fighter.max_mana = 100
 	fighter.max_guard = TANK_GUARD if _tank and fighter == _fighter else GUARD_BAR
+	fighter.taunts = true  # the knight is a tank (Ben, 2026-10-17): its guard taunts
 	fighter.projectiles = _projectiles
 	fighter.setup(input, lanes(), start_lane, start_x)
 	fighter.mana = _starting_mana(fighter)

@@ -37,6 +37,8 @@ extends Node2D
 @export var flank_past: float = 220.0
 ## Ticks a body has to be held by a wall on its way before it goes round through another lane.
 @export var blocked_ticks: int = 20
+## A taunting player (a tank holding its guard, issue #72) draws every body within this range.
+@export var taunt_range: float = 900.0
 
 var lane_y: PackedFloat32Array = PackedFloat32Array()
 var lane_scale: PackedFloat32Array = PackedFloat32Array()
@@ -164,6 +166,12 @@ func _think(body: CrowdBody) -> void:
 		body.flank_lane = -1
 	var gap: float = target.x - body.x
 	if body.lane != target.lane:
+		# Taunted: straight into the target's lane, one hop at a time, cap or no cap. A body going
+		# round behind gives it up; one going round another player in its way carries on.
+		if target.taunting() and (body.flank_lane < 0 or body.flank_dist == flank_past):
+			body.flank_lane = -1
+			body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
+			return
 		if body.flank_lane >= 0:
 			_flank(body, target)
 			return
@@ -186,7 +194,8 @@ func _think(body: CrowdBody) -> void:
 		body.side = here
 	var goal_side: int = here
 	var goal_dist: float = reach
-	if _on_side(target, here) > max_per_side and _on_side(target, -here) < max_per_side and _room(target, -here):
+	# A taunting target is piled on from this side: no going round behind it.
+	if not target.taunting() and _on_side(target, here) > max_per_side and _on_side(target, -here) < max_per_side and _room(target, -here):
 		goal_side = -here
 		goal_dist = flank_past
 	if goal_side != here or body.blocked >= blocked_ticks:
@@ -278,9 +287,9 @@ func _hold_at_walls(walls: Array[Body], sides: PackedInt32Array) -> void:
 		body.blocked = body.blocked + 1 if held else 0
 
 
-## The living target nearest to `body`, unless the one it has is still close to
-## as near: the crowd does not flicker between two players standing together.
-## Null when everyone is down.
+## The nearest taunting player in range, else the living target nearest to
+## `body`, unless the one it has is still close to as near: the crowd does not
+## flicker between two players standing together. Null when everyone is down.
 func _pick_target(body: CrowdBody) -> Body:
 	var best: Body = null
 	var best_gap: float = INF
@@ -288,9 +297,14 @@ func _pick_target(body: CrowdBody) -> Body:
 		if candidate.state == Body.State.DEAD:
 			continue
 		var gap: float = absf(candidate.x - body.x)
-		if gap < best_gap:
+		if candidate.taunting() and gap <= taunt_range and (best == null or not best.taunting() or gap < best_gap):
 			best = candidate
 			best_gap = gap
+		elif gap < best_gap and (best == null or not best.taunting()):
+			best = candidate
+			best_gap = gap
+	if best != null and best.taunting():
+		return best
 	var current: Body = body.target
 	if best == null or current == null or current.state == Body.State.DEAD:
 		return best

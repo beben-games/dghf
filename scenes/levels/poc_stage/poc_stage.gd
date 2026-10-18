@@ -79,7 +79,8 @@ const PAUSE_HELP: String = """PAUSED        Tab or Esc: back to the fight       
 Move: A, D or the stick         Jump: W, Space or (A)         Crouch: S         Change lane: Q, E or the shoulders
 Light attack: J or (X)          Heavy attack, a launcher: L or (Y)          Both work in a jump
 Guard: hold K or (B)            Dash: Shift or the right trigger with a direction, held to keep running; alone, a step back
-SPIKE (#80): a landed hit frees you: after a swing connects, anything cancels it. J or L while dashing is a running attack. Lights step forward.
+A landed hit frees you: after a swing connects, anything can follow at once. A miss commits you to the swing.
+J or L while dashing is a running attack. Lights step you forward.
 Specials, with J for the light version or L for the heavy one, twice as big and twice as hard but asking a cleaner motion:
 Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, then down-forward        Blast around you, every lane: tap down twice
 Super fireball: the fireball motion twice, then L: huge, and goes through everyone

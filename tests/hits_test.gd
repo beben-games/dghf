@@ -37,7 +37,12 @@ func _initialize() -> void:
 	_test_air_juggle()
 	_test_three_hit_combo()
 	_test_no_cancel_on_a_miss()
-	_test_no_cancel_outside_the_window()
+	_test_a_whiff_keeps_its_windows_a_hit_frees_you()
+	_test_a_landed_hit_frees_the_hop()
+	_test_a_landed_hit_frees_the_dash()
+	_test_a_landed_hit_frees_walking()
+	_test_run_and_running_attack()
+	_test_lights_step_forward()
 	_test_follow_up_needs_a_cancel()
 	_test_cancel_into_fireball()
 	_test_air_cancel()
@@ -100,6 +105,8 @@ func _fighter(x: float, team: int, samples: Array = [], lane: int = 1) -> Fighte
 		load("res://data/moves/poc/heavy.tres"),
 		load("res://data/moves/poc/air_light.tres"),
 		load("res://data/moves/poc/air_heavy.tres"),
+		load("res://data/moves/poc/dash_light.tres"),
+		load("res://data/moves/poc/dash_heavy.tres"),
 	]
 	fighter.projectiles = _projectiles
 	fighter.setup(PlayerInput.new(team, InputSource.Scripted.new(PackedInt32Array(samples))), LANES, lane, x)
@@ -239,7 +246,7 @@ func _test_juggle() -> void:
 	while target.combo_hits < 2 and target.state == Fighter.State.LAUNCHED:
 		_run(1)
 	_check(target.combo_hits == 2, "a light after the launcher juggles: 2 hits (got %d)" % target.combo_hits)
-	_check(target.combo_damage == 32, "the combo adds up its damage")
+	_check(target.combo_damage == 34, "the combo adds up its damage: the light after a landed heavy is the second light, 12 (got %d)" % target.combo_damage)
 	_check(target.juggle_hits == 1 and target.state == Fighter.State.LAUNCHED, "a hit in the air keeps the target in the air")
 	var before: float = target.vertical_speed
 	_run(target.hitstop + 1)
@@ -374,13 +381,95 @@ func _test_no_cancel_on_a_miss() -> void:
 	_check(attacker.move != null and attacker.move.id == &"light" and attacker.move_frame == 19, "a light that hits nothing can't be cancelled")
 
 
-func _test_no_cancel_outside_the_window() -> void:
+## A landed hit frees you, a whiff keeps the move's windows (issue #80).
+func _test_a_whiff_keeps_its_windows_a_hit_frees_you() -> void:
 	_clear()
-	# The light's window closes on frame 20. With 5 ticks of hitstop that is tick 26: press on tick 28.
-	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 26) + [H] + _repeat(0, 3))
+	# The light's window closes on frame 20: a press on tick 24 of a whiff is too late.
+	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 22) + [H] + _repeat(0, 3))
+	_run(26)
+	_check(attacker.move != null and attacker.move.id == &"light", "on a whiff, a press after the window has closed does not cancel (%s)" % (attacker.move.id if attacker.move else &"nothing"))
+	_clear()
+	# The same press after a light that landed (5 ticks of hitstop push the window to tick 26) cancels anyway.
+	attacker = _fighter(620.0, 1, [A] + _repeat(0, 27) + [H] + _repeat(0, 3))
 	var target := _fighter(800.0, 2)
+	_run(31)
+	_check(target.combo_hits == 1 and attacker.move != null and attacker.move.id == &"heavy", "after a hit that landed, a late press still cancels: a landed hit frees you (%s)" % (attacker.move.id if attacker.move else &"nothing"))
+
+
+func _test_a_landed_hit_frees_the_hop() -> void:
+	_clear()
+	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 12) + [Buttons.LANE_UP])
+	_fighter(800.0, 2)
+	_run(17)
+	_check(attacker.state == Fighter.State.LANE_CHANGE and attacker.lane == 0, "a lane hop pressed after the hit lands cuts the swing (%s)" % Fighter.STATE_NAMES[attacker.state])
+	_clear()
+	attacker = _fighter(620.0, 1, [A] + _repeat(0, 12) + [Buttons.LANE_UP])
+	_run(17)
+	_check(attacker.state == Fighter.State.ATTACK and attacker.lane == 1, "but not after a whiff (%s)" % Fighter.STATE_NAMES[attacker.state])
+
+
+func _test_a_landed_hit_frees_the_dash() -> void:
+	_clear()
+	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 12) + [X | R])
+	_fighter(800.0, 2)
+	_run(17)
+	_check(attacker.state == Fighter.State.DODGE, "the dash pressed after the hit lands cuts the swing (%s)" % Fighter.STATE_NAMES[attacker.state])
+	_clear()
+	attacker = _fighter(620.0, 1, [A] + _repeat(0, 12) + [X | R])
+	_run(17)
+	_check(attacker.state == Fighter.State.ATTACK, "but not after a whiff (%s)" % Fighter.STATE_NAMES[attacker.state])
+
+
+func _test_a_landed_hit_frees_walking() -> void:
+	_clear()
+	var attacker := _fighter(620.0, 1, [A] + _repeat(0, 12) + _repeat(R, 12))
+	_fighter(800.0, 2)
+	_run(20)
+	_check(attacker.state == Fighter.State.WALK, "holding a direction after the hit lands walks off the swing (%s)" % Fighter.STATE_NAMES[attacker.state])
+	_clear()
+	attacker = _fighter(620.0, 1, [A] + _repeat(0, 12) + _repeat(R, 12))
+	_run(20)
+	_check(attacker.state == Fighter.State.ATTACK, "but not after a whiff (%s)" % Fighter.STATE_NAMES[attacker.state])
+
+
+func _test_run_and_running_attack() -> void:
+	_clear()
+	# Shift held with a direction: the dodge, then a run until it is let go.
+	var runner := _fighter(400.0, 1, _repeat(X | R, 40))
 	_run(30)
-	_check(target.combo_hits == 1 and attacker.move != null and attacker.move.id == &"light", "a press after the window has closed does not cancel")
+	_check(runner.state == Fighter.State.DODGE and runner.x > 400.0 + 11.0 * 18.0 + 10.0 * 12.0, "held past the dodge, the dash keeps running (at %.0f)" % runner.x)
+	_check(not runner.is_invincible(), "with no invincibility")
+	_run(30)
+	_check(runner.state == Fighter.State.IDLE, "letting go stops it (%s)" % Fighter.STATE_NAMES[runner.state])
+	_clear()
+	# Shift alone is the step back, and never runs.
+	var stepper := _fighter(400.0, 1, _repeat(X, 40))
+	_run(30)
+	_check(stepper.state == Fighter.State.IDLE and stepper.x < 400.0, "the neutral step back ends on its own (%s, at %.0f)" % [Fighter.STATE_NAMES[stepper.state], stepper.x])
+	_clear()
+	# Light during the dash is the running light; from standing, light is the plain light.
+	var lunger := _fighter(400.0, 1, _repeat(X | R, 5) + [X | R | A])
+	_run(8)
+	_check(lunger.move != null and lunger.move.id == &"dash_light", "light during the dash is the running light (%s)" % (lunger.move.id if lunger.move else &"nothing"))
+	var before: float = lunger.x
+	_run(12)
+	_check(lunger.x > before + 60.0, "which lunges forward (%.0f on)" % (lunger.x - before))
+	_clear()
+	var stander := _fighter(400.0, 1, [A])
+	_run(3)
+	_check(stander.move != null and stander.move.id == &"light", "from standing, light is the plain light")
+	_clear()
+	var heavy_lunger := _fighter(400.0, 1, _repeat(X | R, 5) + [X | R | H])
+	var target := _fighter(640.0, 2)
+	_run(40)
+	_check(target.state == Fighter.State.LAUNCHED, "heavy during the dash is the running heavy, a launcher (%s)" % Fighter.STATE_NAMES[target.state])
+
+
+func _test_lights_step_forward() -> void:
+	_clear()
+	var attacker := _fighter(600.0, 1, [A])
+	_run(27)
+	_check(attacker.x > 630.0 and attacker.x < 650.0, "a light carries the fighter forward during its hit frames (to %.0f)" % attacker.x)
 
 
 func _test_follow_up_needs_a_cancel() -> void:

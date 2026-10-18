@@ -175,8 +175,12 @@ func _test_spacing() -> void:
 	var alive: Array[CrowdBody] = _crowd.alive()
 	for i in alive.size():
 		for j in range(i + 1, alive.size()):
-			closest = minf(closest, absf(alive[i].x - alive[j].x))
-	_check(closest > _crowd.spacing * 0.5, "bodies spawned on one spot spread out along the lane (closest pair %.0f apart)" % closest)
+			if alive[i].lane == alive[j].lane:
+				closest = minf(closest, absf(alive[i].x - alive[j].x))
+	var where: String = ""
+	for body in alive:
+		where += " [lane %d x %d %s blocked %d flank %d side %d]" % [body.lane, int(body.x), Body.STATE_NAMES[body.state], body.blocked, body.flank_lane, body.side]
+	_check(closest > _crowd.spacing * 0.5, "bodies spawned on one spot spread out along their lane (closest pair %.0f apart:%s)" % [closest, where])
 
 
 func _test_follow_across_lanes() -> void:
@@ -318,7 +322,10 @@ func _test_held_back_by_another_player_goes_round() -> void:
 	for body in _crowd.alive():
 		if absf(body.x - other.x) < _crowd.reach + _crowd.spacing * 2.0 and body.lane == 1:
 			reached += 1
-	_check(reached >= 2, "bodies held back by the first player on their way to the second go round and reach it (%d of 3)" % reached)
+	var where: String = ""
+	for body in _crowd.alive():
+		where += " [lane %d x %d %s blocked %d flank %d target %s]" % [body.lane, int(body.x), Body.STATE_NAMES[body.state], body.blocked, body.flank_lane, "P2" if body.target == other else "P1"]
+	_check(reached >= 2, "bodies held back by the first player on their way to the second go round and reach it (%d of 3:%s)" % [reached, where])
 	_check(not crossed, "without crossing the first player")
 	_check(_player.health == 100 and other.health < 100, "the first player is untouched, the second is hit")
 	other.free()
@@ -327,7 +334,7 @@ func _test_held_back_by_another_player_goes_round() -> void:
 
 func _test_taunt_pulls_the_crowd_into_the_lane() -> void:
 	# A knight in the back lane holding its guard; ten small fry in the front lane.
-	_fight(960.0, _repeat(Buttons.GUARD, 1000))
+	_fight(960.0, _repeat(Buttons.GUARD, 800))
 	_player.taunts = true
 	_player.max_guard = 100
 	_player.guard = 100
@@ -363,6 +370,26 @@ func _test_taunt_pulls_the_crowd_into_the_lane() -> void:
 			right += 1
 	_check(right == 0, "piled on the side they came from, nobody round behind (%d on the right)" % right)
 	_check(_player.guard < _player.max_guard, "and they hit the guard")
+	# The guard comes down at tick 800: the pile stays put for a while, then spreads out a few at a time.
+	_run(100)
+	in_lane = 0
+	for body in _crowd.alive():
+		if body.lane == 0:
+			in_lane += 1
+	_check(in_lane == 10 and not _player.taunting(), "letting go of the guard does not scatter the pile at once (%d still in the lane 20 ticks after)" % in_lane)
+	var most_round: int = 0
+	for i in 500:
+		_run(1)
+		var going_round: int = 0
+		for body in _crowd.alive():
+			if body.flank_lane >= 0 and body.flank_dist == _crowd.flank_past:
+				going_round += 1
+		most_round = maxi(most_round, going_round)
+	right = 0
+	for body in _crowd.alive():
+		if body.lane == 0 and body.x > _player.x:
+			right += 1
+	_check(right >= 2 and most_round > 0 and most_round <= _crowd.max_flanking, "later some go round behind, at most %d at a time (%d on the right, %d at most going round)" % [_crowd.max_flanking, right, most_round])
 	# Without the guard held, a taunter is followed like anyone else.
 	_fight()
 	_player.taunts = true

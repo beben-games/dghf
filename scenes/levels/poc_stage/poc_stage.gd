@@ -173,7 +173,7 @@ func _ready() -> void:
 
 	_skin = _find_skin()
 	# Player 1 is always in, on the keyboard and the first pad. The other pads wait in the lobby.
-	_add_player(PlayerInput.new(1, InputSource.Device.new(1)), _fighter, 1, SCREEN.x / 2.0, 1)
+	_add_player(PlayerInput.new(1, InputSource.Device.new(1)), _fighter, 1, SCREEN.x / 2.0, _start_lane())
 	for index in range(2, MAX_PLAYERS + 1):
 		lobby.add(index, InputSource.Device.new(index))
 
@@ -337,6 +337,11 @@ func join(input: PlayerInput) -> Fighter:
 	return fighter
 
 
+## Where a fight starts: the front lane for the boss fight (Ben, 2026-10-17), the middle one otherwise.
+func _start_lane() -> int:
+	return 2 if mode == Mode.BOSS_FIGHT else 1
+
+
 ## The first living player, or player 1 when everyone is down.
 func _leader() -> Fighter:
 	for player in players:
@@ -372,7 +377,7 @@ func _apply_mode() -> void:
 	_update_bounds()
 	if mode == Mode.BOSS_FIGHT:
 		_preset = 3
-		_add_dummy(1, SCREEN.x * 0.7, -1)
+		_add_dummy(_start_lane(), SCREEN.x * 0.7, -1)
 	else:
 		_preset = 2
 	_set_fighting(mode != Mode.SANDBOX)
@@ -567,7 +572,7 @@ func _start_over() -> void:
 	crowd.clear()
 	for i in players.size():
 		var player: Fighter = players[i]
-		player.setup(player.input, lanes(), 1, SCREEN.x / 2.0 + START_GAP * (i - (players.size() - 1) / 2.0))
+		player.setup(player.input, lanes(), _start_lane(), SCREEN.x / 2.0 + START_GAP * (i - (players.size() - 1) / 2.0))
 		player.mana = _starting_mana(player)
 		player.set_lanes(lanes(), scales())
 		player.state = Fighter.State.IDLE

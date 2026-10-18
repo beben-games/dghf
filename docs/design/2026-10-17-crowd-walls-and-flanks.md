@@ -20,6 +20,7 @@ Seen from the player: a wave from the left piles up against a guard and spreads 
 | A flanking body walks this far past the target before coming back in | 220 px | `CrowdDirector.flank_past` |
 | Ticks held back by a wall on its way before a body flanks | 20 | `CrowdDirector.blocked_ticks` |
 | Bodies per side, per lane near the target | 3, 6, as before | `max_per_side`, `max_per_lane` |
+| Bodies going round behind a player at a time | 2 (added with the taunt, so a pile spreads out gradually) | `max_flanking` |
 
 ## How it is built
 

@@ -46,6 +46,10 @@ extends Node2D
 @export var straggler_chance: float = 0.2
 @export var straggler_wait_min: int = 180
 @export var straggler_wait_max: int = 360
+## After a taunt ends the pile stays put this long before the crowd spreads out again (Ben, after
+## playing), and at any time only this many bodies are going round behind a player.
+@export var taunt_linger: int = 180
+@export var max_flanking: int = 2
 
 var lane_y: PackedFloat32Array = PackedFloat32Array()
 var lane_scale: PackedFloat32Array = PackedFloat32Array()
@@ -60,6 +64,8 @@ var attack: Move = preload("res://data/moves/crowd/jab.tres")
 var _pool: Array[CrowdBody] = []
 var _alive: Array[CrowdBody] = []
 var _tick: int = 0
+## The last tick each player was taunting, for the linger.
+var _last_taunt: Dictionary[Body, int] = {}
 var _rng := RandomNumberGenerator.new()
 
 
@@ -131,6 +137,9 @@ func tick() -> void:
 	_tick += 1
 	var walls: Array[Body] = _walls()
 	var sides: PackedInt32Array = _sides_of(walls)
+	for wall in walls:
+		if wall.taunting():
+			_last_taunt[wall] = _tick
 	for body in _alive:
 		if body.state == Body.State.ATTACK and body.move_frame >= body.move.total_frames - 1 and body.has_token:
 			# The swing is over: the token goes back, and the body rests.
@@ -143,7 +152,7 @@ func tick() -> void:
 		if _tick % think_every == body.think_slot and not targets.is_empty() and not passive:
 			_think(body)
 		body.tick()
-	_keep_apart()
+	_keep_apart(walls, sides)
 	_hold_at_walls(walls, sides)
 	# The dead go back to the pool once they have lain there a moment.
 	var i: int = _alive.size() - 1
@@ -216,8 +225,10 @@ func _think(body: CrowdBody) -> void:
 		body.side = here
 	var goal_side: int = here
 	var goal_dist: float = reach
-	# A taunting target is piled on from this side: no going round behind it.
-	if not target.taunting() and _on_side(target, here) > max_per_side and _on_side(target, -here) < max_per_side and _room(target, -here):
+	# A taunting target is piled on from this side, and stays piled on for a while after the
+	# taunt ends: no going round behind it. Otherwise only a few go round at a time.
+	var piled: bool = target.taunting() or _tick - _last_taunt.get(target, -100000) < taunt_linger
+	if not piled and _flanking_round() < max_flanking and _on_side(target, here) > max_per_side and _on_side(target, -here) < max_per_side and _room(target, -here):
 		goal_side = -here
 		goal_dist = flank_past
 	if goal_side != here or body.blocked >= blocked_ticks:
@@ -249,9 +260,20 @@ func _flank(body: CrowdBody, target: Body) -> void:
 		body.facing = body.wanted_direction
 		return
 	body.facing = 1 if target.x > body.x else -1
-	if _in_target_lane(target) < max_per_lane:
+	# Back in when the lane has room, or when the side it is heading for has: a pile past the
+	# cap on one side (after a taunt) must not keep the far side empty.
+	if _in_target_lane(target) < max_per_lane or _on_side(target, body.flank_side) < max_per_side:
 		body.flank_lane = -1
 		body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
+
+
+## How many bodies are going round behind a player right now.
+func _flanking_round() -> int:
+	var n: int = 0
+	for body in _alive:
+		if body.flank_lane >= 0 and body.flank_dist == flank_past:
+			n += 1
+	return n
 
 
 ## How long a body waits before its next hop toward a taunting target: a short while, or a
@@ -311,10 +333,15 @@ func _hold_at_walls(walls: Array[Body], sides: PackedInt32Array) -> void:
 			if side == 0 or body.state == Body.State.LAUNCHED or body.state == Body.State.DEAD or body.state == Body.State.LANE_CHANGE:
 				continue
 			var wall: Body = walls[j]
-			if _wall_holds(wall, body) and (body.x - wall.x) * side < wall_gap:
+			if not _wall_holds(wall, body):
+				continue
+			var gap: float = (body.x - wall.x) * side
+			if gap < wall_gap:
 				body.x = clampf(wall.x + side * wall_gap, bounds.x, bounds.y)
-				# Held by a player in the way, not by the one it is after: that is where it wants to be.
-				held = held or (body.wanted_direction == -side and wall != body.target)
+			# Standing at a wall it wants to walk through: held, unless the wall is the player it is
+			# after, which is where it wants to be.
+			if gap <= wall_gap + 0.5 and body.wanted_direction == -side and wall != body.target:
+				held = true
 		body.blocked = body.blocked + 1 if held else 0
 
 
@@ -388,7 +415,7 @@ func _in_lane_near(which_lane: int, target: Body) -> int:
 
 ## Bodies in the same lane that stand too close push each other apart a little,
 ## so a crowd spreads along the lane instead of stacking in one spot.
-func _keep_apart() -> void:
+func _keep_apart(walls: Array[Body], sides: PackedInt32Array) -> void:
 	for i in _alive.size():
 		var a: CrowdBody = _alive[i]
 		if a.state == Body.State.LAUNCHED or a.state == Body.State.DEAD:
@@ -401,5 +428,20 @@ func _keep_apart() -> void:
 			if absf(gap) < spacing:
 				var push: float = (spacing - absf(gap)) * 0.25
 				var sign_gap: float = 1.0 if gap >= 0.0 else -1.0
-				a.x = clampf(a.x - sign_gap * push, bounds.x, bounds.y)
-				b.x = clampf(b.x + sign_gap * push, bounds.x, bounds.y)
+				# A push never carries a body past a wall: the one at the wall stays, and the
+				# crowd behind it spreads back over the next ticks.
+				a.x = _short_of_walls(i, clampf(a.x - sign_gap * push, bounds.x, bounds.y), walls, sides)
+				b.x = _short_of_walls(j, clampf(b.x + sign_gap * push, bounds.x, bounds.y), walls, sides)
+
+
+## `x` for body number `i`, kept on its side of every wall that holds it, a step short.
+func _short_of_walls(i: int, x: float, walls: Array[Body], sides: PackedInt32Array) -> float:
+	var body: CrowdBody = _alive[i]
+	for j in walls.size():
+		var side: int = sides[i * walls.size() + j]
+		if side == 0:
+			continue
+		var wall: Body = walls[j]
+		if _wall_holds(wall, body) and (x - wall.x) * side < wall_gap:
+			x = clampf(wall.x + side * wall_gap, bounds.x, bounds.y)
+	return x

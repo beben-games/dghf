@@ -24,6 +24,8 @@ const JUMP: StringName = &"jump"
 @export var air: bool = false
 ## A follow-up never starts on its own, only as a cancel from another move.
 @export var follow_up: bool = false
+## A running attack: only starts during a dash (issue #80, spike).
+@export var from_dash: bool = false
 
 @export_group("Hits")
 @export var hit_boxes: Array[HitBox] = []

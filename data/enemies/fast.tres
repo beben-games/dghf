@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CrowdKind" format=3]
+
+[ext_resource type="Script" path="res://systems/enemies/crowd_kind.gd" id="1_kind"]
+[ext_resource type="Resource" path="res://data/moves/crowd/jab.tres" id="2_jab"]
+
+[resource]
+script = ExtResource("1_kind")
+id = &"fast"
+max_health = 15
+walk_speed = 7.5
+body_color = Color(0.72, 0.6, 0.28, 1)
+scale = 0.88
+look = 1
+attack = ExtResource("2_jab")

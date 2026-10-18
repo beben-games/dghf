@@ -32,6 +32,11 @@ const SPAWN_GAP: float = 100.0
 ## The backdrop repeats every this many pixels.
 const BACKDROP_SPAN: float = 2400.0
 const MENU: String = "res://scenes/main/main.tscn"
+## The kinds of small fry (issue #61) and how a wave mixes them: every sixth from the second is
+## fast, every sixth from the fourth shielded, every eighth from the seventh a thrower.
+const KIND_FAST: CrowdKind = preload("res://data/enemies/fast.tres")
+const KIND_SHIELDED: CrowdKind = preload("res://data/enemies/shielded.tres")
+const KIND_THROWER: CrowdKind = preload("res://data/enemies/thrower.tres")
 ## The front lane's screen y. The other two sit above it, `spacing` apart.
 const FRONT_LANE_Y: float = 1000.0
 ## Ways of showing depth to try, cycled with F2 (issue #17: T and E asked for a lower camera and
@@ -87,7 +92,9 @@ Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
 F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      R: start over
 F7: refill mana      F8: a tank's guard bar for player 1, three times bigger
-1: a small fry in front of you          2: a big dummy in front of you
+1: a small fry in front of you          2: a big dummy          3: a fast one          4: a shielded one          5: a thrower
+Small fry: the fast one is weak and quick. The shielded one blocks from the front until the shield breaks (two heavies),
+and winds up a shield bash with a red mark over its head that breaks your guard: dodge it. The thrower keeps back and throws rocks.
 Co-op (melee and sandbox): any button on a second or third pad joins. The screen's edges hold the players together."""
 
 ## The players in the fight, player 1 first, and a view each. Everyone is team 1.
@@ -178,6 +185,7 @@ func _ready() -> void:
 		lobby.add(index, InputSource.Device.new(index))
 
 	crowd = CrowdDirector.new()
+	crowd.projectiles = _projectiles
 	crowd.setup(lanes(), scales(), _fighter.bounds)
 	crowd.targets = _party
 	add_child(crowd)
@@ -536,6 +544,12 @@ func _unhandled_input(event: InputEvent) -> void:
 				crowd.spawn(randi_range(0, 2), _in_front(), -_leader().facing)
 			KEY_2:
 				_add_dummy(_leader().lane, _in_front(), -_leader().facing)
+			KEY_3:
+				crowd.spawn(_leader().lane, _in_front(), -_leader().facing, KIND_FAST)
+			KEY_4:
+				crowd.spawn(_leader().lane, _in_front(), -_leader().facing, KIND_SHIELDED)
+			KEY_5:
+				crowd.spawn(_leader().lane, _in_front(), -_leader().facing, KIND_THROWER)
 			KEY_R:
 				_start_over()
 
@@ -563,7 +577,19 @@ func spawn_wave(how_many: int) -> void:
 			at_x = camera.left() - SPAWN_GAP - step if open_left else camera.left() + MARGIN + step
 		else:
 			at_x = camera.right() + SPAWN_GAP + step if open_right else camera.right() - MARGIN - step
-		crowd.spawn(i % 3, at_x, 1 if from_left else -1)
+		crowd.spawn(i % 3, at_x, 1 if from_left else -1, wave_kind(i))
+
+
+## The kind of the `i`th small fry of a wave: mostly plain, with a fast one, a shielded one and
+## a thrower mixed in.
+func wave_kind(i: int) -> CrowdKind:
+	if i % 8 == 7:
+		return KIND_THROWER
+	if i % 6 == 4:
+		return KIND_SHIELDED
+	if i % 6 == 2:
+		return KIND_FAST
+	return null
 
 
 ## Everyone who joined back on their feet with full health, spread around the

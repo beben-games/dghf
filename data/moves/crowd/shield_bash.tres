@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+
+[sub_resource type="Resource" id="Resource_hit"]
+script = ExtResource("1_hbox")
+first_frame = 36
+last_frame = 42
+rect = Rect2(10, -190, 150, 140)
+damage = 12
+hitstun = 20
+hitstop = 7
+blockstun = 10
+knockback = 9.0
+shake = 6.0
+breaks_guard = true
+
+[resource]
+script = ExtResource("2_move")
+id = &"shield_bash"
+animation = &"shield_bash"
+total_frames = 62
+hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])
+travel = 6.0

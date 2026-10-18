@@ -109,6 +109,8 @@ One generic piece of code plays any move from its data. A preview scene steps th
 - How many enemies on screen at once do we want: 30, 100, 300?
 - On what is the slowest machine we must support?
 
+Kinds of small fry are data on the crowd body (issue #61, `docs/design/2026-10-17-enemy-kinds.md`, proposed): a `CrowdKind` resource per kind, with a telegraphed guard breaker as a flag on hit data.
+
 ## 7. Hits and feel
 
 **Decided (2026-10-03, Ben as build owner):** how hits are resolved. See `docs/design/2026-10-03-combat-core.md`.

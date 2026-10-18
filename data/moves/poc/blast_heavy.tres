@@ -32,3 +32,4 @@ projectile_lifetime = 28
 projectile_all_lanes = true
 projectile_pierce = true
 mana_cost = 40
+fallback = &"blast_light"

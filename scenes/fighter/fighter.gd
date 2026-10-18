@@ -25,6 +25,9 @@ extends Body
 ## Pixels per tick while the invincible part lasts; the recovery slides to a stop.
 @export var dodge_speed: float = 18.0
 
+## How long the mana bar shows that a spell fell back, in ticks.
+const MANA_SHORT_TICKS: int = 24
+
 @export_group("Mana")
 ## The mana bar (issue #60): hits pay, spells cost. 0 means no bar: every move is free, as for a dummy or a test.
 @export var max_mana: int = 0
@@ -41,6 +44,8 @@ var projectiles: Projectiles
 var moves: Array[Move] = []
 
 var mana: int = 0
+## Ticks left showing that a spell fell back to its light version for want of mana (issue #60).
+var mana_short_ticks: int = 0
 
 var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
 var _turning: int = 0  # ticks the other way has been held
@@ -61,6 +66,7 @@ func gain_mana(amount: int) -> void:
 ## Reads the input first: a frozen fighter still records it.
 func tick() -> void:
 	input.tick()
+	mana_short_ticks = maxi(mana_short_ticks - 1, 0)
 	super()
 
 
@@ -281,6 +287,27 @@ func _tick_dodge() -> void:
 		_enter(State.IDLE)
 
 
+## `candidate`, or the move it falls back to when the bar can't pay for it (a
+## heavy spell's light version, and the super's heavy fireball, then its light),
+## or null when nothing affordable can start now.
+func _affordable(candidate: Move) -> Move:
+	var chosen: Move = candidate
+	while max_mana > 0 and chosen.mana_cost > mana:
+		chosen = _move_by_id(chosen.fallback)
+		if chosen == null or chosen.air != candidate.air or not _can_start(chosen):
+			return null
+	return chosen
+
+
+func _move_by_id(id: StringName) -> Move:
+	if id.is_empty():
+		return null
+	for candidate in moves:
+		if candidate.id == id:
+			return candidate
+	return null
+
+
 ## Starts the first move whose input is there, among air moves or ground moves.
 ## During a move, only the moves its cancel windows allow right now can start.
 func _try_moves(in_air: bool) -> bool:
@@ -288,11 +315,14 @@ func _try_moves(in_air: bool) -> bool:
 		if candidate.air != in_air or not _can_start(candidate):
 			continue
 		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing, candidate.motion_window):
-			if max_mana > 0 and candidate.mana_cost > mana:
-				continue  # can't pay: a cheaper move further down the list may answer the same press
+			var chosen: Move = _affordable(candidate)
+			if chosen == null:
+				continue  # can't pay and nothing to fall back on: a move further down the list may answer the same press
 			input.consume(candidate.button)
-			mana -= candidate.mana_cost
-			move = candidate
+			mana -= chosen.mana_cost
+			if chosen != candidate:
+				mana_short_ticks = MANA_SHORT_TICKS
+			move = chosen
 			move_frame = 0
 			start_swing()
 			_enter(State.AIR_ATTACK if in_air else State.ATTACK)

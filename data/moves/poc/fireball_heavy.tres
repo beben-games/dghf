@@ -27,3 +27,4 @@ projectile_speed = 13.0
 projectile_hit = SubResource("Resource_hit")
 projectile_size = 2.0
 mana_cost = 35
+fallback = &"fireball"

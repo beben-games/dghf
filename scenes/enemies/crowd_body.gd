@@ -25,8 +25,12 @@ var rest: int = 0
 var think_slot: int = 0
 ## The side of the target this body tries to stand on: 1 for its right, -1 for its left, 0 not chosen yet.
 var side: int = 0
-## Walking through to the other side of the target: others don't push it while it crosses.
-var crossing: bool = false
+## Going round through a side lane (issue #75): the lane it took, or -1; where it is heading, as a
+## side of the target and a distance from it; and how long a player's wall has held it on its way.
+var flank_lane: int = -1
+var flank_side: int = 0
+var flank_dist: float = 0.0
+var blocked: int = 0
 ## Ticks the target has been in another lane, counted by the director.
 var off_lane_ticks: int = 0
 ## The player this body fights, picked by the director among its targets (issue #59). Null until it thinks.
@@ -64,7 +68,10 @@ func revive(lanes: PackedFloat32Array, scales: PackedFloat32Array, start_lane: i
 	wanted_direction = 0
 	off_lane_ticks = 0
 	side = 0
-	crossing = false
+	flank_lane = -1
+	flank_side = 0
+	flank_dist = 0.0
+	blocked = 0
 	target = null
 	facing = face
 	place_on(lanes, start_lane, start_x)

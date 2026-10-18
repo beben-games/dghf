@@ -13,6 +13,7 @@ var _combat: Combat
 var _projectiles: Projectiles
 var _crowd: CrowdDirector
 var _player: Fighter
+var _made_other: Fighter
 
 
 func _initialize() -> void:
@@ -24,6 +25,9 @@ func _initialize() -> void:
 	_test_follow_across_lanes()
 	_test_surround()
 	_test_passive_crowd()
+	_test_players_are_walls()
+	_test_surround_goes_through_the_lanes()
+	_test_held_back_by_another_player_goes_round()
 	_free_all()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
@@ -225,3 +229,95 @@ func _test_passive_crowd() -> void:
 	_crowd.passive = false
 	_run(300)
 	_check(_player.health < 100, "told to fight, it walks up and swings")
+
+
+## Whether any body in the player's lane, on its feet, is on the far side of the player from
+## where it was last tick: a crossing. `last` is updated for the next tick.
+func _crossed(last: Dictionary, player: Body) -> bool:
+	var crossed: bool = false
+	for body in _crowd.alive():
+		var on_feet: bool = body.lane == player.lane and body.state != Body.State.LAUNCHED and body.state != Body.State.LANE_CHANGE and body.state != Body.State.DEAD
+		var side: int = (1 if body.x >= player.x else -1) if on_feet else 0
+		if side != 0 and last.get(body, 0) != 0 and last[body] != side:
+			crossed = true
+		last[body] = side
+	return crossed
+
+
+func _test_players_are_walls() -> void:
+	_fight()
+	_crowd.max_per_side = 100  # nobody goes round: the wall alone is tested
+	_crowd.max_per_lane = 100
+	for i in 6:
+		_crowd.spawn(1, 300.0 + 50.0 * i, 1)
+	var crossed: bool = false
+	var last: Dictionary = {}
+	for i in 400:
+		_run(1)
+		crossed = crossed or _crossed(last, _player)
+	var right: int = 0
+	var near: int = 0
+	for body in _crowd.alive():
+		if body.x > _player.x - _crowd.wall_gap + 0.5:
+			right += 1
+		if _player.x - body.x < _crowd.reach + 1.0:
+			near += 1
+	_check(not crossed and right == 0, "six from the left never cross the player nor come closer than the wall gap (%d did)" % right)
+	_check(near >= 1, "but they still close in to swing (%d within reach)" % near)
+	_check(_player.health < 100, "and hit the player from that side")
+
+
+func _test_surround_goes_through_the_lanes() -> void:
+	_fight()
+	for i in 6:
+		_crowd.spawn(1, 300.0 + 50.0 * i, 1)
+	var crossed: bool = false
+	var hopped: bool = false
+	var last: Dictionary = {}
+	for i in 500:
+		_run(1)
+		crossed = crossed or _crossed(last, _player)
+		for body in _crowd.alive():
+			hopped = hopped or body.state == Body.State.LANE_CHANGE
+	var right: int = 0
+	for body in _crowd.alive():
+		if body.lane == _player.lane and body.x > _player.x:
+			right += 1
+	_check(right >= 2, "a crowd from one side ends up on both sides of the player in its lane (%d of 6 on the right)" % right)
+	_check(hopped and not crossed, "and got there through the lanes, never through the player")
+
+
+func _test_held_back_by_another_player_goes_round() -> void:
+	_fight()
+	# A second player further right, in the same lane, that the crowd is after; the first stands in the way.
+	var other := Fighter.new()
+	other.max_health = 100
+	other.bounds = _player.bounds
+	other.setup(PlayerInput.new(2, InputSource.new()), LANES, 1, 1500.0)
+	other.set_lanes(LANES, SCALES)
+	_made_other = other
+	_crowd.targets = [_player, other]
+	_crowd.retarget_margin = 5000.0  # a body keeps the target it has
+	for i in 3:
+		var body: CrowdBody = _crowd.spawn(1, 300.0 + 60.0 * i, 1)
+		body.target = other
+	var crossed: bool = false
+	var last: Dictionary = {}
+	for i in 700:
+		for fighter: Fighter in [_player, other]:
+			fighter.tick()
+		_crowd.tick()
+		_combat.fighters = [_player, other]
+		_combat.fighters.append_array(_crowd.alive())
+		_projectiles.tick(_combat.fighters)
+		_combat.resolve()
+		crossed = crossed or _crossed(last, _player)
+	var reached: int = 0
+	for body in _crowd.alive():
+		if absf(body.x - other.x) < _crowd.reach + _crowd.spacing * 2.0 and body.lane == 1:
+			reached += 1
+	_check(reached >= 2, "bodies held back by the first player on their way to the second go round and reach it (%d of 3)" % reached)
+	_check(not crossed, "without crossing the first player")
+	_check(_player.health == 100 and other.health < 100, "the first player is untouched, the second is hit")
+	other.free()
+	_made_other = null

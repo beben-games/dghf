@@ -54,6 +54,8 @@ One generic piece of code plays any move from its data. A preview scene steps th
 
 **Proposed. Ben's position (2026-10-03): fully unique move lists.** Each character has its own list with its own structure (one may have stances, another charge moves). For the weekly meeting, since how each character fights is an open point in the game bible. The alternatives are the same slots for every character with different moves in them, or shared basic attacks with unique specials.
 
+A rule on top of the windows, proposed in `docs/design/2026-10-17-combat-feel.md` (issue #80): a landed hit frees the fighter into anything; the windows bind only a whiff.
+
 ## 4. Fighter states
 
 **Decided (2026-10-03, Ben as build owner):** two kinds of body with one set of hit rules. See `docs/design/2026-10-03-combat-core.md`.

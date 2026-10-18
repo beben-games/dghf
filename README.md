@@ -62,7 +62,9 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Heavy attack (launches) | L | Y |
 | Air attacks | J or L during a jump | X or Y during a jump |
 | Guard | Hold K | Hold B |
-| Dodge | Shift, with a direction held, or alone for a step back | Right trigger |
+| Dash | Shift with a direction: a dodge with invincible ticks, and a run for as long as it is held. Shift alone steps back | Right trigger |
+| Running attack | J or L during the dash: a lunge, the heavy one a launcher | X or Y |
+| A landed hit frees you | After a swing connects, anything can follow at once: the next attack, a special, a jump, a lane hop, the dash, or walking off. A miss commits you | |
 | Fireball | Down, down-forward, forward, then J (light) or L (heavy: twice as big, twice as hard, needs a cleaner motion) | The same with X or Y |
 | Homing missiles, across lanes | Forward, then down-forward, then J (one) or L (three, bigger) | The same |
 | Blast around you, every lane | Tap down twice, then J or L (bigger, launches) | The same |

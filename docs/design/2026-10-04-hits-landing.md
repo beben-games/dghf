@@ -58,6 +58,7 @@ Asked for by Ben. A move can now be cut short by starting another one, which is 
 - **A cancel window** (`systems/combat/cancel_window.gd`) is a range of frames, the ids of the moves that can start during it, and whether the move must have hit first. A move has a list of them, and an `id` that other moves name.
 - **A follow-up** is a move that never starts on its own, only as a cancel. The second light (`light_2.tres`) is one: pressing light again during a light that hit.
 - **A press made during hitstop is kept** until the freeze ends, so the natural rhythm works: hit, press, and the next move comes out as the freeze lifts.
+- **Since #80** (`docs/design/2026-10-17-combat-feel.md`, proposed) the windows only bind a whiff: a swing that has landed can be cut into anything.
 
 The cancels in the proof of concept, all only on hit:
 

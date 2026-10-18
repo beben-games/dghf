@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+
+[sub_resource type="Resource" id="Resource_hit"]
+script = ExtResource("1_hbox")
+first_frame = 8
+last_frame = 16
+rect = Rect2(40, -240, 250, 240)
+damage = 20
+hitstun = 24
+hitstop = 8
+blockstun = 12
+knockback = 14.0
+launch = 24.0
+shake = 8.0
+mana = 10
+
+[resource]
+script = ExtResource("2_move")
+id = &"dash_heavy"
+animation = &"heavy"
+total_frames = 30
+button = 256
+from_dash = true
+hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])
+travel = 14.0

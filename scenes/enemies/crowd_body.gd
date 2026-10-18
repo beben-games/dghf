@@ -31,6 +31,8 @@ var flank_lane: int = -1
 var flank_side: int = 0
 var flank_dist: float = 0.0
 var blocked: int = 0
+## Ticks before this body answers a taunt by hopping a lane (issue #72): -1 means not rolled yet.
+var taunt_wait: int = -1
 ## Ticks the target has been in another lane, counted by the director.
 var off_lane_ticks: int = 0
 ## The player this body fights, picked by the director among its targets (issue #59). Null until it thinks.
@@ -72,6 +74,7 @@ func revive(lanes: PackedFloat32Array, scales: PackedFloat32Array, start_lane: i
 	flank_side = 0
 	flank_dist = 0.0
 	blocked = 0
+	taunt_wait = -1
 	target = null
 	facing = face
 	place_on(lanes, start_lane, start_x)

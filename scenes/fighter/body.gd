@@ -215,6 +215,11 @@ func blocks(_direction: int) -> bool:
 	return false
 
 
+## Whether the body is drawing the crowd to itself right now: a tank holding its guard (issue #72).
+func taunting() -> bool:
+	return false
+
+
 ## Whether this particular hit is stopped: the guard faces it and can take it (issue #72).
 ## Combat asks this; `blocks` alone is the stance.
 func blocks_hit(_hit: HitBox, direction: int) -> bool:

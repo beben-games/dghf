@@ -47,6 +47,8 @@ const MANA_SHORT_TICKS: int = 24
 @export var guard_floor: int = 25
 ## The upward speed the breaking hit gives the fighter when it has no launch of its own.
 @export var break_launch: float = 22.0
+## A tank's guard taunts (issue #72, Ben): while held, the crowd nearby fights this fighter and comes to its lane.
+@export var taunts: bool = false
 ## Share of a blocked hit's knockback that pushes the blocker back.
 @export var block_pushback: float = 0.6
 ## Share of a blocked hit's hitstop that both fighters freeze for (at least 2 ticks).
@@ -156,6 +158,10 @@ func is_invincible() -> bool:
 ## blocking and faces the hit. Hits from behind are never blocked.
 func blocks(direction: int) -> bool:
 	return state == State.BLOCK and facing == -direction
+
+
+func taunting() -> bool:
+	return taunts and state == State.BLOCK
 
 
 ## A guarded hit is stopped while the bar can take its damage; the one that would empty it breaks through.

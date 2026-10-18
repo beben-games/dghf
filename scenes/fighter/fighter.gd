@@ -25,11 +25,28 @@ extends Body
 ## Pixels per tick while the invincible part lasts; the recovery slides to a stop.
 @export var dodge_speed: float = 18.0
 
+## How long the mana bar shows that a spell fell back, in ticks.
+const MANA_SHORT_TICKS: int = 24
+
 @export_group("Mana")
 ## The mana bar (issue #60): hits pay, spells cost. 0 means no bar: every move is free, as for a dummy or a test.
 @export var max_mana: int = 0
 
 @export_group("Guard")
+## The guard bar (issue #72): a blocked hit drains it by its damage, hits landed refill it, and
+## at zero the guard breaks. 0 means no bar: the guard never breaks, as for a dummy or a test.
+@export var max_guard: int = 0
+## Guard a hit landed pays back.
+@export var guard_per_hit: int = 15
+## Ticks without taking or blocking a hit before the bar trickles back, by `guard_regen` every
+## `guard_regen_every` ticks.
+@export var guard_regen_delay: int = 60
+@export var guard_regen: int = 1
+@export var guard_regen_every: int = 4
+## Below this the guard can't be raised: a broken guard has to come back first.
+@export var guard_floor: int = 25
+## The upward speed the breaking hit gives the fighter when it has no launch of its own.
+@export var break_launch: float = 22.0
 ## Share of a blocked hit's knockback that pushes the blocker back.
 @export var block_pushback: float = 0.6
 ## Share of a blocked hit's hitstop that both fighters freeze for (at least 2 ticks).
@@ -41,8 +58,12 @@ var projectiles: Projectiles
 var moves: Array[Move] = []
 
 var mana: int = 0
+var guard: int = 0
+## Ticks left showing that a spell fell back to its light version for want of mana (issue #60).
+var mana_short_ticks: int = 0
 
 var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
+var _quiet_ticks: int = 0  # ticks since the fighter last took or blocked a hit
 var _turning: int = 0  # ticks the other way has been held
 ## The way the current dodge goes: 1 right, -1 left.
 var dodge_direction: int = 1
@@ -52,15 +73,36 @@ func setup(player_input: PlayerInput, lanes: PackedFloat32Array, start_lane: int
 	input = player_input
 	place_on(lanes, start_lane, start_x)
 	mana = max_mana
+	guard = max_guard
+
+
+## A clean hit pays mana and guard back.
+func on_hit_landed(hit: HitBox) -> void:
+	gain_mana(hit.mana)
+	gain_guard(guard_per_hit)
 
 
 func gain_mana(amount: int) -> void:
 	mana = clampi(mana + amount, 0, max_mana)
 
 
-## Reads the input first: a frozen fighter still records it.
+func gain_guard(amount: int) -> void:
+	guard = clampi(guard + amount, 0, max_guard)
+
+
+## Whether the guard can be raised: with a bar, only from the floor up.
+func can_guard() -> bool:
+	return max_guard == 0 or guard >= guard_floor
+
+
+## Reads the input first: a frozen fighter still records it. The guard bar
+## trickles back after a quiet moment, frozen or not.
 func tick() -> void:
 	input.tick()
+	_quiet_ticks += 1
+	mana_short_ticks = maxi(mana_short_ticks - 1, 0)
+	if max_guard > 0 and _quiet_ticks > guard_regen_delay and _quiet_ticks % guard_regen_every == 0:
+		gain_guard(guard_regen)
 	super()
 
 
@@ -116,12 +158,34 @@ func blocks(direction: int) -> bool:
 	return state == State.BLOCK and facing == -direction
 
 
-## Called by Combat for a hit the guard stopped: no damage, blockstun and a push instead.
+## A guarded hit is stopped while the bar can take its damage; the one that would empty it breaks through.
+func blocks_hit(hit: HitBox, direction: int) -> bool:
+	return blocks(direction) and (max_guard == 0 or guard > hit.damage)
+
+
+## Called by Combat for a hit the guard stopped: no damage, blockstun and a push instead; the bar pays.
 func take_block(hit: HitBox, direction: int) -> void:
+	_quiet_ticks = 0
+	if max_guard > 0:
+		guard -= hit.damage
 	hitstop = blocked_hitstop(hit)
 	_blockstun = maxi(_blockstun, hit.blockstun)
 	_knock_speed = direction * hit.knockback * block_pushback
 	state_ticks = 0
+
+
+## A hit on a raised guard that the bar can't take is the break (issue #72): the
+## bar empties and the hit lands in full, as a launcher.
+func take_hit(hit: HitBox, direction: int) -> void:
+	_quiet_ticks = 0
+	if state == State.BLOCK and max_guard > 0 and facing == -direction:
+		guard = 0
+		just_broke = true
+		var breaking: HitBox = hit.duplicate()
+		breaking.launch = maxf(hit.launch, break_launch)
+		super(breaking, direction)
+		return
+	super(hit, direction)
 
 
 ## The freeze a blocked hit gives both fighters: shorter than a clean hit's.
@@ -139,7 +203,7 @@ func _tick_standing() -> void:
 		_turning = 0
 	if _try_dodge():
 		return
-	if input.held(Buttons.GUARD):
+	if input.held(Buttons.GUARD) and can_guard():
 		_blockstun = 0
 		_knock_speed = 0.0
 		_enter(State.BLOCK)
@@ -281,6 +345,27 @@ func _tick_dodge() -> void:
 		_enter(State.IDLE)
 
 
+## `candidate`, or the move it falls back to when the bar can't pay for it (a
+## heavy spell's light version, and the super's heavy fireball, then its light),
+## or null when nothing affordable can start now.
+func _affordable(candidate: Move) -> Move:
+	var chosen: Move = candidate
+	while max_mana > 0 and chosen.mana_cost > mana:
+		chosen = _move_by_id(chosen.fallback)
+		if chosen == null or chosen.air != candidate.air or not _can_start(chosen):
+			return null
+	return chosen
+
+
+func _move_by_id(id: StringName) -> Move:
+	if id.is_empty():
+		return null
+	for candidate in moves:
+		if candidate.id == id:
+			return candidate
+	return null
+
+
 ## Starts the first move whose input is there, among air moves or ground moves.
 ## During a move, only the moves its cancel windows allow right now can start.
 func _try_moves(in_air: bool) -> bool:
@@ -288,11 +373,14 @@ func _try_moves(in_air: bool) -> bool:
 		if candidate.air != in_air or not _can_start(candidate):
 			continue
 		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing, candidate.motion_window):
-			if max_mana > 0 and candidate.mana_cost > mana:
-				continue  # can't pay: a cheaper move further down the list may answer the same press
+			var chosen: Move = _affordable(candidate)
+			if chosen == null:
+				continue  # can't pay and nothing to fall back on: a move further down the list may answer the same press
 			input.consume(candidate.button)
-			mana -= candidate.mana_cost
-			move = candidate
+			mana -= chosen.mana_cost
+			if chosen != candidate:
+				mana_short_ticks = MANA_SHORT_TICKS
+			move = chosen
 			move_frame = 0
 			start_swing()
 			_enter(State.AIR_ATTACK if in_air else State.ATTACK)

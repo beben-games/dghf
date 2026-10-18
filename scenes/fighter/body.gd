@@ -69,6 +69,8 @@ var combo_hits: int = 0
 var combo_damage: int = 0
 ## Hits taken in the air since the launch, not counting the launch itself.
 var juggle_hits: int = 0
+## True on the tick a guard broke (issue #72), for the shake. Cleared on the next tick.
+var just_broke: bool = false
 ## Who the current move has already hit, per hitbox group, and whether it has
 ## frozen its user: a move hits each target once per group and freezes its user
 ## once. Kept by Combat.
@@ -118,6 +120,7 @@ func keep_in_bounds() -> void:
 
 
 func tick() -> void:
+	just_broke = false
 	flash_ticks = maxi(flash_ticks - 1, 0)
 	if hitstop > 0:
 		hitstop -= 1
@@ -212,6 +215,12 @@ func blocks(_direction: int) -> bool:
 	return false
 
 
+## Whether this particular hit is stopped: the guard faces it and can take it (issue #72).
+## Combat asks this; `blocks` alone is the stance.
+func blocks_hit(_hit: HitBox, direction: int) -> bool:
+	return blocks(direction)
+
+
 ## Called by Combat for a hit a guard stopped. Only bodies that block get this.
 func take_block(_hit: HitBox, _direction: int) -> void:
 	pass
@@ -227,7 +236,11 @@ func in_hit_reaction() -> bool:
 	return state == State.HITSTUN or state == State.LAUNCHED
 
 
-## Called by Combat when a hit of this body's lands clean: bodies with mana keep it.
+## Called by Combat when a hit of this body's lands clean: a fighter is paid mana and guard.
+func on_hit_landed(_hit: HitBox) -> void:
+	pass
+
+
 func gain_mana(_amount: int) -> void:
 	pass
 

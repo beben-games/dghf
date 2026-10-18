@@ -25,6 +25,10 @@ extends Body
 ## Pixels per tick while the invincible part lasts; the recovery slides to a stop.
 @export var dodge_speed: float = 18.0
 
+@export_group("Mana")
+## The mana bar (issue #60): hits pay, spells cost. 0 means no bar: every move is free, as for a dummy or a test.
+@export var max_mana: int = 0
+
 @export_group("Guard")
 ## Share of a blocked hit's knockback that pushes the blocker back.
 @export var block_pushback: float = 0.6
@@ -36,6 +40,8 @@ var projectiles: Projectiles
 ## Tried in order, so put moves with a motion before plain button moves.
 var moves: Array[Move] = []
 
+var mana: int = 0
+
 var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
 var _turning: int = 0  # ticks the other way has been held
 ## The way the current dodge goes: 1 right, -1 left.
@@ -45,6 +51,11 @@ var dodge_direction: int = 1
 func setup(player_input: PlayerInput, lanes: PackedFloat32Array, start_lane: int, start_x: float) -> void:
 	input = player_input
 	place_on(lanes, start_lane, start_x)
+	mana = max_mana
+
+
+func gain_mana(amount: int) -> void:
+	mana = clampi(mana + amount, 0, max_mana)
 
 
 ## Reads the input first: a frozen fighter still records it.
@@ -277,7 +288,10 @@ func _try_moves(in_air: bool) -> bool:
 		if candidate.air != in_air or not _can_start(candidate):
 			continue
 		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing, candidate.motion_window):
+			if max_mana > 0 and candidate.mana_cost > mana:
+				continue  # can't pay: a cheaper move further down the list may answer the same press
 			input.consume(candidate.button)
+			mana -= candidate.mana_cost
 			move = candidate
 			move_frame = 0
 			start_swing()

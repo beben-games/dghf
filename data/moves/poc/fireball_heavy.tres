@@ -6,6 +6,7 @@
 [sub_resource type="Resource" id="Resource_hit"]
 script = ExtResource("1_hbox")
 damage = 28
+mana = 3
 hitstun = 24
 hitstop = 8
 blockstun = 14
@@ -25,3 +26,4 @@ projectile_offset = Vector2(170, -150)
 projectile_speed = 13.0
 projectile_hit = SubResource("Resource_hit")
 projectile_size = 2.0
+mana_cost = 35

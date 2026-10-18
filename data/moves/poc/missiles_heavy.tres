@@ -6,6 +6,7 @@
 [sub_resource type="Resource" id="Resource_hit"]
 script = ExtResource("1_hbox")
 damage = 18
+mana = 3
 hitstun = 18
 hitstop = 6
 blockstun = 12
@@ -34,3 +35,4 @@ projectile_count = 3
 projectile_spread = 7.0
 projectile_interval = 6
 projectile_homing_delay = 10
+mana_cost = 35

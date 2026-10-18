@@ -67,6 +67,7 @@ func _resolve_moves() -> void:
 		_land(targets[i], hits[i], attackers[i].facing, points[i])
 		if not targets[i].blocks(attackers[i].facing):
 			_count(attackers[i])
+			attackers[i].gain_mana(hits[i].mana)
 	for attacker: Body in freeze:
 		if not attacker.swing_froze:
 			attacker.swing_froze = true
@@ -100,6 +101,7 @@ func _resolve_projectiles() -> void:
 									break
 						if caster != null:
 							_count(caster)
+							caster.gain_mana(hit.mana)
 					if projectiles.pierces(i):
 						projectiles.mark_hit(i, target)  # and on it goes
 					else:

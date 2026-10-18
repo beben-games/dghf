@@ -10,6 +10,7 @@ first_frame = 5
 last_frame = 12
 rect = Rect2(30, -235, 135, 110)
 damage = 8
+mana = 6
 hitstun = 16
 hitstop = 5
 blockstun = 8

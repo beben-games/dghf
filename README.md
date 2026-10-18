@@ -67,6 +67,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Homing missiles, across lanes | Forward, then down-forward, then J (one) or L (three, bigger) | The same |
 | Blast around you, every lane | Tap down twice, then J or L (bigger, launches) | The same |
 | Super fireball | The fireball motion twice, then L: huge, and goes through everyone | The same |
+| Mana | Hits fill the blue bar; specials cost some, the super all of it. The melee starts empty, the other scenes full | |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |
 | Pause menu, with every control and key | Tab (Esc closes it) | |
 | Back to the main menu, from the pause menu | M | |
@@ -76,6 +77,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | The big dummies guard | F4 | |
 | Every enemy fights back, or stands still (big and small at once) | F5 | |
 | Ten more small-fry enemies | F6 | |
+| Refill everyone's mana | F7 | |
 | A small fry in front of you in a random lane; a big dummy in front of you | 1; 2 | |
 | Start over with everyone who joined (after going down, or any time) | R | |
 

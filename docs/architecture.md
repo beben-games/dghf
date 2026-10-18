@@ -129,7 +129,7 @@ Anything drawn per hit comes from a shared pool. Juggles have no hard height lim
 
 ## 8. Spells and combos
 
-**Proposed.** Can wait until Milestone 2.
+**Proposed.** Can wait until Milestone 2. Mana is built as proposed below in the sandbox (issue #60, `docs/design/2026-10-17-mana.md`): hits pay, spells cost, the super costs the bar.
 
 **Proposal.** Spells are moves with a mana cost that spawn effects and projectiles from a pool. The basic chain is normal attacks, cancelled into a special, cancelled into a spell. Mana fills when you land hits, like a fighting-game super meter, so playing aggressively feeds the spells.
 

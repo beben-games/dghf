@@ -24,6 +24,8 @@ extends Body
 @export var dodge_invincible_to: int = 11
 ## Pixels per tick while the invincible part lasts; the recovery slides to a stop.
 @export var dodge_speed: float = 18.0
+## Pixels per tick of the run that follows while the dodge button is held (issue #80, spike).
+@export var run_speed: float = 12.0
 
 ## How long the mana bar shows that a spell fell back, in ticks.
 const MANA_SHORT_TICKS: int = 24
@@ -67,8 +69,9 @@ var mana_short_ticks: int = 0
 var _blockstun: int = 0  # ticks left held in the guard by a blocked hit
 var _quiet_ticks: int = 0  # ticks since the fighter last took or blocked a hit
 var _turning: int = 0  # ticks the other way has been held
-## The way the current dodge goes: 1 right, -1 left.
+## The way the current dodge goes: 1 right, -1 left; and whether it was the neutral step back.
 var dodge_direction: int = 1
+var _dodge_back: bool = false
 
 
 func setup(player_input: PlayerInput, lanes: PackedFloat32Array, start_lane: int, start_x: float) -> void:
@@ -279,12 +282,33 @@ func _fall() -> bool:
 
 
 func _tick_attack() -> void:
-	if _try_moves(false):
+	# A landed hit frees you (issue #80, spike): once the swing has connected, anything can
+	# follow. A whiff keeps to the move's own cancel windows.
+	var free: bool = not swing_targets.is_empty()
+	if _try_moves(false, free):
 		return
-	if _wants_jump() and move.can_cancel_into_id(Move.JUMP, move_frame, not swing_targets.is_empty()):
+	if _wants_jump() and (free or move.can_cancel_into_id(Move.JUMP, move_frame, not swing_targets.is_empty())):
 		move = null
 		_start_jump(int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT)))
 		return
+	if free:
+		if _try_dodge():
+			move = null
+			return
+		if input.pressed(Buttons.LANE_UP) and lane > 0:
+			input.consume(Buttons.LANE_UP)
+			move = null
+			start_lane_change(lane - 1)
+			return
+		if input.pressed(Buttons.LANE_DOWN) and lane < lane_y.size() - 1:
+			input.consume(Buttons.LANE_DOWN)
+			move = null
+			start_lane_change(lane + 1)
+			return
+		if int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT)) != 0:
+			move = null
+			_enter(State.WALK)
+			return
 	if projectiles != null and move.projectile_frame >= 0:
 		# Several projectiles leave one after the other, projectile_interval ticks apart.
 		for i in maxi(move.projectile_count, 1):
@@ -335,17 +359,27 @@ func _try_dodge() -> bool:
 	input.consume(Buttons.DODGE)
 	var direction: int = int(input.held(Buttons.RIGHT)) - int(input.held(Buttons.LEFT))
 	dodge_direction = direction if direction != 0 else -facing
+	_dodge_back = direction == 0
 	_knock_speed = 0.0
 	_enter(State.DODGE)
 	return true
 
 
+## The dash: invincible at the start, then a run for as long as the button is
+## held (issue #80, spike), with a running attack on light or heavy; letting go
+## slides to a stop. The neutral step back never runs.
 func _tick_dodge() -> void:
+	if _try_moves(false, false, true):
+		return
 	if state_ticks <= dodge_invincible_to:
 		x = clampf(x + dodge_direction * dodge_speed, bounds.x, bounds.y)
+	elif input.held(Buttons.DODGE) and not _dodge_back:
+		facing = dodge_direction
+		x = clampf(x + dodge_direction * run_speed, bounds.x, bounds.y)
+		return
 	else:
 		# The recovery: a quick slide to a stop.
-		var left: float = float(dodge_ticks - state_ticks) / maxf(dodge_ticks - dodge_invincible_to, 1.0)
+		var left: float = clampf(float(dodge_ticks - state_ticks) / maxf(dodge_ticks - dodge_invincible_to, 1.0), 0.0, 1.0)
 		x = clampf(x + dodge_direction * dodge_speed * 0.5 * left, bounds.x, bounds.y)
 	if state_ticks >= dodge_ticks:
 		_enter(State.IDLE)
@@ -354,11 +388,11 @@ func _tick_dodge() -> void:
 ## `candidate`, or the move it falls back to when the bar can't pay for it (a
 ## heavy spell's light version, and the super's heavy fireball, then its light),
 ## or null when nothing affordable can start now.
-func _affordable(candidate: Move) -> Move:
+func _affordable(candidate: Move, free: bool = false) -> Move:
 	var chosen: Move = candidate
 	while max_mana > 0 and chosen.mana_cost > mana:
 		chosen = _move_by_id(chosen.fallback)
-		if chosen == null or chosen.air != candidate.air or not _can_start(chosen):
+		if chosen == null or chosen.air != candidate.air or not _can_start(chosen, free):
 			return null
 	return chosen
 
@@ -372,14 +406,15 @@ func _move_by_id(id: StringName) -> Move:
 	return null
 
 
-## Starts the first move whose input is there, among air moves or ground moves.
-## During a move, only the moves its cancel windows allow right now can start.
-func _try_moves(in_air: bool) -> bool:
+## Starts the first move whose input is there, among air moves or ground moves,
+## or running attacks during a dash. During a move, only the moves its cancel
+## windows allow right now can start, unless `free` (a landed hit, issue #80).
+func _try_moves(in_air: bool, free: bool = false, dashing: bool = false) -> bool:
 	for candidate in moves:
-		if candidate.air != in_air or not _can_start(candidate):
+		if candidate.air != in_air or candidate.from_dash != dashing or not _can_start(candidate, free):
 			continue
 		if input.pressed(candidate.button) and CommandReader.matches(input, candidate.motion, facing, candidate.motion_window):
-			var chosen: Move = _affordable(candidate)
+			var chosen: Move = _affordable(candidate, free)
 			if chosen == null:
 				continue  # can't pay and nothing to fall back on: a move further down the list may answer the same press
 			input.consume(candidate.button)
@@ -406,7 +441,9 @@ func _start_jump(direction: int) -> void:
 	_enter(State.JUMP)
 
 
-func _can_start(candidate: Move) -> bool:
+func _can_start(candidate: Move, free: bool = false) -> bool:
 	if move == null:
 		return not candidate.follow_up
+	if free:
+		return true
 	return move.can_cancel_into(candidate, move_frame, not swing_targets.is_empty())

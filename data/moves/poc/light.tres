@@ -30,3 +30,4 @@ total_frames = 27
 motion = PackedInt32Array()
 hit_boxes = Array[ExtResource("1_1uood")]([SubResource("Resource_nu7wp")])
 cancels = Array[ExtResource("3_cancel")]([SubResource("Resource_cancel")])
+travel = 4.0

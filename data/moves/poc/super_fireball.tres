@@ -28,3 +28,4 @@ projectile_hit = SubResource("Resource_hit")
 projectile_size = 2.6
 projectile_pierce = true
 mana_cost = 100
+fallback = &"fireball_heavy"

@@ -57,6 +57,11 @@ const START_GAP: float = 220.0
 ## The mana bar's colours (issue #60): filling, and full.
 const MANA_COLOR := Color(0.3, 0.55, 1.0)
 const MANA_FULL_COLOR := Color(0.7, 0.85, 1.0)
+## The guard bar (issue #72): its size, the tank preset's (F8), and its colours above and below the floor.
+const GUARD_BAR: int = 100
+const TANK_GUARD: int = 300
+const GUARD_COLOR := Color(0.92, 0.9, 0.82)
+const GUARD_LOW_COLOR := Color(0.9, 0.4, 0.3)
 ## Private art goes here. The folder is git-ignored and hidden from Godot's importer.
 const LOCAL_SKIN: String = "res://local/skins/player"
 ## A built game has no local folder. It looks for a skin in this folder beside its executable.
@@ -72,10 +77,13 @@ Specials, with J for the light version or L for the heavy one, twice as big and 
 Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, then down-forward        Blast around you, every lane: tap down twice
 Super fireball: the fireball motion twice, then L: huge, and goes through everyone
 Mana: hits fill the blue bar, specials cost some of it and the super all of it. The melee starts empty.
+Guard: blocking drains the white bar by the hit's damage; hits you land refill it, and a quiet moment too, slowly.
+At zero the guard breaks: the hit launches you. Below a quarter the guard can't be raised.
 Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
-F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      F7: refill mana      R: start over
+F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      R: start over
+F7: refill mana      F8: a tank's guard bar for player 1, three times bigger
 1: a small fry in front of you          2: a big dummy in front of you
 Co-op (melee and sandbox): any button on a second or third pad joins. The screen's edges hold the players together."""
 
@@ -110,6 +118,9 @@ var crowd: CrowdDirector
 ## A health bar per player, in its colour, with its tag, and a mana bar under it.
 var health_bars: Array[ColorRect] = []
 var mana_bars: Array[ColorRect] = []
+var guard_bars: Array[ColorRect] = []
+## Whether player 1 has the tank's guard bar (F8).
+var _tank: bool = false
 var _health_tags: Array[Label] = []
 var _layer: CanvasLayer
 ## The big line in the middle: DOWN, or CLEAR.
@@ -233,6 +244,7 @@ func _add_player(input: PlayerInput, fighter: Fighter, index: int, start_x: floa
 	fighter.moves = _player_moves
 	fighter.max_health = 100
 	fighter.max_mana = 100
+	fighter.max_guard = TANK_GUARD if _tank and fighter == _fighter else GUARD_BAR
 	fighter.projectiles = _projectiles
 	fighter.setup(input, lanes(), start_lane, start_x)
 	fighter.mana = _starting_mana(fighter)
@@ -285,6 +297,17 @@ func _add_health_bar(slot: int, color: Color) -> void:
 	mana_bar.color = MANA_COLOR
 	_layer.add_child(mana_bar)
 	mana_bars.append(mana_bar)
+	var guard_back := ColorRect.new()
+	guard_back.position = Vector2(left, 240.0)
+	guard_back.size = Vector2(400.0, 14.0)
+	guard_back.color = Color(0.1, 0.1, 0.12, 0.8)
+	_layer.add_child(guard_back)
+	var guard_bar := ColorRect.new()
+	guard_bar.position = Vector2(left + 2.0, 242.0)
+	guard_bar.size = Vector2(396.0, 10.0)
+	guard_bar.color = GUARD_COLOR
+	_layer.add_child(guard_bar)
+	guard_bars.append(guard_bar)
 	var tag := Label.new()
 	tag.position = Vector2(left, 160.0)
 	tag.text = "P%d" % players[slot].input.player
@@ -496,6 +519,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F7:
 				for player in players:
 					player.mana = player.max_mana
+			KEY_F8:
+				_tank = not _tank
+				_fighter.max_guard = TANK_GUARD if _tank else GUARD_BAR
+				_fighter.guard = _fighter.max_guard
 			KEY_1:
 				crowd.spawn(randi_range(0, 2), _in_front(), -_leader().facing)
 			KEY_2:
@@ -617,6 +644,8 @@ func _update_combo() -> void:
 		health_bars[i].size.x = 396.0 * float(players[i].health) / players[i].max_health
 		mana_bars[i].size.x = 396.0 * float(players[i].mana) / players[i].max_mana
 		mana_bars[i].color = MANA_FULL_COLOR if players[i].mana >= players[i].max_mana else MANA_COLOR
+		guard_bars[i].size.x = 396.0 * float(players[i].guard) / players[i].max_guard
+		guard_bars[i].color = GUARD_COLOR if players[i].can_guard() else GUARD_LOW_COLOR
 		var combo: int = _combat.combo_of(players[i])
 		if combo > hits:
 			hits = combo
@@ -654,8 +683,8 @@ func _update_readout() -> void:
 	elif _arenas.between():
 		where += "   walk on"
 	var help: String = HELP + (JOIN_HELP if mode != Mode.BOSS_FIGHT and players.size() < MAX_PLAYERS else "")
-	_label.text = "%s\n%s%s   lane %d   mana %d   %s   %d fps   enemies %s   players %d" % [
-		help, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, _fighter.mana, where, Engine.get_frames_per_second(),
+	_label.text = "%s\n%s%s   lane %d   mana %d   guard %d/%d   %s   %d fps   enemies %s   players %d" % [
+		help, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, _fighter.mana, _fighter.guard, _fighter.max_guard, where, Engine.get_frames_per_second(),
 		"fighting back" if _fighting else "guarding" if _dummy_guards else "standing still", players.size(),
 	]
 

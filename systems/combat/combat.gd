@@ -90,10 +90,16 @@ func _resolve_projectiles() -> void:
 				if box.intersects(target.hurt_rect()):
 					var direction: int = _projectile_direction(i, target)
 					_land(target, hit, direction, box.intersection(target.hurt_rect()).get_center())
-					for body in fighters:
-						if body.team == projectiles.team(i) and not target.blocks(direction):
-							_count(body)
-							break
+					if not target.blocks(direction):
+						var caster: Body = projectiles.owner_of(i)
+						if caster == null:
+							# A projectile with no owner (a test's) counts for the first body of its team.
+							for body in fighters:
+								if body.team == projectiles.team(i):
+									caster = body
+									break
+						if caster != null:
+							_count(caster)
 					if projectiles.pierces(i):
 						projectiles.mark_hit(i, target)  # and on it goes
 					else:

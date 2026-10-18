@@ -29,6 +29,7 @@ var _all_lanes: PackedByteArray = PackedByteArray()  # 1 for one that hits in ev
 var _homing: PackedFloat32Array = PackedFloat32Array()  # how hard a missile turns toward its target, 0 for none
 var _homing_from: PackedInt32Array = PackedInt32Array()  # the age from which it turns
 var _target: Array[Body] = []  # what a missile homes on
+var _owner: Array[Body] = []  # who sent it, for the combo count; null for nobody in particular
 var _already_hit: Array[PackedInt64Array] = []  # the bodies a piercing one has hit, by instance id
 
 
@@ -39,6 +40,7 @@ func _init() -> void:
 		arr.resize(CAPACITY)
 	_hit.resize(CAPACITY)
 	_target.resize(CAPACITY)
+	_owner.resize(CAPACITY)
 	_pierce.resize(CAPACITY)
 	_all_lanes.resize(CAPACITY)
 	_already_hit.resize(CAPACITY)
@@ -52,19 +54,20 @@ func count() -> int:
 
 ## Sends out projectile number `index` of what `move` describes from `at`, for
 ## a body of `team` in `lane` facing `facing` and drawn at `depth`. A move with
-## several fans them out vertically by their index.
-func spawn_from(move: Move, at: Vector2, lane: int, team: int, facing: int, depth: float, index: int = 0) -> void:
+## several fans them out vertically by their index. `owner` is the body that
+## sent it, credited with its hits.
+func spawn_from(move: Move, at: Vector2, lane: int, team: int, facing: int, depth: float, index: int = 0, owner: Body = null) -> void:
 	var n: int = maxi(move.projectile_count, 1)
 	var vy: float = (index - (n - 1) / 2.0) * move.projectile_spread
 	spawn(at, move.projectile_speed * facing, lane, team, move.projectile_hit, depth * move.projectile_size,
 			move.projectile_pierce, move.projectile_kind, move.projectile_lifetime, move.projectile_all_lanes,
-			move.projectile_homing, vy, move.projectile_homing_delay)
+			move.projectile_homing, vy, move.projectile_homing_delay, owner)
 
 
 ## `hit` is what it does to a target of another team in its lane, or null for none.
 func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null, size: float = 1.0,
 		pierce: bool = false, kind: Kind = Kind.FIREBALL, life: int = 0, all_lanes: bool = false, homing: float = 0.0,
-		velocity_y: float = 0.0, homing_delay: int = 0) -> void:
+		velocity_y: float = 0.0, homing_delay: int = 0, owner: Body = null) -> void:
 	if _count == CAPACITY:
 		return
 	_kind[_count] = kind
@@ -83,6 +86,7 @@ func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, h
 	_homing[_count] = homing
 	_homing_from[_count] = homing_delay
 	_target[_count] = null
+	_owner[_count] = owner
 	_already_hit[_count] = PackedInt64Array()
 	_count += 1
 
@@ -182,6 +186,11 @@ func target_of(i: int) -> Body:
 	return _target[i] if _target[i] != null and is_instance_valid(_target[i]) else null
 
 
+## The body that sent projectile `i`, or null.
+func owner_of(i: int) -> Body:
+	return _owner[i] if _owner[i] != null and is_instance_valid(_owner[i]) else null
+
+
 ## Whether projectile `i` goes on after a hit, and whether it has hit `body` already.
 func pierces(i: int) -> bool:
 	return _pierce[i] == 1
@@ -211,6 +220,8 @@ func remove(i: int) -> void:
 	_hit[_count] = null
 	_target[i] = _target[_count]
 	_target[_count] = null
+	_owner[i] = _owner[_count]
+	_owner[_count] = null
 	_pierce[i] = _pierce[_count]
 	_all_lanes[i] = _all_lanes[_count]
 	_already_hit[i] = _already_hit[_count]

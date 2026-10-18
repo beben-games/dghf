@@ -29,6 +29,8 @@ var side: int = 0
 var crossing: bool = false
 ## Ticks the target has been in another lane, counted by the director.
 var off_lane_ticks: int = 0
+## The player this body fights, picked by the director among its targets (issue #59). Null until it thinks.
+var target: Body
 
 static var _flash_shader: Shader
 var _shade: float = 1.0
@@ -63,6 +65,7 @@ func revive(lanes: PackedFloat32Array, scales: PackedFloat32Array, start_lane: i
 	off_lane_ticks = 0
 	side = 0
 	crossing = false
+	target = null
 	facing = face
 	place_on(lanes, start_lane, start_x)
 	set_lanes(lanes, scales)

@@ -4,12 +4,14 @@ extends Node2D
 ## it spawns from and takes back, their thinking in turns, the attack tokens
 ## that let only a few swing at once, and the spacing that keeps them from
 ## standing in one another. Tick it after the players and before Combat.
+## With several players (issue #59) each body fights the nearest living one and
+## the tokens are counted per player.
 
 ## How many bodies the pool holds. Never more than this on stage.
 @export var capacity: int = 48
 ## Ticks between two thinks of the same body; bodies take turns.
 @export var think_every: int = 6
-## How many may attack at the same time, over the whole crowd.
+## How many may attack the same player at the same time.
 @export var attack_tokens: int = 3
 ## How close a body walks before it stops and waits, in pixels.
 @export var reach: float = 170.0
@@ -26,12 +28,14 @@ extends Node2D
 @export var crowd_width: float = 500.0
 ## How many bodies may stand on one side of the target in its lane before the next one goes around.
 @export var max_per_side: int = 3
+## A body switches to another player when that one is this much nearer, in pixels.
+@export var retarget_margin: float = 300.0
 
 var lane_y: PackedFloat32Array = PackedFloat32Array()
 var lane_scale: PackedFloat32Array = PackedFloat32Array()
 var bounds: Vector2 = Vector2(0.0, 1920.0)
-## Who the crowd fights. Set by the stage.
-var target: Body
+## Who the crowd fights: the players. Set by the stage. Each body picks the nearest living one.
+var targets: Array[Body] = []
 ## Passive bodies stand where they are and never think: for a sandbox where enemies wait to be hit.
 var passive: bool = false
 ## The attack data every body uses.
@@ -109,20 +113,15 @@ func set_lanes(lanes: PackedFloat32Array, scales: PackedFloat32Array) -> void:
 
 func tick() -> void:
 	_tick += 1
-	var tokens_out: int = 0
-	for body in _alive:
-		if body.state == Body.State.ATTACK or body.has_token:
-			tokens_out += 1
 	for body in _alive:
 		if body.state == Body.State.ATTACK and body.move_frame >= body.move.total_frames - 1 and body.has_token:
 			# The swing is over: the token goes back, and the body rests.
 			body.has_token = false
-			tokens_out -= 1
 			body.rest = _rng.randi_range(rest_min, rest_max)
-		if target != null:
-			body.off_lane_ticks = body.off_lane_ticks + 1 if body.lane != target.lane else 0
-		if _tick % think_every == body.think_slot and target != null and not passive:
-			tokens_out += _think(body, tokens_out)
+		if body.target != null:
+			body.off_lane_ticks = body.off_lane_ticks + 1 if body.lane != body.target.lane else 0
+		if _tick % think_every == body.think_slot and not targets.is_empty() and not passive:
+			_think(body)
 		body.tick()
 	_keep_apart()
 	# The dead go back to the pool once they have lain there a moment.
@@ -137,28 +136,33 @@ func tick() -> void:
 		i -= 1
 
 
-## One body's decision. Returns 1 if it took an attack token.
-func _think(body: CrowdBody, tokens_out: int) -> int:
+## One body's decision: whom to fight, then where to go and whether to swing.
+func _think(body: CrowdBody) -> void:
 	if body.state != Body.State.IDLE and body.state != Body.State.WALK:
-		return 0
-	var gap: float = target.x - body.x
+		return
 	body.wanted_direction = 0
 	body.wants_attack = false
-	if target.state == Body.State.DEAD:
+	var target: Body = _pick_target(body)
+	if target == null:
 		# The fight is over: stand where you are.
 		body.crossing = false
-		return 0
+		return
+	if target != body.target:
+		body.target = target
+		body.side = 0
+		body.off_lane_ticks = 0
+	var gap: float = target.x - body.x
 	if body.lane != target.lane:
 		# Follow across lanes after a moment, one lane at a time, unless the target's lane is full.
 		# Meanwhile shadow the target's x from this lane.
-		if body.off_lane_ticks >= lane_follow_ticks and _in_target_lane() < max_per_lane:
+		if body.off_lane_ticks >= lane_follow_ticks and _in_target_lane(target) < max_per_lane:
 			body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
-			return 0
+			return
 		if absf(gap) > reach:
 			body.wanted_direction = 1 if gap > 0.0 else -1
 		if absf(gap) > 10.0:
 			body.facing = 1 if gap > 0.0 else -1
-		return 0
+		return
 	# In the target's lane. A body keeps to the side of the target it arrived on, unless that
 	# side is full and the other has room: then it goes around, walking through the target
 	# (there is no body collision) with nobody pushing it on the way. Then it closes in and
@@ -166,25 +170,51 @@ func _think(body: CrowdBody, tokens_out: int) -> int:
 	var here: int = 1 if body.x > target.x else -1
 	if body.side == 0:
 		body.side = here
-	if body.side == here and _on_side(here) > max_per_side and _on_side(-here) < max_per_side and _room(-here):
+	if body.side == here and _on_side(target, here) > max_per_side and _on_side(target, -here) < max_per_side and _room(target, -here):
 		body.side = -here
 	body.crossing = body.side != here
 	if body.crossing:
 		body.wanted_direction = body.side
-		return 0
+		return
 	if absf(gap) > reach:
 		body.wanted_direction = 1 if gap > 0.0 else -1
-		return 0
+		return
 	body.facing = 1 if gap > 0.0 else -1
-	if body.rest == 0 and not body.has_token and tokens_out < attack_tokens and target.can_be_hit():
+	if body.rest == 0 and not body.has_token and _tokens_on(target) < attack_tokens and target.can_be_hit():
 		body.has_token = true
 		body.wants_attack = true
-		return 1
-	return 0
+
+
+## The living target nearest to `body`, unless the one it has is still close to
+## as near: the crowd does not flicker between two players standing together.
+## Null when everyone is down.
+func _pick_target(body: CrowdBody) -> Body:
+	var best: Body = null
+	var best_gap: float = INF
+	for candidate in targets:
+		if candidate.state == Body.State.DEAD:
+			continue
+		var gap: float = absf(candidate.x - body.x)
+		if gap < best_gap:
+			best = candidate
+			best_gap = gap
+	var current: Body = body.target
+	if best == null or current == null or current.state == Body.State.DEAD:
+		return best
+	return current if absf(current.x - body.x) <= best_gap + retarget_margin else best
+
+
+## How many bodies hold an attack token on `target`, or are swinging at it.
+func _tokens_on(target: Body) -> int:
+	var n: int = 0
+	for body in _alive:
+		if body.target == target and (body.has_token or body.state == Body.State.ATTACK):
+			n += 1
+	return n
 
 
 ## How many bodies stand on `side` of the target in its lane, near it.
-func _on_side(side: int) -> int:
+func _on_side(target: Body, side: int) -> int:
 	var n: int = 0
 	for body in _alive:
 		if body.lane == target.lane and not body.crossing and (body.x - target.x) * side > 0.0 and absf(body.x - target.x) < crowd_width:
@@ -193,13 +223,13 @@ func _on_side(side: int) -> int:
 
 
 ## Whether there is stage on `side` of the target for a body to stand on.
-func _room(side: int) -> bool:
+func _room(target: Body, side: int) -> bool:
 	var there: float = target.x + side * reach
 	return there > bounds.x and there < bounds.y
 
 
 ## How many bodies are in the target's lane within crowd_width of it.
-func _in_target_lane() -> int:
+func _in_target_lane(target: Body) -> int:
 	var n: int = 0
 	for body in _alive:
 		if body.lane == target.lane and absf(body.x - target.x) < crowd_width:

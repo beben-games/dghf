@@ -71,7 +71,7 @@ One generic piece of code plays any move from its data. A preview scene steps th
 **Proposed. Ben's position (2026-10-03): motion inputs. Buttons: Ben and T agree in writing (2026-10-11) on two attacks, light and heavy, plus guard; E to confirm at the meeting.** See `docs/design/2026-10-03-combat-core.md`.
 
 **Proposal.**
-- An input router assigns each device to a player (1, 2 or 3). Game code asks "what did player 2 press", never "what did the keyboard press".
+- An input router assigns each device to a player (1, 2 or 3). Game code asks "what did player 2 press", never "what did the keyboard press". Built in the proof of concept: `InputSource.Device` maps pad n to player n + 1, and a `Lobby` joins a player when its pad shows a button (issue #59, `docs/design/2026-10-17-local-coop.md`).
 - Each player has an input buffer holding the last 30 frames of directions and buttons.
 - A command reader recognises motions from the buffer (for example down, down-forward, forward plus attack), relative to the way the character faces, with a few frames of leniency.
 - A button pressed up to 8 frames before a move can start is kept and used, so combos don't need perfect timing.
@@ -96,7 +96,7 @@ One generic piece of code plays any move from its data. A preview scene steps th
 **Proposal.**
 - Ordinary enemies use the crowd body decided in section 4: a sprite and a script, no physics body. They are pooled: dead enemies are reset and reused, never freed.
 - An enemy director moves them, keeps them from overlapping, and runs their AI in turns: each enemy thinks every 6 frames, offset from the others, rather than every frame.
-- Attack tokens: only a few enemies (for example 3 per player) may attack at any moment. The rest circle, taunt and wait. Dynasty Warriors and most beat 'em ups do this: it keeps big fights readable and cuts the AI cost.
+- Attack tokens: only a few enemies (for example 3 per player) may attack at any moment. The rest circle, taunt and wait. Dynasty Warriors and most beat 'em ups do this: it keeps big fights readable and cuts the AI cost. Built as 3 per player, each small fry on the nearest living player (issue #59).
 - A stress test early in Milestone 1 measures frame rate at 100, 200 and 500 enemies on each of our machines, before we commit to this.
 
 **Why.** "Massive amounts of enemies" is the core of the game and the biggest technical risk. A scene with full physics for every enemy will likely not hold 60 frames per second with hundreds on screen.
@@ -125,7 +125,7 @@ Anything drawn per hit comes from a shared pool. Juggles have no hard height lim
 
 **Proposed. Ben's position (2026-10-03),** for the weekly meeting:
 - Damage numbers on every hit. The alternatives are a combo counter only, or numbers on big hits only.
-- No friendly fire in co-op. The alternatives are a setting to turn it on, or reactions without damage.
+- No friendly fire in co-op. The alternatives are a setting to turn it on, or reactions without damage. The proof of concept has none: every player is one team (issue #59).
 
 ## 8. Spells and combos
 
@@ -147,7 +147,7 @@ Anything drawn per hit comes from a shared pool. Juggles have no hard height lim
 
 **Proposal.**
 - Internal resolution 480 by 270 pixels as a placeholder, scaled by whole numbers to the window (four times for 1080p), so pixel art stays sharp.
-- The camera follows the middle of all active players. Players can't walk off screen: the screen edges hold them back, rather than the camera zooming out.
+- The camera follows the middle of all active players. Players can't walk off screen: the screen edges hold them back, rather than the camera zooming out. Built as proposed (issue #59, `docs/design/2026-10-17-local-coop.md`): with several players the look-ahead is off, and a player at an edge waits for the others.
 - Arenas: in some places the camera locks until the enemies there are cleared, as in most beat 'em ups.
 
 **Why.** Zooming pixel art makes it blurry or uneven. A fixed zoom with edges that hold players together is the classic beat 'em up answer.

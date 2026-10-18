@@ -56,7 +56,7 @@ func _fight(x: float = 960.0, samples: Array = []) -> void:
 	_player.set_lanes(LANES, SCALES)
 	_crowd = CrowdDirector.new()
 	_crowd.setup(LANES, SCALES, _player.bounds)
-	_crowd.target = _player
+	_crowd.targets = [_player]
 
 
 func _run(ticks: int) -> void:
@@ -116,7 +116,7 @@ func _test_tokens_and_damage() -> void:
 	for i in 600:
 		_run(1)
 		most = maxi(most, _attacking())
-	_check(most <= _crowd.attack_tokens and most > 0, "at most %d of the crowd attack at once (saw %d)" % [_crowd.attack_tokens, most])
+	_check(most <= _crowd.attack_tokens and most > 0, "at most %d of the crowd attack one player at once (saw %d)" % [_crowd.attack_tokens, most])
 	_check(_player.health < 100, "an idle player loses health to the jabs (%d left after 600 ticks)" % _player.health)
 
 

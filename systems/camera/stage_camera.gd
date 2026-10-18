@@ -52,6 +52,30 @@ func tick(targets_x: PackedFloat32Array, facing: int) -> void:
 	_place()
 
 
+## One tick of following `players` (issue #59): the midpoint of the living
+## ones, with the look-ahead only when one is alive, so with two or more
+## nobody is dragged by the screen's edge. Then every living player's bounds
+## are the view less `margin`, and each is held inside them: a player at an
+## edge waits for the others.
+func follow(players: Array, margin: float) -> void:
+	var targets_x := PackedFloat32Array()
+	var facing: int = 0
+	for player: Body in players:
+		if player.state == Body.State.DEAD:
+			continue
+		targets_x.append(player.x)
+		facing = player.facing
+	if targets_x.is_empty():
+		return
+	tick(targets_x, facing if targets_x.size() == 1 else 0)
+	var bounds: Vector2 = player_bounds(margin)
+	for player: Body in players:
+		if player.state == Body.State.DEAD:
+			continue
+		player.bounds = bounds
+		player.keep_in_bounds()
+
+
 ## The view's edges on the stage.
 func left() -> float:
 	return x - SCREEN.x / 2.0

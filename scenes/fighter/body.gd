@@ -108,6 +108,15 @@ func set_lanes(lanes: PackedFloat32Array, scales: PackedFloat32Array = PackedFlo
 		_place()
 
 
+## Puts the body back inside its bounds if they moved past it (the screen's
+## edge holding a player in).
+func keep_in_bounds() -> void:
+	var inside: float = clampf(x, bounds.x, bounds.y)
+	if inside != x:
+		x = inside
+		_place()
+
+
 func tick() -> void:
 	flash_ticks = maxi(flash_ticks - 1, 0)
 	if hitstop > 0:

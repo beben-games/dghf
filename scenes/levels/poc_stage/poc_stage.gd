@@ -1,16 +1,17 @@
 class_name PocStage
 extends Node2D
-## The sandbox stage (issues #17, #9, #48, #54, #58): one playable character
-## on a 1080p stage with three lanes, against the big dummy (the boss fight)
-## or waves of small fry in arenas along a stage three screens wide (the
-## melee), under a camera that follows. It tests positions that are still
-## proposed. Nothing here is a decision.
+## The sandbox stage (issues #17, #9, #48, #54, #58, #59): one to three
+## players on a 1080p stage with three lanes, against the big dummy (the boss
+## fight) or waves of small fry in arenas along a stage three screens wide
+## (the melee), under a camera that follows them all. It tests positions that
+## are still proposed. Nothing here is a decision.
 ##
-## The Player and Dummy nodes are in the scene, so their values can be tuned in
-## the editor's inspector.
+## The Player node is in the scene, so its values can be tuned in the editor's
+## inspector; players 2 and 3 are made from the same script when their pad
+## joins (docs/design/2026-10-17-local-coop.md, proposed).
 ##
 ## This scene owns the clock: everything is ticked from _physics_process, in a
-## fixed order, 60 times a second.
+## fixed order, 60 times a second. A test calls tick() itself.
 
 enum Mode { BOSS_FIGHT, MELEE, SANDBOX }
 
@@ -44,11 +45,21 @@ const PRESETS: Array[Dictionary] = [
 	{"spacing": 35.0, "scales": [0.72, 1.0, 1.28]},
 ]
 const MARGIN: float = 120.0
+## Co-op (issue #59): how many may play, their colours, and where they stand.
+const MAX_PLAYERS: int = 3
+const PLAYER_COLORS: Array[Color] = [Color(0.35, 0.55, 0.85), Color(0.35, 0.75, 0.4), Color(0.9, 0.75, 0.3)]
+## How far a skin is tinted toward the player's colour. Player 1's skin is left as drawn.
+const SKIN_TINT: float = 0.45
+## A joining player appears this far behind the first living player.
+const JOIN_GAP: float = 160.0
+## After R, the players stand this far apart around the middle of the screen.
+const START_GAP: float = 220.0
 ## Private art goes here. The folder is git-ignored and hidden from Godot's importer.
 const LOCAL_SKIN: String = "res://local/skins/player"
 ## A built game has no local folder. It looks for a skin in this folder beside its executable.
 const BUILD_SKIN: String = "skins/player"
 const HELP: String = "Tab: pause menu, with every control and key"
+const JOIN_HELP: String = "        Any button on another pad joins, up to 3 players"
 const PAUSE_HELP: String = """PAUSED        Tab or Esc: back to the fight        M: main menu
 
 Move: A, D or the stick         Jump: W, Space or (A)         Crouch: S         Change lane: Q, E or the shoulders
@@ -61,17 +72,23 @@ Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
 F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      R: start over
-1: a small fry in front of you          2: a big dummy in front of you"""
+1: a small fry in front of you          2: a big dummy in front of you
+Co-op (melee and sandbox): any button on a second or third pad joins. The screen's edges hold the players together."""
 
-var _player_input: PlayerInput
-var _view: FighterView
+## The players in the fight, player 1 first, and a view each. Everyone is team 1.
+var players: Array[Fighter] = []
+var views: Array[FighterView] = []
+## The same players as bodies, shared with the crowd's director and the dummies' brains as their targets.
+var _party: Array[Body] = []
+## Where pads 2 and 3 wait to join. Ticked outside the boss fight.
+var lobby: Lobby = Lobby.new()
 ## The big dummies: full fighters of team 2, as many as the sandbox adds (one in the boss fight).
 var _dummies: Array[Fighter] = []
 var _dummy_views: Array[FighterView] = []
 var _projectiles: Projectiles
 var _sparks: HitSparks
 var _combat: Combat = Combat.new()
-var _camera: StageCamera
+var camera: StageCamera
 var _arenas: Arenas = Arenas.new()
 var _label: Label
 var _combo_label: Label
@@ -85,72 +102,72 @@ var _shading: bool = false
 var _fighting: bool = false
 ## Whether the big dummies hold their guard (F4).
 var _dummy_guards: bool = false
-var _crowd: CrowdDirector
-var _health_bar: ColorRect
-var _health_back: ColorRect
+var crowd: CrowdDirector
+## A health bar per player, in its colour, with its tag.
+var health_bars: Array[ColorRect] = []
+var _health_tags: Array[Label] = []
+var _layer: CanvasLayer
 ## The big line in the middle: DOWN, or CLEAR.
 var _message: Label
 var _pause_label: Label
 var _pause_back: ColorRect
 var _paused: bool = false
 
+## Player 1, the node in the scene. The readout and the debug keys speak of it.
 @onready var _fighter: Fighter = $Player
+## The moves every player has. Tried in order: the super first, then the specials (heavy before
+## light, since the heavy version asks for a cleaner motion), then the normals.
+var _player_moves: Array[Move] = [
+	preload("res://data/moves/poc/super_fireball.tres"),
+	preload("res://data/moves/poc/fireball_heavy.tres"),
+	preload("res://data/moves/poc/fireball.tres"),
+	preload("res://data/moves/poc/missiles_heavy.tres"),
+	preload("res://data/moves/poc/missiles_light.tres"),
+	preload("res://data/moves/poc/blast_heavy.tres"),
+	preload("res://data/moves/poc/blast_light.tres"),
+	preload("res://data/moves/poc/light_2.tres"), preload("res://data/moves/poc/light.tres"),
+	preload("res://data/moves/poc/heavy.tres"),
+	preload("res://data/moves/poc/air_light.tres"),
+	preload("res://data/moves/poc/air_heavy.tres"),
+]
+var _skin: FighterSkin
 
 
 func _ready() -> void:
-	_player_input = PlayerInput.new(1, InputSource.Device.new(1))
-
-	_camera = StageCamera.new()
-	add_child(_camera)
-	_camera.make_current()
+	camera = StageCamera.new()
+	add_child(camera)
+	camera.make_current()
 	_add_backdrop(0.2, true, -2)
 	_add_backdrop(0.5, false, -1)
-
-	_fighter.bounds = Vector2(MARGIN, SCREEN.x - MARGIN)
-	# Tried in order: the super first, then the specials (heavy before light, since the heavy
-	# version asks for a cleaner motion), then the normals.
-	_fighter.moves = [
-		preload("res://data/moves/poc/super_fireball.tres"),
-		preload("res://data/moves/poc/fireball_heavy.tres"),
-		preload("res://data/moves/poc/fireball.tres"),
-		preload("res://data/moves/poc/missiles_heavy.tres"),
-		preload("res://data/moves/poc/missiles_light.tres"),
-		preload("res://data/moves/poc/blast_heavy.tres"),
-		preload("res://data/moves/poc/blast_light.tres"),
-		preload("res://data/moves/poc/light_2.tres"), preload("res://data/moves/poc/light.tres"),
-		preload("res://data/moves/poc/heavy.tres"),
-		preload("res://data/moves/poc/air_light.tres"),
-		preload("res://data/moves/poc/air_heavy.tres"),
-	]
-	_fighter.max_health = 100
-	_fighter.setup(_player_input, lanes(), 1, SCREEN.x / 2.0)
-	_fighter.set_lanes(lanes(), scales())
-
-	_view = FighterView.new()
-	_view.skin = _find_skin()
-	_fighter.add_child(_view)
 
 	_projectiles = Projectiles.new()
 	_projectiles.bounds = Vector2(0.0, SCREEN.x)
 	_projectiles.z_index = 3
 	add_child(_projectiles)
-	_fighter.projectiles = _projectiles
 
 	_sparks = HitSparks.new()
 	_sparks.z_index = 3
 	add_child(_sparks)
 
-	_crowd = CrowdDirector.new()
-	_crowd.setup(lanes(), scales(), _fighter.bounds)
-	_crowd.target = _fighter
-	add_child(_crowd)
+	_layer = CanvasLayer.new()
+	add_child(_layer)
+
+	_skin = _find_skin()
+	# Player 1 is always in, on the keyboard and the first pad. The other pads wait in the lobby.
+	_add_player(PlayerInput.new(1, InputSource.Device.new(1)), _fighter, 1, SCREEN.x / 2.0, 1)
+	for index in range(2, MAX_PLAYERS + 1):
+		lobby.add(index, InputSource.Device.new(index))
+
+	crowd = CrowdDirector.new()
+	crowd.setup(lanes(), scales(), _fighter.bounds)
+	crowd.targets = _party
+	add_child(crowd)
 	_combat.fighters = [_fighter]
 	_apply_mode()
 	_combat.projectiles = _projectiles
 	_combat.sparks = _sparks
 
-	var layer := CanvasLayer.new()
-	add_child(layer)
+	var layer: CanvasLayer = _layer
 	_label = Label.new()
 	_label.position = Vector2(24.0, 16.0)
 	_label.add_theme_font_size_override("font_size", 26)
@@ -164,16 +181,6 @@ func _ready() -> void:
 	_combo_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_combo_label.add_theme_constant_override("outline_size", 16)
 	layer.add_child(_combo_label)
-	_health_back = ColorRect.new()
-	_health_back.position = Vector2(24.0, 196.0)
-	_health_back.size = Vector2(400.0, 22.0)
-	_health_back.color = Color(0.1, 0.1, 0.12, 0.8)
-	layer.add_child(_health_back)
-	_health_bar = ColorRect.new()
-	_health_bar.position = Vector2(26.0, 198.0)
-	_health_bar.size = Vector2(396.0, 18.0)
-	_health_bar.color = Color(0.85, 0.2, 0.2)
-	layer.add_child(_health_bar)
 	_message = Label.new()
 	_message.position = Vector2(0.0, 400.0)
 	_message.size.x = SCREEN.x
@@ -208,6 +215,91 @@ func _ready() -> void:
 	layer.add_child(_pause_label)
 
 
+## A fighter for player `index`, driven by `input`, on `start_lane` at `start_x`:
+## team 1 with full health and every move, a view in the player's colour, and a
+## health bar. `fighter` is the scene's node for player 1, or null to make one.
+func _add_player(input: PlayerInput, fighter: Fighter, index: int, start_x: float, start_lane: int) -> Fighter:
+	if fighter == null:
+		fighter = Fighter.new()
+		add_child(fighter)
+	var color: Color = PLAYER_COLORS[(index - 1) % PLAYER_COLORS.size()]
+	fighter.team = 1
+	fighter.bounds = camera.player_bounds(MARGIN)
+	fighter.moves = _player_moves
+	fighter.max_health = 100
+	fighter.projectiles = _projectiles
+	fighter.setup(input, lanes(), start_lane, start_x)
+	fighter.set_lanes(lanes(), scales())
+	var view := FighterView.new()
+	view.skin = _skin
+	view.body_color = color
+	view.tint = Color.WHITE if index == 1 else Color.WHITE.lerp(color, SKIN_TINT)
+	view.show_boxes = views[0].show_boxes if not views.is_empty() else false
+	fighter.add_child(view)
+	players.append(fighter)
+	views.append(view)
+	_party.append(fighter)
+	_add_health_bar(players.size() - 1, color)
+	# With company, everyone wears a tag.
+	for i in views.size():
+		views[i].tag = "P%d" % players[i].input.player if players.size() > 1 else ""
+	return fighter
+
+
+## Player `slot`'s health bar (0 first), side by side at the top left, in `color`, with its tag.
+func _add_health_bar(slot: int, color: Color) -> void:
+	var left: float = 24.0 + 440.0 * slot
+	var back := ColorRect.new()
+	back.position = Vector2(left, 196.0)
+	back.size = Vector2(400.0, 22.0)
+	back.color = Color(0.1, 0.1, 0.12, 0.8)
+	_layer.add_child(back)
+	var bar := ColorRect.new()
+	bar.position = Vector2(left + 2.0, 198.0)
+	bar.size = Vector2(396.0, 18.0)
+	bar.color = color
+	_layer.add_child(bar)
+	health_bars.append(bar)
+	var tag := Label.new()
+	tag.position = Vector2(left, 160.0)
+	tag.text = "P%d" % players[slot].input.player
+	tag.add_theme_font_size_override("font_size", 26)
+	tag.add_theme_color_override("font_color", color.lightened(0.3))
+	tag.add_theme_color_override("font_outline_color", Color.BLACK)
+	tag.add_theme_constant_override("outline_size", 8)
+	tag.visible = players.size() > 1
+	_layer.add_child(tag)
+	_health_tags.append(tag)
+	for t in _health_tags:
+		t.visible = players.size() > 1
+
+
+## A player joins with `input`, a step behind the first living player, in its
+## lane, facing its way. The lobby hands the input over with the joining press
+## already swallowed; a test may call this directly.
+func join(input: PlayerInput) -> Fighter:
+	var leader: Fighter = _leader()
+	var at_x: float = clampf(leader.x - leader.facing * JOIN_GAP, leader.bounds.x, leader.bounds.y)
+	var fighter: Fighter = _add_player(input, null, input.player, at_x, leader.lane)
+	fighter.facing = leader.facing
+	return fighter
+
+
+## The first living player, or player 1 when everyone is down.
+func _leader() -> Fighter:
+	for player in players:
+		if player.state != Fighter.State.DEAD:
+			return player
+	return _fighter
+
+
+func _anyone_alive() -> bool:
+	for player in players:
+		if player.state != Fighter.State.DEAD:
+			return true
+	return false
+
+
 ## The player's skin, or null for the plain figure. Run from the project it is
 ## the local folder. A built game looks beside its executable instead, so art
 ## can be tried in a build without being packed into it.
@@ -223,8 +315,8 @@ func _apply_mode() -> void:
 	_clear_dummies()
 	var width: float = SCREEN.x if mode == Mode.BOSS_FIGHT else STAGE_WIDTH
 	_arenas.setup(width, MELEE_ARENAS if mode == Mode.MELEE else [])
-	_camera.set_limits(0.0, width)
-	_camera.snap(SCREEN.x / 2.0)
+	camera.set_limits(0.0, width)
+	camera.snap(SCREEN.x / 2.0)
 	_update_bounds()
 	if mode == Mode.BOSS_FIGHT:
 		_preset = 3
@@ -233,10 +325,11 @@ func _apply_mode() -> void:
 		_preset = 2
 	_set_fighting(mode != Mode.SANDBOX)
 	_dummy_guards = false
-	_fighter.set_lanes(lanes(), scales())
+	for player in players:
+		player.set_lanes(lanes(), scales())
 	for dummy in _dummies:
 		dummy.set_lanes(lanes(), scales())
-	_crowd.set_lanes(lanes(), scales())
+	crowd.set_lanes(lanes(), scales())
 	queue_redraw()
 
 
@@ -244,7 +337,7 @@ func _apply_mode() -> void:
 ## director, the big dummies through a brain each.
 func _set_fighting(on: bool) -> void:
 	_fighting = on
-	_crowd.passive = not on
+	crowd.passive = not on
 	for dummy in _dummies:
 		dummy.input.source = _brain(dummy) if on else InputSource.new()
 
@@ -267,7 +360,7 @@ func _add_dummy(dummy_lane: int, at_x: float, face: int) -> Fighter:
 	dummy.facing = face
 	var view := FighterView.new()
 	view.body_color = Color(0.75, 0.4, 0.3)
-	view.show_boxes = _view.show_boxes
+	view.show_boxes = views[0].show_boxes
 	dummy.add_child(view)
 	_dummies.append(dummy)
 	_dummy_views.append(view)
@@ -286,37 +379,52 @@ func _clear_dummies() -> void:
 func _physics_process(_delta: float) -> void:
 	if _paused:
 		return
+	tick()
+
+
+## One tick of the fight, in a fixed order: pads join, everyone moves, hits
+## land, the camera follows and the arenas lock it or let it go.
+func tick() -> void:
 	_tick += 1
-	_fighter.tick()
+	if mode != Mode.BOSS_FIGHT:
+		for input in lobby.tick():
+			if players.size() < MAX_PLAYERS:
+				join(input)
+	for player in players:
+		player.tick()
 	for dummy in _dummies:
 		dummy.tick()
-	_crowd.tick()
-	var bodies: Array[Body] = [_fighter]
+	crowd.tick()
+	var bodies: Array[Body] = []
+	bodies.append_array(players)
 	bodies.append_array(_dummies)
-	bodies.append_array(_crowd.alive())
+	bodies.append_array(crowd.alive())
 	_combat.fighters = bodies
 	_projectiles.tick(bodies)
 	_sparks.tick()
 	_combat.resolve()
-	# The camera follows, the arenas lock it or let it go, and the bounds follow the view.
-	_camera.tick(PackedFloat32Array([_fighter.x]), _fighter.facing)
-	if _fighter.state != Fighter.State.DEAD:
-		_arenas.tick(_tick, _camera.left(), _camera.right(), _crowd.count(), _spawn_wave)
+	# The camera follows the players, the arenas lock it or let it go, and the bounds follow the view.
+	camera.follow(players, MARGIN)
+	if _anyone_alive():
+		_arenas.tick(_tick, camera.left(), camera.right(), crowd.count(), spawn_wave)
 	var limits: Vector2 = _arenas.limits()
-	_camera.set_limits(limits.x, limits.y)
+	camera.set_limits(limits.x, limits.y)
 	_update_bounds()
 	_update_shake()
 	_update_combo()
 	_update_readout()
 
 
-## Where everyone may stand: the player inside the view, the crowd and the
-## big dummies anywhere on the stage (a wave walks in from off screen, and
+## Where everyone may stand: the living players inside the view, the crowd and
+## the big dummies anywhere on the stage (a wave walks in from off screen, and
 ## one left behind follows), projectiles a little past the view.
 func _update_bounds() -> void:
-	_fighter.bounds = _camera.player_bounds(MARGIN)
-	_crowd.set_bounds(Vector2(0.0, _arenas.stage_width))
-	_projectiles.bounds = Vector2(_camera.left() - 400.0, _camera.right() + 400.0)
+	for player in players:
+		if player.state != Fighter.State.DEAD:
+			player.bounds = camera.player_bounds(MARGIN)
+			player.keep_in_bounds()
+	crowd.set_bounds(Vector2(0.0, _arenas.stage_width))
+	_projectiles.bounds = Vector2(camera.left() - 400.0, camera.right() + 400.0)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -335,14 +443,16 @@ func _unhandled_input(event: InputEvent) -> void:
 				if _paused:
 					get_tree().change_scene_to_file(MENU)
 			KEY_F1:
-				_view.show_boxes = not _view.show_boxes
+				var on: bool = not views[0].show_boxes
+				for view in views:
+					view.show_boxes = on
 				for view in _dummy_views:
-					view.show_boxes = _view.show_boxes
+					view.show_boxes = on
 			KEY_F2:
 				_preset = (_preset + 1) % PRESETS.size()
 				for fighter in _combat.fighters:
 					fighter.set_lanes(lanes(), scales())
-				_crowd.set_lanes(lanes(), scales())
+				crowd.set_lanes(lanes(), scales())
 				queue_redraw()
 			KEY_F3:
 				_shading = not _shading
@@ -350,33 +460,34 @@ func _unhandled_input(event: InputEvent) -> void:
 				_dummy_guards = not _dummy_guards
 				if _dummy_guards:
 					_fighting = false
-					_crowd.passive = true
+					crowd.passive = true
 				for dummy in _dummies:
 					dummy.input.source = InputSource.Held.new(Buttons.GUARD) if _dummy_guards else InputSource.new()
 			KEY_F5:
 				_dummy_guards = false
 				_set_fighting(not _fighting)
 			KEY_F6:
-				_spawn_wave(10)
+				spawn_wave(10)
 			KEY_1:
-				_crowd.spawn(randi_range(0, 2), _in_front(), -_fighter.facing)
+				crowd.spawn(randi_range(0, 2), _in_front(), -_leader().facing)
 			KEY_2:
-				_add_dummy(_fighter.lane, _in_front(), -_fighter.facing)
+				_add_dummy(_leader().lane, _in_front(), -_leader().facing)
 			KEY_R:
 				_start_over()
 
 
-## A spot 320 pixels in front of the player, kept on screen.
+## A spot 320 pixels in front of the first living player, kept on screen.
 func _in_front() -> float:
-	return clampf(_fighter.x + _fighter.facing * 320.0, _fighter.bounds.x, _fighter.bounds.y)
+	var leader: Fighter = _leader()
+	return clampf(leader.x + leader.facing * 320.0, leader.bounds.x, leader.bounds.y)
 
 
 ## A wave of small fry from just off screen on both sides, spread over the
 ## lanes, facing in. A side at the stage's end sends its share from the other
 ## side; with no room on either side (a one-screen stage) they stand at the edges.
-func _spawn_wave(how_many: int) -> void:
-	var open_left: bool = _camera.left() - SPAWN_GAP > 0.0
-	var open_right: bool = _camera.right() + SPAWN_GAP < _arenas.stage_width
+func spawn_wave(how_many: int) -> void:
+	var open_left: bool = camera.left() - SPAWN_GAP > 0.0
+	var open_right: bool = camera.right() + SPAWN_GAP < _arenas.stage_width
 	for i in how_many:
 		var from_left: bool = i % 2 == 0
 		if open_left != open_right:
@@ -385,29 +496,33 @@ func _spawn_wave(how_many: int) -> void:
 		var step: float = 40.0 * (i / 2)
 		var at_x: float
 		if from_left:
-			at_x = _camera.left() - SPAWN_GAP - step if open_left else _camera.left() + MARGIN + step
+			at_x = camera.left() - SPAWN_GAP - step if open_left else camera.left() + MARGIN + step
 		else:
-			at_x = _camera.right() + SPAWN_GAP + step if open_right else _camera.right() - MARGIN - step
-		_crowd.spawn(i % 3, at_x, 1 if from_left else -1)
+			at_x = camera.right() + SPAWN_GAP + step if open_right else camera.right() - MARGIN - step
+		crowd.spawn(i % 3, at_x, 1 if from_left else -1)
 
 
-## The player back on its feet with full health, the crowd gone, the dummy still.
+## Everyone who joined back on their feet with full health, spread around the
+## middle of the screen, the crowd gone, the dummy still.
 func _start_over() -> void:
-	_crowd.clear()
-	_fighter.setup(_player_input, lanes(), 1, SCREEN.x / 2.0)
-	_fighter.set_lanes(lanes(), scales())
-	_fighter.state = Fighter.State.IDLE
-	_fighter.move = null
-	_fighter.hitstop = 0
-	_fighter.height = 0.0
+	crowd.clear()
+	for i in players.size():
+		var player: Fighter = players[i]
+		player.setup(player.input, lanes(), 1, SCREEN.x / 2.0 + START_GAP * (i - (players.size() - 1) / 2.0))
+		player.set_lanes(lanes(), scales())
+		player.state = Fighter.State.IDLE
+		player.move = null
+		player.hitstop = 0
+		player.height = 0.0
+		player.facing = 1
 	_apply_mode()
 
 
-## A brain for a big dummy, fighting the player.
+## A brain for a big dummy, fighting the nearest player.
 func _brain(dummy: Fighter) -> FighterBrain:
 	var brain := FighterBrain.new(_tick + _dummies.size())
 	brain.fighter = dummy
-	brain.target = _fighter
+	brain.targets = _party
 	return brain
 
 
@@ -460,20 +575,30 @@ func _update_shake() -> void:
 	_shake = maxf(_shake * 0.8, _combat.shake)
 	if _shake < 0.5:
 		_shake = 0.0
-	_camera.shake(_shake, _tick)
+	camera.shake(_shake, _tick)
 
 
-## The counter shows the player's hits in a row, on anyone, from the second hit.
+## The counter shows the best combo going, in the colour of the player who has
+## it, from the second hit. The health bars follow their players; the fight is
+## over when the last player is down.
 func _update_combo() -> void:
-	var hits: int = _combat.combo_of(_fighter)
+	var hits: int = 0
+	var best: int = 0
+	for i in players.size():
+		health_bars[i].size.x = 396.0 * float(players[i].health) / players[i].max_health
+		var combo: int = _combat.combo_of(players[i])
+		if combo > hits:
+			hits = combo
+			best = i
 	_combo_label.visible = hits >= 2
 	_combo_label.text = "%d HITS" % hits
-	_health_bar.size.x = 396.0 * float(_fighter.health) / _fighter.max_health
-	if _fighter.state == Fighter.State.DEAD:
+	_combo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3) if players.size() == 1 else PLAYER_COLORS[best].lightened(0.3))
+	var all_down: bool = not _anyone_alive()
+	if all_down:
 		_message.text = "DOWN    R to start over"
 	elif _arenas.done:
 		_message.text = "CLEAR    R to start over"
-	_message.visible = _fighter.state == Fighter.State.DEAD or _arenas.done
+	_message.visible = all_down or _arenas.done
 	# Between arenas the arrow flashes until the next one locks.
 	_go_label.visible = _arenas.between() and (_tick / 20) % 2 == 0
 
@@ -484,8 +609,8 @@ func _update_readout() -> void:
 		var shade: float = 1.0 - 0.12 * (2 - body.lane) if _shading else 1.0
 		if body is CrowdBody:
 			(body as CrowdBody).set_shade(shade)
-		elif body == _fighter:
-			_view.shade = shade
+		elif players.has(body):
+			views[players.find(body)].shade = shade
 		else:
 			_dummy_views[_dummies.find(body)].shade = shade
 	# The readout: what the player is doing, who is on the stage, and the frame rate.
@@ -497,9 +622,10 @@ func _update_readout() -> void:
 		where += "   arena %d of %d, wave %d of %d" % [_arenas.index + 1, _arenas.arenas.size(), _arenas.waves_sent, _arenas.wave_count()]
 	elif _arenas.between():
 		where += "   walk on"
-	_label.text = "%s\n%s%s   lane %d   %s   %d fps   enemies %s" % [
-		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, where, Engine.get_frames_per_second(),
-		"fighting back" if _fighting else "guarding" if _dummy_guards else "standing still",
+	var help: String = HELP + (JOIN_HELP if mode != Mode.BOSS_FIGHT and players.size() < MAX_PLAYERS else "")
+	_label.text = "%s\n%s%s   lane %d   %s   %d fps   enemies %s   players %d" % [
+		help, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, where, Engine.get_frames_per_second(),
+		"fighting back" if _fighting else "guarding" if _dummy_guards else "standing still", players.size(),
 	]
 
 

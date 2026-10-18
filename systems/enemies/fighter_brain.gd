@@ -7,9 +7,14 @@ extends InputSource
 ## It thinks every `think_every` ticks and holds its last decision in between
 ## (docs/architecture.md, section 6), with a seeded random so a fight replays.
 
-## The fighter this brain drives, and who it fights.
+## The fighter this brain drives, and who it fights. With several `targets`
+## (co-op, issue #59) it picks the nearest living one itself; a test may set
+## `target` alone.
 var fighter: Fighter
-var target: Fighter
+var target: Body
+var targets: Array[Body] = []
+## It switches to another target when that one is this much nearer, in pixels.
+var retarget_margin: float = 300.0
 
 ## Ticks between two decisions.
 var think_every: int = 6
@@ -43,6 +48,8 @@ func sample(_player: int) -> int:
 	_tick += 1
 	_rest = maxi(_rest - 1, 0)
 	_guarding = maxi(_guarding - 1, 0)
+	if fighter != null:
+		_pick_target()
 	if fighter == null or target == null:
 		return 0
 	_other_lane_ticks = _other_lane_ticks + 1 if target.lane != fighter.lane else 0
@@ -53,6 +60,24 @@ func sample(_player: int) -> int:
 	if _guarding > 0:
 		return _mask | Buttons.GUARD
 	return _mask
+
+
+## The nearest living target, unless the current one is still close to as near.
+## With everyone down the last target is kept, and its death ends the fight.
+func _pick_target() -> void:
+	var best: Body = null
+	var best_gap: float = INF
+	for candidate in targets:
+		if candidate.state == Body.State.DEAD:
+			continue
+		var gap: float = absf(candidate.x - fighter.x)
+		if gap < best_gap:
+			best = candidate
+			best_gap = gap
+	if best == null:
+		return
+	if target == null or target.state == Body.State.DEAD or absf(target.x - fighter.x) > best_gap + retarget_margin:
+		target = best
 
 
 func _decide() -> int:

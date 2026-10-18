@@ -20,7 +20,8 @@ What there is to play today, in about fifteen minutes. If you work with Claude, 
 6. **Change a move yourself:** see "Tuning a move without code" below.
 7. **Fight it:** press F5 and the dummy walks up, attacks and sometimes guards (F5 starts and stops every enemy on the stage, big and small). Guard (hold K) and dodge (Shift) against it.
 8. **Fight a crowd:** press F6 a few times for ten small fry at a time (up to 48). They surround you and jab; you have a health bar now, and R starts over when you go down.
-9. **Say what you think:** which parts felt good and which felt off. Comment on the issue for that part (the list is in `docs/STATUS.md`), or tell Ben.
+9. **Bring a friend:** in the melee or the sandbox, press any button on a second gamepad. A green player 2 appears beside you with a health bar of its own; the screen's edges hold you together, and the crowd fights you both. A third pad adds a gold player 3.
+10. **Say what you think:** which parts felt good and which felt off. Comment on the issue for that part (the list is in `docs/STATUS.md`), or tell Ben.
 
 ## Tuning a move without code
 
@@ -48,10 +49,11 @@ Both are Bash scripts (on Windows, use Git Bash) and need Godot 4.7.2 on the `PA
 
 ## Controls
 
-The game is a sandbox for now: one character against the big dummy on one screen, or waves of small fry in arenas along a stage three screens wide, under a camera that follows. These controls are being tried out and are not final. Tab shows them all in the game.
+The game is a sandbox for now: one character against the big dummy on one screen, or waves of small fry in arenas along a stage three screens wide, under a camera that follows. In the melee and the sandbox, up to two more players can join on their own gamepads. These controls are being tried out and are not final. Tab shows them all in the game.
 
 | Action | Keyboard | Gamepad |
 |---|---|---|
+| Join as player 2 or 3 (melee and sandbox) | | Any button on a second or third pad |
 | Walk | A, D or the left and right arrows | Stick or d-pad |
 | Jump | W, Space or the up arrow | Up, or A |
 | Crouch | S or the down arrow | Down |
@@ -75,7 +77,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Every enemy fights back, or stands still (big and small at once) | F5 | |
 | Ten more small-fry enemies | F6 | |
 | A small fry in front of you in a random lane; a big dummy in front of you | 1; 2 | |
-| Start over (after going down, or any time) | R | |
+| Start over with everyone who joined (after going down, or any time) | R | |
 
 ## Contributing
 

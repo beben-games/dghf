@@ -22,6 +22,10 @@ var show_boxes: bool = false
 var body_color: Color = Color(0.35, 0.55, 0.85)
 ## Darkens the whole fighter, for lanes further back. 1 is unchanged.
 var shade: float = 1.0
+## Colours a skin to tell players apart (issue #59); the plain figure has body_color for that. White leaves a skin as drawn.
+var tint: Color = Color.WHITE
+## A short text floating over the head, such as P2. Empty for none.
+var tag: String = ""
 
 @onready var _fighter: Fighter = get_parent()
 
@@ -38,7 +42,8 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	(material as ShaderMaterial).set_shader_parameter(&"flash", 1.0 if _fighter.flash_ticks > 0 else 0.0)
 	# Half transparent while a dodge can't be hit, so the player sees the window.
-	modulate = Color(shade, shade, shade, 0.45 if _fighter.is_invincible() else 1.0)
+	var t: Color = tint if skin != null else Color.WHITE
+	modulate = Color(t.r * shade, t.g * shade, t.b * shade, 0.45 if _fighter.is_invincible() else 1.0)
 	queue_redraw()
 
 
@@ -49,6 +54,10 @@ func _draw() -> void:
 	else:
 		_draw_figure()
 	draw_set_transform(Vector2.ZERO)
+	if not tag.is_empty():
+		var at := Vector2(-60.0, -310.0 + sin(_fighter.state_ticks * 0.1) * 4.0)
+		draw_string_outline(ThemeDB.fallback_font, at, tag, HORIZONTAL_ALIGNMENT_CENTER, 120.0, 34, 8, Color.BLACK)
+		draw_string(ThemeDB.fallback_font, at, tag, HORIZONTAL_ALIGNMENT_CENTER, 120.0, 34, body_color.lightened(0.4))
 	if show_boxes:
 		draw_circle(Vector2.ZERO, 6.0, Color.YELLOW)
 		if _fighter.can_be_hit():

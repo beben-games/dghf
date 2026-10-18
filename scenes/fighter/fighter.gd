@@ -321,8 +321,8 @@ func _tick_attack() -> void:
 		_air_speed = facing * move.rise_forward
 	if height > 0.0 or vertical_speed > 0.0:
 		_fall()  # a rising move follows its arc; landing just carries on with the move's recovery
-	elif move.travel > 0.0 and _boxes_active():
-		x = clampf(x + facing * move.travel, bounds.x, bounds.y)
+	else:
+		x = clampf(x + facing * move.travel_speed(move_frame), bounds.x, bounds.y)
 	move_frame += 1
 	if move_frame >= move.total_frames:
 		move = null

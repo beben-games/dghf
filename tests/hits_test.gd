@@ -470,6 +470,23 @@ func _test_lights_step_forward() -> void:
 	var attacker := _fighter(600.0, 1, [A])
 	_run(27)
 	_check(attacker.x > 630.0 and attacker.x < 650.0, "a light carries the fighter forward during its hit frames (to %.0f)" % attacker.x)
+	# The step is eased (issue #80, Ben's quirk): it never starts or stops in one tick.
+	_clear()
+	attacker = _fighter(600.0, 1, [A])
+	var last: float = 600.0
+	var biggest_jump: float = 0.0
+	var steps: PackedFloat32Array = PackedFloat32Array()
+	for i in 27:
+		_run(1)
+		steps.append(attacker.x - last)
+		biggest_jump = maxf(biggest_jump, absf((attacker.x - last) - (steps[steps.size() - 2] if steps.size() > 1 else 0.0)))
+		last = attacker.x
+	_check(biggest_jump < 2.0, "the speed changes by less than 2 pixels a tick from one tick to the next (biggest change %.1f)" % biggest_jump)
+	_check(steps[17] > 0.0 and steps[22] > 0.0 and steps[26] == 0.0, "and the fighter settles through the recovery rather than stopping on the last hit frame")
+	var light: Move = load("res://data/moves/poc/light.tres")
+	_check(light.travel_speed(7) == 0.0 and light.travel_speed(8) > 0.0 and light.travel_speed(16) > light.travel_speed(8) and light.travel_speed(22) > 0.0 and light.travel_speed(23) == 0.0, "the move's travel rises over the hit frames and settles over 6 more")
+	var lunge: Move = load("res://data/moves/poc/dash_light.tres")
+	_check(lunge.travel_speed(4) == lunge.travel, "a running attack starts at the run's pace")
 
 
 func _test_follow_up_needs_a_cancel() -> void:

@@ -184,8 +184,7 @@ func _tick_state() -> void:
 				var offset: Vector2 = move.projectile_offset * depth_scale
 				offset.x *= facing
 				projectiles.spawn_from(move, position + offset, lane, team, facing, depth_scale, 0, self)
-			if move.travel > 0.0 and move_frame >= move.hit_boxes[0].first_frame and move_frame <= move.hit_boxes[0].last_frame:
-				x = clampf(x + facing * move.travel, bounds.x, bounds.y)
+			x = clampf(x + facing * move.travel_speed(move_frame), bounds.x, bounds.y)
 			move_frame += 1
 			if move_frame >= move.total_frames:
 				move = null

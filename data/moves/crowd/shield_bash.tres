@@ -23,3 +23,4 @@ animation = &"shield_bash"
 total_frames = 62
 hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])
 travel = 6.0
+travel_settle = 8

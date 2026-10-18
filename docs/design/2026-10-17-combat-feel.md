@@ -20,15 +20,20 @@ Shift (the right trigger) with a direction is the dodge as before: a short dash 
 
 The light and the second light carry the fighter forward a little during their hits, so a chain walks into the crowd on its own.
 
+## Eased travel (Ben's quirk, 2026-10-17)
+
+After playing the spike: the character moves a little when hitting, but it isn't smooth. The swing's frames don't step, so the fighter glides under a fixed pose, and the travel started and stopped in one tick. Now a move's travel rises over its hit frames and settles to nothing over `travel_settle` frames after them, so it reads as a step and a settle rather than a skate. A running attack keeps the run's pace into the hit (`travel_ease_in` off) and settles longer. The slide is still a slide; the proper fix comes with the art, when each animation frame can say how far the feet moved.
+
 ## Numbers to tune (proposed)
 
 | What | Value | Where |
 |---|---|---|
 | Run speed | 12 px a tick | `Fighter.run_speed` |
 | The dodge's speed and invincible ticks | 18, ticks 2 to 11 of 16, as before | `Fighter.dodge_*` |
-| Light, second light step | 4, 5 px a tick during their hits | `travel` in `light.tres`, `light_2.tres` |
-| Running light | 12 damage, hits frames 4 to 12 of 22, travels 12 a tick | `dash_light.tres` |
-| Running heavy | 20 damage, a launch of 24, hits frames 8 to 16 of 30, travels 14 | `dash_heavy.tres` |
+| Light, second light step | 4, 5 px a tick at full speed, eased over the hits, settling over 6 frames (about 40 px in all) | `travel`, `travel_settle` in `light.tres`, `light_2.tres` |
+| Running light | 12 damage, hits frames 4 to 12 of 22, travels 9 a tick at the run's pace, settling over 8 | `dash_light.tres` |
+| Running heavy | 20 damage, a launch of 24, hits frames 8 to 16 of 30, travels 11, settling over 10 | `dash_heavy.tres` |
+| The shield bash's lunge | 6 a tick eased, settling over 8 | `shield_bash.tres` |
 
 ## How it is built
 

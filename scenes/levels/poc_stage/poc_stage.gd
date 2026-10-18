@@ -1,8 +1,9 @@
 class_name PocStage
 extends Node2D
-## The sandbox stage (issues #17, #9, #48, #54): one playable character on an
-## empty 1080p stage with three lanes, against the big dummy (the boss fight)
-## or endless small fry (the melee). It tests positions that are still
+## The sandbox stage (issues #17, #9, #48, #54, #58): one playable character
+## on a 1080p stage with three lanes, against the big dummy (the boss fight)
+## or waves of small fry in arenas along a stage three screens wide (the
+## melee), under a camera that follows. It tests positions that are still
 ## proposed. Nothing here is a decision.
 ##
 ## The Player and Dummy nodes are in the scene, so their values can be tuned in
@@ -17,10 +18,18 @@ enum Mode { BOSS_FIGHT, MELEE, SANDBOX }
 static var mode: Mode = Mode.BOSS_FIGHT
 
 const SCREEN := Vector2(1920.0, 1080.0)
-## The melee keeps this many small fry coming: a new wave of ten whenever fewer are left,
-## with at least `WAVE_GAP` ticks between waves.
-const MELEE_WAVE: int = 10
-const WAVE_GAP: int = 240
+## The melee and the sandbox are this wide; the boss fight stays one screen
+## (docs/design/2026-10-17-camera-and-scrolling-stage.md, proposed).
+const STAGE_WIDTH: float = SCREEN.x * 3.0
+## The melee's arenas: the camera locks in each until its waves are beaten, then the player walks on.
+const MELEE_ARENAS: Array[Dictionary] = [
+	{"left": 0.0, "right": 2400.0, "waves": [10, 10]},
+	{"left": 3360.0, "right": 5760.0, "waves": [10, 15]},
+]
+## A wave comes in from this far past the view's edges.
+const SPAWN_GAP: float = 100.0
+## The backdrop repeats every this many pixels.
+const BACKDROP_SPAN: float = 2400.0
 const MENU: String = "res://scenes/main/main.tscn"
 ## The front lane's screen y. The other two sit above it, `spacing` apart.
 const FRONT_LANE_Y: float = 1000.0
@@ -62,8 +71,11 @@ var _dummy_views: Array[FighterView] = []
 var _projectiles: Projectiles
 var _sparks: HitSparks
 var _combat: Combat = Combat.new()
+var _camera: StageCamera
+var _arenas: Arenas = Arenas.new()
 var _label: Label
 var _combo_label: Label
+var _go_label: Label
 var _shake: float = 0.0
 var _tick: int = 0
 ## The preset the stage starts in: lanes 50 pixels apart with depth (Ben's pick, 2026-10-11). F2 cycles.
@@ -76,17 +88,23 @@ var _dummy_guards: bool = false
 var _crowd: CrowdDirector
 var _health_bar: ColorRect
 var _health_back: ColorRect
-var _dead_label: Label
+## The big line in the middle: DOWN, or CLEAR.
+var _message: Label
 var _pause_label: Label
 var _pause_back: ColorRect
 var _paused: bool = false
-var _wave_tick: int = -100000
 
 @onready var _fighter: Fighter = $Player
 
 
 func _ready() -> void:
 	_player_input = PlayerInput.new(1, InputSource.Device.new(1))
+
+	_camera = StageCamera.new()
+	add_child(_camera)
+	_camera.make_current()
+	_add_backdrop(0.2, true, -2)
+	_add_backdrop(0.5, false, -1)
 
 	_fighter.bounds = Vector2(MARGIN, SCREEN.x - MARGIN)
 	# Tried in order: the super first, then the specials (heavy before light, since the heavy
@@ -156,14 +174,24 @@ func _ready() -> void:
 	_health_bar.size = Vector2(396.0, 18.0)
 	_health_bar.color = Color(0.85, 0.2, 0.2)
 	layer.add_child(_health_bar)
-	_dead_label = Label.new()
-	_dead_label.position = Vector2(SCREEN.x / 2.0 - 260.0, 400.0)
-	_dead_label.add_theme_font_size_override("font_size", 72)
-	_dead_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	_dead_label.add_theme_constant_override("outline_size", 14)
-	_dead_label.text = "DOWN    R to start over"
-	_dead_label.visible = false
-	layer.add_child(_dead_label)
+	_message = Label.new()
+	_message.position = Vector2(0.0, 400.0)
+	_message.size.x = SCREEN.x
+	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_message.add_theme_font_size_override("font_size", 72)
+	_message.add_theme_color_override("font_outline_color", Color.BLACK)
+	_message.add_theme_constant_override("outline_size", 14)
+	_message.visible = false
+	layer.add_child(_message)
+	_go_label = Label.new()
+	_go_label.position = Vector2(SCREEN.x - 420.0, 440.0)
+	_go_label.add_theme_font_size_override("font_size", 96)
+	_go_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	_go_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_go_label.add_theme_constant_override("outline_size", 16)
+	_go_label.text = "GO  >>"
+	_go_label.visible = false
+	layer.add_child(_go_label)
 	_pause_back = ColorRect.new()
 	_pause_back.position = Vector2(80.0, 260.0)
 	_pause_back.size = Vector2(SCREEN.x - 160.0, 440.0)
@@ -189,10 +217,15 @@ func _find_skin() -> FighterSkin:
 	return FighterSkin.load_from(LOCAL_SKIN)
 
 
-## The boss fight: the dummy fights back and the lanes are closest (the camera "closer").
-## The melee: no dummy, ten small fry to start and a wave of ten whenever fewer are left.
+## The boss fight: one screen, the dummy fights back and the lanes are closest (the camera "closer").
+## The melee: a stage three screens wide with two arenas of waves. The sandbox: the same stage, free.
 func _apply_mode() -> void:
 	_clear_dummies()
+	var width: float = SCREEN.x if mode == Mode.BOSS_FIGHT else STAGE_WIDTH
+	_arenas.setup(width, MELEE_ARENAS if mode == Mode.MELEE else [])
+	_camera.set_limits(0.0, width)
+	_camera.snap(SCREEN.x / 2.0)
+	_update_bounds()
 	if mode == Mode.BOSS_FIGHT:
 		_preset = 3
 		_add_dummy(1, SCREEN.x * 0.7, -1)
@@ -220,7 +253,8 @@ func _set_fighting(on: bool) -> void:
 func _add_dummy(dummy_lane: int, at_x: float, face: int) -> Fighter:
 	var dummy := Fighter.new()
 	dummy.team = 2
-	dummy.bounds = _fighter.bounds
+	# The whole stage: a dummy left behind walks back on its own.
+	dummy.bounds = Vector2(MARGIN, _arenas.stage_width - MARGIN)
 	# Its moves, for when it fights back: the two attacks, no specials, no air moves.
 	dummy.moves = [
 		preload("res://data/moves/poc/light_2.tres"),
@@ -253,9 +287,6 @@ func _physics_process(_delta: float) -> void:
 	if _paused:
 		return
 	_tick += 1
-	if mode == Mode.MELEE and _crowd.count() < MELEE_WAVE and _tick - _wave_tick >= WAVE_GAP and _fighter.state != Fighter.State.DEAD:
-		_wave_tick = _tick
-		_spawn_wave(MELEE_WAVE)
 	_fighter.tick()
 	for dummy in _dummies:
 		dummy.tick()
@@ -267,9 +298,25 @@ func _physics_process(_delta: float) -> void:
 	_projectiles.tick(bodies)
 	_sparks.tick()
 	_combat.resolve()
+	# The camera follows, the arenas lock it or let it go, and the bounds follow the view.
+	_camera.tick(PackedFloat32Array([_fighter.x]), _fighter.facing)
+	if _fighter.state != Fighter.State.DEAD:
+		_arenas.tick(_tick, _camera.left(), _camera.right(), _crowd.count(), _spawn_wave)
+	var limits: Vector2 = _arenas.limits()
+	_camera.set_limits(limits.x, limits.y)
+	_update_bounds()
 	_update_shake()
 	_update_combo()
 	_update_readout()
+
+
+## Where everyone may stand: the player inside the view, the crowd and the
+## big dummies anywhere on the stage (a wave walks in from off screen, and
+## one left behind follows), projectiles a little past the view.
+func _update_bounds() -> void:
+	_fighter.bounds = _camera.player_bounds(MARGIN)
+	_crowd.set_bounds(Vector2(0.0, _arenas.stage_width))
+	_projectiles.bounds = Vector2(_camera.left() - 400.0, _camera.right() + 400.0)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -319,17 +366,28 @@ func _unhandled_input(event: InputEvent) -> void:
 				_start_over()
 
 
-## A spot 320 pixels in front of the player, kept on the stage.
+## A spot 320 pixels in front of the player, kept on screen.
 func _in_front() -> float:
-	return clampf(_fighter.x + _fighter.facing * 320.0, MARGIN, SCREEN.x - MARGIN)
+	return clampf(_fighter.x + _fighter.facing * 320.0, _fighter.bounds.x, _fighter.bounds.y)
 
 
-## Ten small fry at the edges of the screen, spread over the lanes, facing the player.
+## A wave of small fry from just off screen on both sides, spread over the
+## lanes, facing in. A side at the stage's end sends its share from the other
+## side; with no room on either side (a one-screen stage) they stand at the edges.
 func _spawn_wave(how_many: int) -> void:
+	var open_left: bool = _camera.left() - SPAWN_GAP > 0.0
+	var open_right: bool = _camera.right() + SPAWN_GAP < _arenas.stage_width
 	for i in how_many:
 		var from_left: bool = i % 2 == 0
+		if open_left != open_right:
+			from_left = open_left
 		@warning_ignore("integer_division")
-		var at_x: float = MARGIN + 40.0 * (i / 2) if from_left else SCREEN.x - MARGIN - 40.0 * (i / 2)
+		var step: float = 40.0 * (i / 2)
+		var at_x: float
+		if from_left:
+			at_x = _camera.left() - SPAWN_GAP - step if open_left else _camera.left() + MARGIN + step
+		else:
+			at_x = _camera.right() + SPAWN_GAP + step if open_right else _camera.right() - MARGIN - step
 		_crowd.spawn(i % 3, at_x, 1 if from_left else -1)
 
 
@@ -342,7 +400,6 @@ func _start_over() -> void:
 	_fighter.move = null
 	_fighter.hitstop = 0
 	_fighter.height = 0.0
-	_wave_tick = -100000
 	_apply_mode()
 
 
@@ -365,25 +422,45 @@ func scales() -> PackedFloat32Array:
 	return PackedFloat32Array(PRESETS[_preset]["scales"])
 
 
+## The ground, the whole stage long. The sky and what stands on the horizon are the backdrop's.
 func _draw() -> void:
-	# Drawn wider than the screen, so a shake never shows an edge.
+	# Drawn past the stage's ends, so a shake never shows an edge.
 	var bleed: float = 64.0
-	draw_rect(Rect2(Vector2.ZERO, SCREEN).grow(bleed), Color(0.15, 0.165, 0.21))
+	var width: float = _arenas.stage_width
 	# The ground starts a little above the back lane, so a lower camera also lowers the horizon.
 	var horizon: float = lanes()[0] - 120.0
-	draw_rect(Rect2(-bleed, horizon, SCREEN.x + bleed * 2.0, SCREEN.y - horizon + bleed), Color(0.305, 0.275, 0.243))
+	draw_rect(Rect2(-bleed, horizon, width + bleed * 2.0, SCREEN.y - horizon + bleed), Color(0.305, 0.275, 0.243))
 	for y in lanes():
-		draw_line(Vector2(-bleed, y), Vector2(SCREEN.x + bleed, y), Color(0.42, 0.385, 0.34), 3.0)
+		draw_line(Vector2(-bleed, y), Vector2(width + bleed, y), Color(0.42, 0.385, 0.34), 3.0)
+	# A post just inside each arena wall, so the player sees where the camera holds.
+	for arena in _arenas.arenas:
+		for wall in [[arena["left"], 1.0], [arena["right"], -1.0]]:
+			var wall_x: float = wall[0]
+			if wall_x > 0.0 and wall_x < width:
+				draw_rect(Rect2(wall_x + wall[1] * 30.0 - 8.0, horizon - 60.0, 16.0, SCREEN.y - horizon + 60.0), Color(0.22, 0.19, 0.17))
 
 
-## Shakes the whole stage, side to side on alternate ticks, fading out. The
+## A placeholder backdrop layer that scrolls at `speed` times the camera's,
+## repeating along the stage. Art replaces it.
+func _add_backdrop(speed: float, far: bool, z: int) -> void:
+	var layer := Parallax2D.new()
+	layer.scroll_scale = Vector2(speed, 0.0)
+	layer.repeat_size = Vector2(BACKDROP_SPAN, 0.0)
+	layer.repeat_times = 3
+	layer.z_index = z
+	var art := Backdrop.new()
+	art.far = far
+	layer.add_child(art)
+	add_child(layer)
+
+
+## Shakes the camera, side to side on alternate ticks, fading out. The
 ## readout is on its own layer and stays still.
 func _update_shake() -> void:
 	_shake = maxf(_shake * 0.8, _combat.shake)
 	if _shake < 0.5:
 		_shake = 0.0
-	var side: float = 1.0 if _tick % 2 == 0 else -1.0
-	position = Vector2(_shake * side, -_shake * 0.5 * side)
+	_camera.shake(_shake, _tick)
 
 
 ## The counter shows the player's hits in a row, on anyone, from the second hit.
@@ -392,7 +469,13 @@ func _update_combo() -> void:
 	_combo_label.visible = hits >= 2
 	_combo_label.text = "%d HITS" % hits
 	_health_bar.size.x = 396.0 * float(_fighter.health) / _fighter.max_health
-	_dead_label.visible = _fighter.state == Fighter.State.DEAD
+	if _fighter.state == Fighter.State.DEAD:
+		_message.text = "DOWN    R to start over"
+	elif _arenas.done:
+		_message.text = "CLEAR    R to start over"
+	_message.visible = _fighter.state == Fighter.State.DEAD or _arenas.done
+	# Between arenas the arrow flashes until the next one locks.
+	_go_label.visible = _arenas.between() and (_tick / 20) % 2 == 0
 
 
 func _update_readout() -> void:
@@ -409,7 +492,60 @@ func _update_readout() -> void:
 	var move_text: String = ""
 	if _fighter.move != null:
 		move_text = " %s %d/%d" % [_fighter.move.id, _fighter.move_frame, _fighter.move.total_frames]
-	_label.text = "%s\n%s%s   lane %d   %d fps   enemies %s" % [
-		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, Engine.get_frames_per_second(),
+	var where: String = "x %d" % int(_fighter.x)
+	if _arenas.locked:
+		where += "   arena %d of %d, wave %d of %d" % [_arenas.index + 1, _arenas.arenas.size(), _arenas.waves_sent, _arenas.wave_count()]
+	elif _arenas.between():
+		where += "   walk on"
+	_label.text = "%s\n%s%s   lane %d   %s   %d fps   enemies %s" % [
+		HELP, Fighter.STATE_NAMES[_fighter.state], move_text, _fighter.lane + 1, where, Engine.get_frames_per_second(),
 		"fighting back" if _fighting else "guarding" if _dummy_guards else "standing still",
 	]
+
+
+## Plain shapes until the art arrives: the far layer is the sky with hills and
+## a castle on the horizon, the near one tents and trees. Everything stands on
+## a base below the lowest horizon, so the ground covers its feet at any preset.
+class Backdrop:
+	extends Node2D
+
+	const SPAN: float = 2400.0
+	const BASE: float = 1080.0
+
+	var far: bool = false
+
+	func _draw() -> void:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 11 if far else 23
+		if far:
+			# The sky, darker up high, in bands down to the horizon; the lowest band goes to the base.
+			var bands: int = 8
+			for i in bands:
+				var top: float = -200.0 + i * 120.0
+				var bottom: float = top + 120.0 if i < bands - 1 else BASE + 200.0
+				draw_rect(Rect2(0.0, top, SPAN, bottom - top), Color(0.36, 0.44, 0.6).lerp(Color(0.52, 0.58, 0.7), float(i) / (bands - 1)))
+			for i in 7:
+				var cx: float = i * SPAN / 7.0 + rng.randf_range(0.0, 200.0)
+				var r: float = rng.randf_range(260.0, 460.0)
+				draw_circle(Vector2(cx, 660.0 + r * 0.55), r, Color(0.3, 0.36, 0.48))
+			# A castle: a wall and three towers.
+			var castle_x: float = 1500.0
+			draw_rect(Rect2(castle_x, 560.0, 420.0, BASE - 560.0), Color(0.25, 0.28, 0.38))
+			for tower_x: float in [castle_x - 40.0, castle_x + 180.0, castle_x + 400.0]:
+				draw_rect(Rect2(tower_x, 470.0, 70.0, BASE - 470.0), Color(0.25, 0.28, 0.38))
+				for k in 3:
+					draw_rect(Rect2(tower_x + k * 26.0, 452.0, 16.0, 20.0), Color(0.25, 0.28, 0.38))
+		else:
+			for i in 5:
+				var cx: float = i * SPAN / 5.0 + rng.randf_range(40.0, 300.0)
+				if rng.randf() < 0.5:
+					# A tent: a triangle on a tall base.
+					var top: float = rng.randf_range(540.0, 600.0)
+					var w: float = rng.randf_range(140.0, 220.0)
+					draw_colored_polygon(PackedVector2Array([Vector2(cx, top), Vector2(cx + w, 690.0), Vector2(cx - w, 690.0)]), Color(0.3, 0.27, 0.33))
+					draw_rect(Rect2(cx - w, 688.0, w * 2.0, BASE - 688.0), Color(0.3, 0.27, 0.33))
+				else:
+					# A tree: a trunk and a round top.
+					var top: float = rng.randf_range(420.0, 520.0)
+					draw_rect(Rect2(cx - 18.0, top, 36.0, BASE - top), Color(0.24, 0.2, 0.2))
+					draw_circle(Vector2(cx, top), rng.randf_range(80.0, 120.0), Color(0.22, 0.3, 0.26))

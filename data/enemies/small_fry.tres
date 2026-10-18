@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="CrowdKind" format=3]
+
+[ext_resource type="Script" path="res://systems/enemies/crowd_kind.gd" id="1_kind"]
+[ext_resource type="Resource" path="res://data/moves/crowd/jab.tres" id="2_jab"]
+
+[resource]
+script = ExtResource("1_kind")
+id = &"small_fry"
+attack = ExtResource("2_jab")

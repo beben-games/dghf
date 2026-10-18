@@ -20,6 +20,8 @@ extends Resource
 @export var shake: float = 0.0
 ## Mana the hit pays its attacker when it lands (issue #60). A blocked hit pays nothing.
 @export var mana: int = 0
+## A guard breaker (issue #61): no guard or shield stops it, and a raised guard breaks.
+@export var breaks_guard: bool = false
 ## A move hits each target once per group: boxes in different groups are separate hits
 ## (a spinning kick that hits twice has two boxes in groups 0 and 1).
 @export var group: int = 0

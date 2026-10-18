@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CrowdKind" format=3]
+
+[ext_resource type="Script" path="res://systems/enemies/crowd_kind.gd" id="1_kind"]
+[ext_resource type="Resource" path="res://data/moves/crowd/jab.tres" id="2_jab"]
+[ext_resource type="Resource" path="res://data/moves/crowd/shield_bash.tres" id="3_bash"]
+
+[resource]
+script = ExtResource("1_kind")
+id = &"shielded"
+max_health = 40
+walk_speed = 3.0
+body_color = Color(0.42, 0.48, 0.6, 1)
+look = 2
+attack = ExtResource("2_jab")
+special = ExtResource("3_bash")
+special_one_in = 3
+shield = 40

@@ -58,8 +58,10 @@ var bounds: Vector2 = Vector2(0.0, 1920.0)
 var targets: Array[Body] = []
 ## Passive bodies stand where they are and never think: for a sandbox where enemies wait to be hit.
 var passive: bool = false
-## The attack data every body uses.
-var attack: Move = preload("res://data/moves/crowd/jab.tres")
+## What a body is when spawned with no kind given: the plain small fry (issue #61).
+var default_kind: CrowdKind = preload("res://data/enemies/small_fry.tres")
+## Where throwers' rocks go. Set by the stage.
+var projectiles: Projectiles
 
 var _pool: Array[CrowdBody] = []
 var _alive: Array[CrowdBody] = []
@@ -80,8 +82,7 @@ func setup(lanes: PackedFloat32Array, scales: PackedFloat32Array, stage_bounds: 
 	for i in capacity:
 		var body := CrowdBody.new()
 		body.team = 2
-		body.max_health = 30
-		body.attack = attack
+		body.apply_kind(default_kind)
 		body.bounds = bounds
 		body.think_slot = i % think_every
 		body.visible = false
@@ -98,13 +99,15 @@ func count() -> int:
 	return _alive.size()
 
 
-## Brings one body from the pool to a lane at an x, facing `face`. Null if the pool is empty.
-func spawn(spawn_lane: int, at_x: float, face: int) -> CrowdBody:
+## Brings one body from the pool to a lane at an x, facing `face`, as `kind` (the plain
+## small fry when left out). Null if the pool is empty.
+func spawn(spawn_lane: int, at_x: float, face: int, kind: CrowdKind = null) -> CrowdBody:
 	if _pool.is_empty():
 		return null
 	var body: CrowdBody = _pool.pop_back()
 	body.bounds = bounds
-	body.revive(lane_y, lane_scale, spawn_lane, at_x, face)
+	body.projectiles = projectiles
+	body.revive(lane_y, lane_scale, spawn_lane, at_x, face, kind if kind != null else default_kind)
 	_alive.append(body)
 	return body
 
@@ -198,7 +201,7 @@ func _think(body: CrowdBody) -> void:
 				body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
 				return
 			# Meanwhile, close in along this lane.
-			if absf(gap) > reach:
+			if absf(gap) > body.reach():
 				body.wanted_direction = 1 if gap > 0.0 else -1
 			if absf(gap) > 10.0:
 				body.facing = 1 if gap > 0.0 else -1
@@ -211,7 +214,7 @@ func _think(body: CrowdBody) -> void:
 		if body.off_lane_ticks >= lane_follow_ticks and _in_target_lane(target) < max_per_lane:
 			body.start_lane_change(body.lane + (1 if target.lane > body.lane else -1))
 			return
-		if absf(gap) > reach:
+		if absf(gap) > body.reach():
 			body.wanted_direction = 1 if gap > 0.0 else -1
 		if absf(gap) > 10.0:
 			body.facing = 1 if gap > 0.0 else -1
@@ -224,7 +227,7 @@ func _think(body: CrowdBody) -> void:
 	if body.side == 0:
 		body.side = here
 	var goal_side: int = here
-	var goal_dist: float = reach
+	var goal_dist: float = body.reach()
 	# A taunting target is piled on from this side, and stays piled on for a while after the
 	# taunt ends: no going round behind it. Otherwise only a few go round at a time.
 	var piled: bool = target.taunting() or _tick - _last_taunt.get(target, -100000) < taunt_linger
@@ -241,13 +244,19 @@ func _think(body: CrowdBody) -> void:
 			body.blocked = 0
 			body.start_lane_change(side_lane)
 			return
-	if absf(gap) > reach:
+	if absf(gap) > body.reach():
 		body.wanted_direction = 1 if gap > 0.0 else -1
+		return
+	if body.keep_away() > 0.0 and absf(gap) < body.keep_away() and _room(target, here):
+		# A thrower keeps its distance.
+		body.wanted_direction = here
 		return
 	body.facing = 1 if gap > 0.0 else -1
 	if body.rest == 0 and not body.has_token and _tokens_on(target) < attack_tokens and target.can_be_hit():
 		body.has_token = true
 		body.wants_attack = true
+		# Now and then the kind's special instead of its usual swing (the shield bash).
+		body.use_special = body.kind != null and body.kind.special != null and body.kind.special_one_in > 0 and _rng.randi_range(1, body.kind.special_one_in) == 1
 
 
 ## Along the side lane to the goal, which follows the target, then back into the

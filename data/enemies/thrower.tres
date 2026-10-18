@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CrowdKind" format=3]
+
+[ext_resource type="Script" path="res://systems/enemies/crowd_kind.gd" id="1_kind"]
+[ext_resource type="Resource" path="res://data/moves/crowd/rock.tres" id="2_rock"]
+
+[resource]
+script = ExtResource("1_kind")
+id = &"thrower"
+max_health = 20
+walk_speed = 3.5
+body_color = Color(0.4, 0.5, 0.32, 1)
+look = 3
+attack = ExtResource("2_rock")
+reach = 520.0
+keep_away = 320.0

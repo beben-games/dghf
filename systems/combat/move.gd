@@ -90,6 +90,9 @@ const JUMP: StringName = &"jump"
 @export var projectile_interval: int = 0
 ## Ticks a missile flies straight before it starts to home, so a fan opens before it closes in.
 @export var projectile_homing_delay: int = 0
+## Ticks a burst takes to reach its full size: 1 is full from its first tick (a shove, issue #94).
+## 0 means over the first 60 percent of its life, as the blasts grew before.
+@export var projectile_grow: int = 0
 
 
 ## How far the user moves on `frame` of this move: the travel eased over the hit frames and

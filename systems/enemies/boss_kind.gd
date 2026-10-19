@@ -11,6 +11,9 @@ extends Resource
 @export var size: float = 1.3
 @export var body_color: Color = Color(0.6, 0.25, 0.25)
 @export var walk_speed: float = 5.0
+## A launch at or below this does not lift the boss (issue #94): the light blast pushes it, the
+## heavies and the heavy blast still launch it.
+@export var launch_resist: float = 20.0
 ## How close it comes before it fights, and from how far it shoots.
 @export var reach: float = 260.0
 @export var shot_range: float = 620.0

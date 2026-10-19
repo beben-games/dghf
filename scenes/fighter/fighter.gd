@@ -169,7 +169,7 @@ func taunting() -> bool:
 
 ## A guarded hit is stopped while the bar can take its damage; the one that would empty it breaks through.
 func blocks_hit(hit: HitBox, direction: int) -> bool:
-	return blocks(direction) and not hit.breaks_guard and not hit.grab and (max_guard == 0 or guard > hit.damage)
+	return blocks(direction) and not hit.breaks_guard and not hit.grab and not hit.unblockable and (max_guard == 0 or guard > hit.damage)
 
 
 ## Called by Combat for a hit the guard stopped: no damage, blockstun and a push instead; the bar pays.
@@ -187,7 +187,7 @@ func take_block(hit: HitBox, direction: int) -> void:
 ## bar empties and the hit lands in full, as a launcher.
 func take_hit(hit: HitBox, direction: int) -> void:
 	_quiet_ticks = 0
-	if state == State.BLOCK and max_guard > 0 and facing == -direction and not hit.grab:
+	if state == State.BLOCK and max_guard > 0 and facing == -direction and not hit.grab and not hit.unblockable:
 		guard = 0
 		just_broke = true
 		var breaking: HitBox = hit.duplicate()

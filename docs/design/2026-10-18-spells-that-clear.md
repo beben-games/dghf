@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-18. **Issue:** #95, step 2 of `docs/plans/2026-10-18-core-loop-feel-pass.md`. **Built by:** Ben's Claude from the plan, after Ben's play of the melee for #92: spells should be "more powerful or at least wide, to help clear up in a satisfying way", and his correction on the issue the same day: a heavy spell must not kill outright as a rule.
 
-**Status: proposed.** Ben has not played it yet. Every number is move data in `data/moves/poc/`, a hit resource in `data/moves/crowd/`, or a value on `Combat`, to tune by playing. Nothing decided changes: the spells keep their motions (`docs/design/2026-10-04-hits-landing.md`), mana keeps its rules (`docs/design/2026-10-17-mana.md`, with new numbers below), the light blast stays the free get-off-me move (`docs/design/2026-10-18-way-out-of-the-pile.md`), and the crowd keeps its walls and flanks.
+**Status: proposed.** Ben played it on 2026-10-18: "pretty nice", the light blast too quick to see and the heavy blast slightly too slow; the light's ring now lingers for the whole move and the heavy leaves earlier and swells faster (below). Every number is move data in `data/moves/poc/`, a hit resource in `data/moves/crowd/`, or a value on `Combat`, to tune by playing. Nothing decided changes: the spells keep their motions (`docs/design/2026-10-04-hits-landing.md`), mana keeps its rules (`docs/design/2026-10-17-mana.md`, with new numbers below), the light blast stays the free get-off-me move (`docs/design/2026-10-18-way-out-of-the-pile.md`), and the crowd keeps its walls and flanks.
 
 ## Damage is a number, not a rule
 
@@ -16,7 +16,7 @@ So the heavy spells do 30 damage, and the first level's plain small fry has 30 h
 
 - **The heavy fireball** flies along the lane and goes through everyone in it: a line of small fry in your lane is launched one after the other as it passes. 30 damage, a launch of 24, two and a half times the plain fireball's size. A raised shield stops it from the front (the shield bearer keeps its feet and loses most of its shield): what flies at a shield is blocked, what comes from the ground is not.
 - **The heavy missiles** are three, each 30 damage, launching, twice the plain missile's size, homing on three different bodies across the lanes: three kills on a spread-out crowd, or three hits on a boss. They fly faster than they push (16 a tick against 10), so the second and third catch a body the first one launched; at the old speed of 11 a launched body outran them.
-- **The heavy blast** is the pile clearer: everything within about 340 pixels around you, in every lane, takes 30 and is launched. A shove through shields like the light blast, so a shield bearer in the pile flies with the rest and keeps its shield (it has 40 health, so it lands alive). It still grows from the knight outward over its first 17 ticks, so the ring is seen to carry the pile.
+- **The heavy blast** is the pile clearer: everything within about 340 pixels around you, in every lane, takes 30 and is launched. A shove through shields like the light blast, so a shield bearer in the pile flies with the rest and keeps its shield (it has 40 health, so it lands alive). It grows from the knight outward over its first 10 ticks, so the ring is seen to carry the pile; it leaves on frame 12 of the move's 46.
 - **The light fireball and missile** do 16 and 15: enough for a fast one (15 health). Free, as before.
 
 **The super sweeps the screen's lanes.** The super fireball now flies in every lane at once, three and a half times the plain fireball's size, through everyone it meets: 40 damage and a launch of 26 to each body on screen in front of you. Nothing blocks it. Bodies behind you are not hit (turn around, or blast). It costs the whole bar, as before.
@@ -37,8 +37,8 @@ Spells. Every value is on the move file in `data/moves/poc/`; a hit's values are
 | `fireball_heavy` | 30 | 24 | 14 | 2.5 | its lane, through everyone (`projectile_pierce`) | 30 | 3 | damage 28 to 30, launches, pierces, size 2 to 2.5, cost 35 to 30, shake 8 to 10 |
 | `missiles_light` | 15 | 0 | 8 | 1 | one homing missile, any lane | 0 | 2 | damage 10 to 15 |
 | `missiles_heavy` | 30 each | 22 | 10 | 2 | three homing missiles, any lane, flying at 16 a tick | 30 | 3 | damage 18 to 30, launch 16 to 22, size 1.6 to 2, speed 11 to 16, cost 35 to 30, shake 4 to 6 |
-| `blast_light` | 6 | 18 | 14 | 7 (about 240 px) | every lane around you | 0 | 0 | unchanged (#94) |
-| `blast_heavy` | 30 | 22 | 14 | 10 (about 340 px) | every lane around you, a shove through shields (`unblockable`) | 30 | 3 | damage 24 to 30, unblockable, cost 40 to 30 |
+| `blast_light` | 6 | 18 | 14 | 7 (about 240 px) | every lane around you | 0 | 0 | the ring lingers 24 ticks instead of 12 (`projectile_lifetime`), still out and hitting at once (Ben: too quick to see) |
+| `blast_heavy` | 30 | 22 | 14 | 10 (about 340 px) | every lane around you, a shove through shields (`unblockable`) | 30 | 3 | damage 24 to 30, unblockable, cost 40 to 30; quicker after Ben's play: leaves on frame 12 of 46 (was 16 of 52) and reaches full size in 10 ticks (`projectile_grow`; was 17) |
 | `super_fireball` | 40 | 26 | 14 | 3.5 | every lane (`projectile_all_lanes`), through everyone, nothing blocks it | 100 | 0 | every lane, unblockable, size 2.6 to 3.5, speed 10 to 14, push 12 to 14 |
 
 Mana. On the hits in `data/moves/poc/` (`mana`) and the moves (`mana_cost`); the bar on `Fighter.max_mana`.

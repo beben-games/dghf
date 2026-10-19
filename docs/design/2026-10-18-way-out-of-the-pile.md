@@ -38,7 +38,7 @@ In the melee: surrounded, tap down twice and J. Everyone flies, the knight is cl
 | The move lasts | 24 frames | `total_frames` |
 | Reach, in every lane | 7 times the plain fireball: about 240 pixels in the middle lane (the heavy is 10, about 340) | `projectile_size`, `projectile_all_lanes` |
 | Full size from | its first tick | `projectile_grow` (1; 0 is the old growth over 60 percent of its life, as the heavy still grows) |
-| The ring shows for | 12 ticks | `projectile_lifetime` |
+| The ring shows for | 24 ticks, the whole move (12 until #95: Ben found it too quick to see) | `projectile_lifetime` |
 | Launch | 18 pixels a tick up (about 19 ticks in the air at the crowd's gravity) | `launch` on `projectile_hit` |
 | Push | 14 pixels a tick away from the knight (about 270 pixels by the landing) | `knockback` |
 | Damage | 6, a jab's | `damage` |

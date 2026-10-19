@@ -10,7 +10,7 @@ Both vertical slices of `docs/plans/2026-10-17-vertical-slices.md` exist. **The 
 
 Ben played both slices end to end on 2026-10-18 (issue #92; his words are quoted on the issues each thing belongs to). **The shapes pass:** the boss fight is the right size and feel, only too weak for now; the level and the kinds are nice; the swing is reactive enough. **The core loop does not pay off yet:** being surrounded is too hard to get out of, the spells neither clear a pile nor cast easily in one, the throwers flee out of the knight's short reach, and the knight's tank kit (guard, taunt) has no answer to a crowd when played alone. The plan that follows is `docs/plans/2026-10-18-core-loop-feel-pass.md`: a feel pass on the loop, not a new slice and not a change of direction. Its steps, in order:
 
-1. **A way out of the pile** (#94): the light blast as the free, instant get-off-me move; a cap on the crowd's chain and invincible hop ticks if that isn't enough. Built on `code/94-way-out` on 2026-10-18 (`docs/design/2026-10-18-way-out-of-the-pile.md`, proposed): the headless sandbox test found the crowd leaves gaps and the kit had nothing to clear with; the blast now comes out at once, invincible, launching everything around the knight in every lane, a shove through shields, 6 damage, free. Waits for Ben to play it surrounded by six in the sandbox.
+1. **A way out of the pile** (#94): the light blast as the free, instant get-off-me move; a cap on the crowd's chain and invincible hop ticks if that isn't enough. Built on `code/94-way-out` on 2026-10-18 (`docs/design/2026-10-18-way-out-of-the-pile.md`, proposed): the headless sandbox test found the crowd leaves gaps and the kit had nothing to clear with; the blast now comes out at once, invincible, launching everything around the knight in every lane, a shove through shields, 6 damage, free. Ben played it on 2026-10-18: he gets out every time with one input, and the melee no longer frustrates when the crowd closes in. In review, pull request #100.
 2. **Spells that clear** (#95): a heavy spell kills a small fry, a super clears the lanes, mana retuned around a combo into a heavy spell; with the knock-ons and carried launches of #63 that need no effects.
 3. **Spells on buttons** (#96), motions kept. For the meeting once built: the layout is the team's.
 4. **Throwers** (#97): back off less, within the knight's reach. Numbers only.
@@ -106,7 +106,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 | Issue | State |
 |---|---|
-| #94 A way out of the pile | Built on `code/94-way-out`, 2026-10-18, proposed. Done when Ben gets out every time with one input and says the melee no longer frustrates; then the pull request merges. |
+| #94 A way out of the pile | In review: pull request #100. Ben played it on 2026-10-18 and gets out every time with one input; the melee no longer frustrates when the crowd closes in. |
 | #95 Spells that clear, #96 Spells on buttons, #97 Throwers | The core-loop feel pass, above, in that order. Not started. |
 | #98 Every character must work solo | For the meeting with #33: the knight's crowd control, or the caster next. |
 | #92 Find the fun | Done on 2026-10-18: Ben's reactions are on the issues, the plan is `docs/plans/2026-10-18-core-loop-feel-pass.md`. |

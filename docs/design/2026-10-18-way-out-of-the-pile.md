@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-18. **Issue:** #94, step 1 of `docs/plans/2026-10-18-core-loop-feel-pass.md`. **Built by:** Ben's Claude from the plan, after Ben's play of the melee for #92: "it's a little too difficult and frustrating to get out once you're surrounded."
 
-**Status: proposed.** Every number is move data in `data/moves/poc/blast_light.tres`, or a value on the boss kind, to tune by playing. Nothing decided changes: the blast keeps its motion (two taps of down, then J), mana keeps its rules (`docs/design/2026-10-17-mana.md`), the crowd keeps its walls and flanks (`docs/design/2026-10-17-crowd-walls-and-flanks.md`).
+**Status: proposed.** Ben played it on 2026-10-18: surrounded by six in the sandbox he gets out every time with one input, and the melee no longer frustrates when the crowd closes in. Every number is move data in `data/moves/poc/blast_light.tres`, or a value on the boss kind, to tune by playing. Nothing decided changes: the blast keeps its motion (two taps of down, then J), mana keeps its rules (`docs/design/2026-10-17-mana.md`), the crowd keeps its walls and flanks (`docs/design/2026-10-17-crowd-walls-and-flanks.md`).
 
 ## The sandbox test first: the kit, not the chaining
 

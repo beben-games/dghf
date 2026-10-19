@@ -30,7 +30,7 @@ Sizes are in sessions of the length of the ones that built the crowd and the spe
 | 8 | **Placeholder sound.** CC0 hits, blocks, swings, a music loop, in `CREDITS.md`; pooled players. | #65 | 2 | 0.5 | nothing |
 | 9 | **The fighting-game camera.** Zoom and pan on both fighters, pulling out as they separate; lanes stay. | #66 | 3 | 0.5 | 1 |
 | 10 | **A boss.** A brain with patterns, telegraphs, a grab, two phases; a health bar with a name; the first real second character through the workflow, on the plain figure. | #67 | 3 | 1 to 2 | 4, 9 |
-| 11 | **Rounds.** KO, best of three, rematch. | #68 | 3 | 0.5 | 10 |
+| 11 | ~~**Rounds.** KO, best of three, rematch.~~ Scrapped by Ben on 2026-10-18: boss fights are asymmetric, the boss much stronger and all three characters needed (issue #90 asks how). | #68 | 3 | 0 | |
 
 About 8 to 10 sessions in all. Steps 3, 4, 7 and 8 need nothing and can be taken out of order when the camera work waits on something.
 

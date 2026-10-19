@@ -22,6 +22,9 @@ extends Resource
 @export var mana: int = 0
 ## A guard breaker (issue #61): no guard or shield stops it, and a raised guard breaks.
 @export var breaks_guard: bool = false
+## A grab (issue #67): no guard stops it (and none breaks); the target is held for `hitstun`
+## ticks where it stands, then thrown with `launch` and `knockback`.
+@export var grab: bool = false
 ## A move hits each target once per group: boxes in different groups are separate hits
 ## (a spinning kick that hits twice has two boxes in groups 0 and 1).
 @export var group: int = 0

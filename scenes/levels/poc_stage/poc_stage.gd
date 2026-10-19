@@ -127,6 +127,16 @@ var _dummy_guards: bool = false
 var crowd: CrowdDirector
 ## Barrels and potions (issue #64).
 var props: Props
+## The boss of the boss fight (issue #67), one of the big dummies, and its bar.
+const BOSS: BossKind = preload("res://data/bosses/captain.tres")
+var boss: Fighter
+var _boss_bar: ColorRect
+var _boss_back: ColorRect
+var _boss_name: Label
+var _boss_phase: ColorRect
+## Ticks left of the intro banner at the start of a boss fight.
+var _intro_ticks: int = 0
+const INTRO_TICKS: int = 120
 ## A health bar per player, in its colour, with its tag, and a mana bar under it.
 var health_bars: Array[ColorRect] = []
 var mana_bars: Array[ColorRect] = []
@@ -250,6 +260,34 @@ func _ready() -> void:
 	_go_label.text = "GO  >>"
 	_go_label.visible = false
 	layer.add_child(_go_label)
+	# The boss's bar, top centre, with its name and the second phase's mark (issue #67).
+	_boss_back = ColorRect.new()
+	_boss_back.position = Vector2(SCREEN.x / 2.0 - 400.0, 110.0)
+	_boss_back.size = Vector2(800.0, 26.0)
+	_boss_back.color = Color(0.1, 0.1, 0.12, 0.8)
+	_boss_back.visible = false
+	layer.add_child(_boss_back)
+	_boss_bar = ColorRect.new()
+	_boss_bar.position = Vector2(SCREEN.x / 2.0 - 398.0, 112.0)
+	_boss_bar.size = Vector2(796.0, 22.0)
+	_boss_bar.color = Color(0.8, 0.25, 0.25)
+	_boss_bar.visible = false
+	layer.add_child(_boss_bar)
+	_boss_phase = ColorRect.new()
+	_boss_phase.position = Vector2(SCREEN.x / 2.0 - 400.0 + 800.0 * BOSS.phase_two_at - 2.0, 106.0)
+	_boss_phase.size = Vector2(4.0, 34.0)
+	_boss_phase.color = Color(1.0, 0.9, 0.6)
+	_boss_phase.visible = false
+	layer.add_child(_boss_phase)
+	_boss_name = Label.new()
+	_boss_name.position = Vector2(SCREEN.x / 2.0 - 400.0, 68.0)
+	_boss_name.size.x = 800.0
+	_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_name.add_theme_font_size_override("font_size", 32)
+	_boss_name.add_theme_color_override("font_outline_color", Color.BLACK)
+	_boss_name.add_theme_constant_override("outline_size", 10)
+	_boss_name.visible = false
+	layer.add_child(_boss_name)
 	_pause_back = ColorRect.new()
 	_pause_back.position = Vector2(80.0, 260.0)
 	_pause_back.size = Vector2(SCREEN.x - 160.0, 440.0)
@@ -419,9 +457,11 @@ func _apply_mode() -> void:
 	camera.set_limits(0.0, width)
 	camera.snap(SCREEN.x / 2.0)
 	_update_bounds()
+	boss = null
 	if mode == Mode.BOSS_FIGHT:
 		_preset = 3
-		_add_dummy(_start_lane(), SCREEN.x * 0.7, -1)
+		boss = _add_boss(BOSS, _start_lane(), SCREEN.x * 0.7)
+		_intro_ticks = INTRO_TICKS
 	else:
 		_preset = 2
 	_set_fighting(mode != Mode.SANDBOX)
@@ -442,6 +482,22 @@ func _set_fighting(on: bool) -> void:
 	crowd.passive = not on
 	for dummy in _dummies:
 		dummy.input.source = _brain(dummy) if on else InputSource.new()
+
+
+## The boss (issue #67): a big dummy of `kind`'s size, health and moves, driven by a BossBrain
+## when the enemies fight back.
+func _add_boss(kind: BossKind, boss_lane: int, at_x: float) -> Fighter:
+	var fighter: Fighter = _add_dummy(boss_lane, at_x, -1)
+	fighter.max_health = kind.max_health
+	fighter.health = kind.max_health
+	fighter.size = kind.size
+	fighter.walk_speed = kind.walk_speed
+	fighter.moves = kind.moves
+	fighter.set_lanes(lanes(), scales())
+	_dummy_views[_dummies.find(fighter)].body_color = kind.body_color
+	if _fighting:
+		fighter.input.source = _brain(fighter)
+	return fighter
 
 
 ## A big dummy on `dummy_lane` at `at_x`, facing `face`, standing still.
@@ -695,8 +751,14 @@ func _start_over() -> void:
 	_apply_mode()
 
 
-## A brain for a big dummy, fighting the nearest player.
-func _brain(dummy: Fighter) -> FighterBrain:
+## A brain for a big dummy, fighting the nearest player: the boss's own for the boss.
+func _brain(dummy: Fighter) -> InputSource:
+	if dummy == boss:
+		var boss_brain := BossBrain.new(_tick + 7)
+		boss_brain.fighter = dummy
+		boss_brain.kind = BOSS
+		boss_brain.targets = _party
+		return boss_brain
 	var brain := FighterBrain.new(_tick + _dummies.size())
 	brain.fighter = dummy
 	brain.targets = _party
@@ -779,12 +841,26 @@ func _update_combo() -> void:
 	_combo_label.text = "%d HITS" % hits
 	_combo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3) if players.size() == 1 else PLAYER_COLORS[best].lightened(0.3))
 	var all_down: bool = not _anyone_alive()
+	var boss_down: bool = boss != null and boss.state == Fighter.State.DEAD
+	_intro_ticks = maxi(_intro_ticks - 1, 0)
 	if all_down:
 		_message.text = "DOWN    R to start over"
+	elif boss_down:
+		_message.text = "K.O.    R for a rematch"
 	elif _arenas.done:
 		_message.text = "LEVEL CLEAR"
-	_message.visible = all_down or _arenas.done
+	elif _intro_ticks > 0:
+		_message.text = BOSS.title.to_upper() if _intro_ticks > INTRO_TICKS / 3 else "FIGHT"
+	_message.visible = all_down or boss_down or _arenas.done or _intro_ticks > 0
 	_results.visible = _arenas.done and not all_down
+	var show_boss: bool = boss != null and not boss_down
+	_boss_back.visible = show_boss
+	_boss_bar.visible = show_boss
+	_boss_phase.visible = show_boss
+	_boss_name.visible = show_boss
+	if show_boss:
+		_boss_bar.size.x = 796.0 * float(boss.health) / boss.max_health
+		_boss_name.text = BOSS.title
 	if _results.visible:
 		_results.text = _results_text()
 	# Between arenas the arrow flashes until the next one locks.

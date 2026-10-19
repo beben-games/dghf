@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="Move" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+[ext_resource type="Script" path="res://systems/combat/cancel_window.gd" id="3_cancel"]
+
+[sub_resource type="Resource" id="Resource_hit"]
+script = ExtResource("1_hbox")
+first_frame = 22
+last_frame = 34
+rect = Rect2(30, -240, 230, 240)
+damage = 22
+hitstun = 22
+hitstop = 8
+blockstun = 14
+knockback = 18.0
+shake = 8.0
+
+[sub_resource type="Resource" id="Resource_cancel"]
+script = ExtResource("3_cancel")
+first_frame = 22
+last_frame = 40
+into = Array[StringName]([&"boss_light"])
+
+[resource]
+script = ExtResource("2_move")
+id = &"boss_lunge"
+animation = &"heavy"
+total_frames = 54
+button = 256
+telegraphed = true
+hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])
+travel = 18.0
+travel_settle = 10
+travel_ease_in = false
+cancels = Array[ExtResource("3_cancel")]([SubResource("Resource_cancel")])

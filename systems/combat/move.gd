@@ -26,6 +26,8 @@ const JUMP: StringName = &"jump"
 @export var follow_up: bool = false
 ## A running attack: only starts during a dash (issue #80, spike).
 @export var from_dash: bool = false
+## Telegraphed (issue #67): the wind-up before the first hit frame shows a tell, for the player to read.
+@export var telegraphed: bool = false
 
 @export_group("Hits")
 @export var hit_boxes: Array[HitBox] = []

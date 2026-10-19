@@ -4,18 +4,20 @@
 
 ## In one paragraph
 
-Both vertical slices of `docs/plans/2026-10-17-vertical-slices.md` exist. **The melee** is a level: the knight (the player's character, a tank) fights two arenas of mixed small fry along a stage three screens wide, with a camera that follows, mana that hits pay and heavy spells cost, a guard bar that breaks, a guard that taunts the crowd into the knight's lane, a crowd that can't walk through a player and flanks through the lanes, four kinds of small fry including a shield bearer with a telegraphed guard-breaking bash and a thrower, barrels that drop potions, placeholder sound, and a results screen. **The boss fight** is a 1v1 against the Captain, a placeholder boss with strings, telegraphed heavies, an unblockable grab and a second phase, under a fighting-game camera. **Local co-op** for three pads runs in the melee. **The combat feel** changed on 2026-10-17 after Ben played: a landed hit frees you into anything, a dash with a running attack, lights that step. All of it is built on the plain figure and the private placeholder skin; visuals wait until the feel is right (Ben, 2026-10-13). Every design choice since Milestone 1 is **proposed** and waits for the weekly meeting; nobody but Ben has played any of it.
+Both vertical slices of `docs/plans/2026-10-17-vertical-slices.md` exist. **The melee** is a level: the knight (the player's character, a tank) fights two arenas of mixed small fry along a stage three screens wide, with a camera that follows, mana that hits pay and heavy spells cost, a guard bar that breaks, a guard that taunts the crowd into the knight's lane, a crowd that can't walk through a player and flanks through the lanes, four kinds of small fry including a shield bearer with a telegraphed guard-breaking bash and a thrower, barrels that drop potions, placeholder sound, and a results screen. **The boss fight** is a 1v1 against the Captain, a placeholder boss with strings, telegraphed heavies, an unblockable grab and a second phase, under a fighting-game camera. **Local co-op** for three pads runs in the melee. **The combat feel** changed on 2026-10-17 after Ben played: a landed hit frees you into anything, a dash with a running attack, lights that step. All of it is built on the plain figure and the private placeholder skin; visuals wait until the feel is right (Ben, 2026-10-13). Every design choice since Milestone 1 is **proposed** and waits for the weekly meeting; nobody but Ben has played any of it. Ben played both slices for the review of 2026-10-18 (#92): the shapes are right, the core loop of crowd into spells does not pay off yet, and the next work is the core-loop feel pass of `docs/plans/2026-10-18-core-loop-feel-pass.md`.
 
-## The next session's first job: are we finding the fun?
+## The next session's first job: the core-loop feel pass
 
-Ben, 2026-10-18 (issue #92): before building more, find out whether the two slices are on the right track to the fun, and decide what happens next. A fresh session does this, in order:
+Ben played both slices end to end on 2026-10-18 (issue #92; his words are quoted on the issues each thing belongs to). **The shapes pass:** the boss fight is the right size and feel, only too weak for now; the level and the kinds are nice; the swing is reactive enough. **The core loop does not pay off yet:** being surrounded is too hard to get out of, the spells neither clear a pile nor cast easily in one, the throwers flee out of the knight's short reach, and the knight's tank kit (guard, taunt) has no answer to a crowd when played alone. The plan that follows is `docs/plans/2026-10-18-core-loop-feel-pass.md`: a feel pass on the loop, not a new slice and not a change of direction. Its steps, in order:
 
-1. **Play both slices end to end**, following "Showing someone around" below, with Ben at the keyboard: the melee through its results screen, the boss fight to a K.O. either way, and the sandbox for anything that needs isolating. Capture or note what happens.
-2. **Judge against what is decided** in `docs/game-bible.md`: the core is fighting huge crowds and chaining spells into combos; it must not feel as rigid as Double Dragon; Guardian Heroes is the main inspiration, with Dragon Force, Marvel vs Capcom, Dynasty Warriors and Heroes of Hammerwatch II. Questions worth asking: Does the crowd feel dangerous when it gangs up, and satisfying to cut through? Do the spells feel like the payoff of the fighting, and is mana the right economy for them? Does the knight's kit (guard, taunt, dash, the free cancel on hit) make a loop you want to repeat? Is the boss fight the right shape, before the three-character question (#90)? What is missing for fun that no amount of tuning fixes: feedback (hit effects, the crowd's reactions, score), enemy behaviour, art, sound?
-3. **Write down what is fun, what is not, what is missing**, as comments on the issues each thing belongs to (the table in the tour says which), and Ben's quirks on #80 that were never listed.
-4. **Decide the next plan**: a feel pass on what exists, a change of direction, or the next slice. Write it as `docs/plans/YYYY-MM-DD-<topic>.md` like the vertical-slices plan, with an issue per step, and point the game bible and this page at it. What touches what the team agreed goes to the meeting.
+1. **A way out of the pile** (#94): the light blast as the free, instant get-off-me move; a cap on the crowd's chain and invincible hop ticks if that isn't enough.
+2. **Spells that clear** (#95): a heavy spell kills a small fry, a super clears the lanes, mana retuned around a combo into a heavy spell; with the knock-ons and carried launches of #63 that need no effects.
+3. **Spells on buttons** (#96), motions kept. For the meeting once built: the layout is the team's.
+4. **Throwers** (#97): back off less, within the knight's reach. Numbers only.
 
-What is known to be missing or pending: Ben's effects for the crowd feel pass (#63: a missile, a blast ring, a fireball, hit sparks, and the taunt's attracting force); Ben's quirks from the combat-feel spike (#80); the real sounds (E, #87); any play by T or E since the first proof of concept; the weekly meeting with its agenda below.
+A fresh session takes the lowest-numbered open one whose needs are done. For the meeting, not the plan: every character must work solo, so the knight's crowd control or the caster next (#98, with #33); the spell economy after step 2; the boss's strength after #90.
+
+What is known to be missing or pending: Ben's effects for the crowd feel pass (#63: a missile, a blast ring, a fireball, hit sparks, and the taunt's attracting force); the real sounds (E, #87); any play by T or E since the first proof of concept; the weekly meeting with its agenda below.
 
 ## What runs today
 
@@ -104,10 +106,12 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 | Issue | State |
 |---|---|
-| #92 Find the fun | The next session's first job, above. |
+| #94 A way out of the pile, #95 Spells that clear, #96 Spells on buttons, #97 Throwers | The core-loop feel pass, above, in that order. Not started. |
+| #98 Every character must work solo | For the meeting with #33: the knight's crowd control, or the caster next. |
+| #92 Find the fun | Done on 2026-10-18: Ben's reactions are on the issues, the plan is `docs/plans/2026-10-18-core-loop-feel-pass.md`. |
 | #2 The combat core | Sections 1, 3, 4 and 7 are decided. Sections 2, 5 and 9 wait for the meeting. |
 | #90 Boss fights: tag team, 3v1 or something else? | For the meeting, with #33 (characters appear as bosses, then unlock). |
-| #63 Crowd feel pass | Not started: waits on Ben's effects (a missile, a blast ring, a fireball, hit sparks, the taunt's pull). |
+| #63 Crowd feel pass | Its knock-ons and carried launches moved to #95; the death effects and VFX wait on Ben's effects (a missile, a blast ring, a fireball, hit sparks, the taunt's pull). |
 | #87 Sound effects and music | E's, from `docs/audio.md`. |
 | #3 Crowd stress test | Measured on Ben's Mac. Needs numbers from E, T and Ben's Windows PC. |
 | #11 Port the PixelLab art pipeline | In review. The tools report the balance from here; `docs/art.md` is the guide; the size probe of 2026-10-11 found `create-character-v3` at 256 matches Ben's knight (`art/refs/`). Done when the meeting has picked the look and size. |
@@ -119,7 +123,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 - **T** (GitHub `pipochao`, invited to the repository and the board on 2026-10-11): accept the invitations, install Godot 4.7.2, take the tour. T's round three is in: three lanes with a small perspective effect, 30 to 40 enemies at most, two attack buttons plus guard plus a spell button, block and dodge, combo counter only, no friendly fire.
 - **E** (GitHub `T13nou`): finish round three, take the tour, run the stress test and post its table on #3; the sound effects and music from `docs/audio.md` (#87).
 - **Ben:** list the quirks from the combat-feel spike on #80; the effects for #63; play co-op with real pads; run the Windows build; answer the five newest round-three questions; write up what T and E said about the hits and the combos on #9 and #8.
-- **All three:** a weekly meeting. Its agenda: sections 2, 5 and 9 of the architecture (lanes and depth, the 50-pixel preset; the resolution, where the probe says 1080p native with characters about 240 pixels tall in the look of Ben's knight; the button layout, where Ben and T agree on two attacks plus guard and E has to confirm; what guard and dodge should stop); the combat feel of #80; classes through the bars and who the three characters are; the shape of boss fights (#90) and bosses that unlock (#33); the spell economy (#60); the enemy's feel.
+- **All three:** a weekly meeting. Its agenda: sections 2, 5 and 9 of the architecture (lanes and depth, the 50-pixel preset; the resolution, where the probe says 1080p native with characters about 240 pixels tall in the look of Ben's knight; the button layout, where Ben and T agree on two attacks plus guard and E has to confirm; what guard and dodge should stop); the combat feel of #80; classes through the bars and who the three characters are; the shape of boss fights (#90) and bosses that unlock (#33); every character working solo, the knight's crowd control or the caster next (#98); spells on buttons once built (#96); the spell economy (#60) after #95; the enemy's feel.
 
 ## Working in this repository
 
@@ -147,7 +151,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 ## Suggested next steps
 
-1. **Find the fun** (#92): the review at the top of this page, then a new plan in `docs/plans/`.
+1. **The core-loop feel pass** (`docs/plans/2026-10-18-core-loop-feel-pass.md`): #94, #95, #96, #97 in order, each played by Ben on its branch.
 2. **Hold the meeting** with the agenda under "Waiting on people". Then mark sections 2, 5 and 9 of `docs/architecture.md` and update the game bible.
 3. **T and E take the tour**, post their reactions on the issues, tune a move with the preview tool (closes #8), and put their stress-test numbers on #3.
-4. **After the meeting:** the crowd feel pass (#63) with Ben's effects, the boss fight's shape (#90), the characters through the workflow in `docs/art.md`, and #4 and #5 rewritten for the chosen size.
+4. **After the meeting:** the knight's solo tool or the next character (#98), the crowd's effects (#63) when Ben's arrive, the boss fight's shape (#90), the characters through the workflow in `docs/art.md`, and #4 and #5 rewritten for the chosen size.

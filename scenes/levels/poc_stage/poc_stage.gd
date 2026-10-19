@@ -415,6 +415,7 @@ func _apply_mode() -> void:
 		for arena in MELEE_LEVEL.arenas:
 			for spot in arena.props:
 				props.spawn(Prop.Kind.BARREL, int(spot.y), spot.x)
+	camera.reset_view()
 	camera.set_limits(0.0, width)
 	camera.snap(SCREEN.x / 2.0)
 	_update_bounds()
@@ -507,7 +508,11 @@ func tick() -> void:
 	_sparks.tick()
 	_combat.resolve()
 	# The camera follows the players, the arenas lock it or let it go, and the bounds follow the view.
-	camera.follow(players, MARGIN)
+	# In the boss fight it frames the two fighters instead (issue #66).
+	if mode == Mode.BOSS_FIGHT:
+		camera.frame_fight(_fighting_bodies())
+	else:
+		camera.follow(players, MARGIN)
 	if _anyone_alive():
 		if not _arenas.done:
 			_level_ticks += 1
@@ -520,6 +525,18 @@ func tick() -> void:
 	_update_readout()
 
 
+## The living players and the big dummies: what the fighting-game camera frames.
+func _fighting_bodies() -> Array:
+	var bodies: Array = []
+	for player in players:
+		if player.state != Fighter.State.DEAD:
+			bodies.append(player)
+	for dummy in _dummies:
+		if dummy.state != Fighter.State.DEAD:
+			bodies.append(dummy)
+	return bodies
+
+
 ## Where everyone may stand: the living players inside the view, the crowd and
 ## the big dummies anywhere on the stage (a wave walks in from off screen, and
 ## one left behind follows), projectiles a little past the view.
@@ -528,6 +545,11 @@ func _update_bounds() -> void:
 		if player.state != Fighter.State.DEAD:
 			player.bounds = camera.player_bounds(MARGIN)
 			player.keep_in_bounds()
+	if mode == Mode.BOSS_FIGHT:
+		# The boss is held in by the edges too: a cornered fighter is a cornered fighter.
+		for dummy in _dummies:
+			dummy.bounds = camera.player_bounds(MARGIN)
+			dummy.keep_in_bounds()
 	crowd.set_bounds(Vector2(0.0, _arenas.stage_width))
 	_projectiles.bounds = Vector2(camera.left() - 400.0, camera.right() + 400.0)
 

@@ -18,6 +18,7 @@ func _initialize() -> void:
 	_test_player_bounds_follow_the_view()
 	_test_arenas_lock_send_waves_and_open()
 	_test_no_arenas_is_a_free_camera()
+	_test_the_fighting_game_camera_zooms_on_the_pair()
 	print("%d failed" % _failures if _failures else "all passed")
 	quit(1 if _failures else 0)
 
@@ -133,3 +134,39 @@ func _test_no_arenas_is_a_free_camera() -> void:
 	_spawned.clear()
 	arenas.tick(1, 0.0, W, 0, _spawn)
 	_check(not arenas.locked and not arenas.done and _spawned.is_empty() and arenas.limits() == Vector2(0.0, 5760.0), "with no arenas the whole stage is open and no wave comes")
+
+
+## A body at `x` on a lane at screen y 1000, for the fighting-game camera to frame.
+func _body(x: float) -> Body:
+	var body := Body.new()
+	body.place_on(PackedFloat32Array([930.0, 965.0, 1000.0]), 1, x)
+	return body
+
+
+func _test_the_fighting_game_camera_zooms_on_the_pair() -> void:
+	var camera := _camera(W)
+	var a: Body = _body(800.0)
+	var b: Body = _body(1100.0)
+	for i in 300:
+		camera.frame_fight([a, b])
+	_check(absf(camera.zoom_level - camera.max_zoom) < 0.01, "two fighters close together bring the camera to its closest (zoom %.2f)" % camera.zoom_level)
+	_check(absf(camera.x - 950.0) < 1.0, "centred on their midpoint (x %.0f)" % camera.x)
+	_check(camera.left() < 800.0 - 100.0 and camera.right() > 1100.0 + 100.0, "with both in view and room beside them (%.0f to %.0f)" % [camera.left(), camera.right()])
+	_check(camera.bottom() <= 1080.0 + 0.01 and camera.top() >= 0.0 and camera.y > 540.0 and camera.y < 965.0 - 200.0, "the view sits so they stand in its lower half, inside the screen (y %.0f, %.0f to %.0f)" % [camera.y, camera.top(), camera.bottom()])
+	_check(camera.player_bounds(120.0).x > 0.0 and camera.player_bounds(120.0).y < W, "the fighters' bounds are the zoomed view less the margin")
+	# They separate: the camera pulls out to the whole screen and no further.
+	b.x = 1700.0
+	a.x = 200.0
+	for i in 300:
+		camera.frame_fight([a, b])
+	_check(absf(camera.zoom_level - 1.0) < 0.01 and camera.left() < 1.0 and camera.right() > W - 1.0 and absf(camera.y - 540.0) < 1.0, "far apart, the whole screen shows and no more (zoom %.2f, %.0f to %.0f, y %.0f)" % [camera.zoom_level, camera.left(), camera.right(), camera.y])
+	# Eased: one tick after a jump apart the zoom has moved, but not all the way.
+	b.x = 1100.0
+	a.x = 800.0
+	camera.frame_fight([a, b])
+	_check(camera.zoom_level > 1.0 and camera.zoom_level < 1.1, "the zoom eases rather than snapping (%.2f after one tick)" % camera.zoom_level)
+	camera.reset_view()
+	_check(camera.zoom_level == 1.0 and camera.y == 540.0 and camera.zoom == Vector2.ONE, "reset_view puts the whole screen back")
+	a.free()
+	b.free()
+	camera.free()

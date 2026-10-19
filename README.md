@@ -85,6 +85,8 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | A tank's guard bar for player 1, three times bigger | F8 | |
 | A small fry in front of you in a random lane; a big dummy in front of you | 1; 2 | |
 | A fast, a shielded or a throwing small fry in front of you | 3; 4; 5 | |
+| A barrel in front of you | 6 | |
+| Barrels and potions | A barrel breaks in two hits, from anyone, and drops a potion; walk over it to heal 25. The melee's arenas have a few | |
 | Small fry kinds | The fast one is weak and quick. The shielded one blocks from the front until two heavies break its shield, and winds up a shield bash (a red mark over its head) that breaks your guard: dodge it. The thrower keeps back and throws rocks | |
 | Start over with everyone who joined (after going down, or any time) | R | |
 

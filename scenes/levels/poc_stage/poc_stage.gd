@@ -91,7 +91,8 @@ Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
 F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      R: start over
 F7: refill mana      F8: a tank's guard bar for player 1, three times bigger
-1: a small fry in front of you          2: a big dummy          3: a fast one          4: a shielded one          5: a thrower
+1: a small fry in front of you          2: a big dummy          3: a fast one          4: a shielded one          5: a thrower          6: a barrel
+Barrels break in two hits and drop a potion that heals 25: walk over it. The melee's arenas have a few.
 Small fry: the fast one is weak and quick. The shielded one blocks from the front until the shield breaks (two heavies),
 and winds up a shield bash with a red mark over its head that breaks your guard: dodge it. The thrower keeps back and throws rocks.
 Co-op (melee and sandbox): any button on a second or third pad joins. The screen's edges hold the players together."""
@@ -124,6 +125,8 @@ var _fighting: bool = false
 ## Whether the big dummies hold their guard (F4).
 var _dummy_guards: bool = false
 var crowd: CrowdDirector
+## Barrels and potions (issue #64).
+var props: Props
 ## A health bar per player, in its colour, with its tag, and a mana bar under it.
 var health_bars: Array[ColorRect] = []
 var mana_bars: Array[ColorRect] = []
@@ -188,6 +191,10 @@ func _ready() -> void:
 	_add_player(PlayerInput.new(1, InputSource.Device.new(1)), _fighter, 1, SCREEN.x / 2.0, _start_lane())
 	for index in range(2, MAX_PLAYERS + 1):
 		lobby.add(index, InputSource.Device.new(index))
+
+	props = Props.new()
+	props.setup(lanes(), scales())
+	add_child(props)
 
 	crowd = CrowdDirector.new()
 	crowd.projectiles = _projectiles
@@ -400,6 +407,11 @@ func _apply_mode() -> void:
 		_arenas.setup(width, [])
 	_level_ticks = 0
 	_best_combo = 0
+	props.clear()
+	if mode == Mode.MELEE:
+		for arena in MELEE_LEVEL.arenas:
+			for spot in arena.props:
+				props.spawn(Prop.Kind.BARREL, int(spot.y), spot.x)
 	camera.set_limits(0.0, width)
 	camera.snap(SCREEN.x / 2.0)
 	_update_bounds()
@@ -415,6 +427,7 @@ func _apply_mode() -> void:
 	for dummy in _dummies:
 		dummy.set_lanes(lanes(), scales())
 	crowd.set_lanes(lanes(), scales())
+	props.set_lanes(lanes(), scales())
 	queue_redraw()
 
 
@@ -480,10 +493,12 @@ func tick() -> void:
 	for dummy in _dummies:
 		dummy.tick()
 	crowd.tick()
+	props.tick(players)
 	var bodies: Array[Body] = []
 	bodies.append_array(players)
 	bodies.append_array(_dummies)
 	bodies.append_array(crowd.alive())
+	bodies.append_array(props.alive())
 	_combat.fighters = bodies
 	_projectiles.tick(bodies)
 	_sparks.tick()
@@ -540,6 +555,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				for fighter in _combat.fighters:
 					fighter.set_lanes(lanes(), scales())
 				crowd.set_lanes(lanes(), scales())
+				props.set_lanes(lanes(), scales())
 				queue_redraw()
 			KEY_F3:
 				_shading = not _shading
@@ -572,6 +588,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				crowd.spawn(_leader().lane, _in_front(), -_leader().facing, KIND_SHIELDED)
 			KEY_5:
 				crowd.spawn(_leader().lane, _in_front(), -_leader().facing, KIND_THROWER)
+			KEY_6:
+				props.spawn(Prop.Kind.BARREL, _leader().lane, _in_front())
 			KEY_R:
 				_start_over()
 
@@ -763,6 +781,8 @@ func _update_readout() -> void:
 		var shade: float = 1.0 - 0.12 * (2 - body.lane) if _shading else 1.0
 		if body is CrowdBody:
 			(body as CrowdBody).set_shade(shade)
+		elif body is Prop:
+			body.modulate = Color(shade, shade, shade, body.modulate.a)
 		elif players.has(body):
 			views[players.find(body)].shade = shade
 		else:

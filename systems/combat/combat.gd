@@ -67,7 +67,7 @@ func _resolve_moves() -> void:
 		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), stop)
 	for i in hits.size():
 		_land(targets[i], hits[i], attackers[i].facing, points[i])
-		if not targets[i].blocks_hit(hits[i], attackers[i].facing):
+		if not targets[i].blocks_hit(hits[i], attackers[i].facing) and targets[i].fights():
 			_count(attackers[i])
 			attackers[i].on_hit_landed(hits[i])
 	for attacker: Body in freeze:
@@ -93,7 +93,7 @@ func _resolve_projectiles() -> void:
 				if box.intersects(target.hurt_rect()):
 					var direction: int = _projectile_direction(i, target)
 					_land(target, hit, direction, box.intersection(target.hurt_rect()).get_center())
-					if not target.blocks_hit(hit, direction):
+					if not target.blocks_hit(hit, direction) and target.fights():
 						var caster: Body = projectiles.owner_of(i)
 						if caster == null:
 							# A projectile with no owner (a test's) counts for the first body of its team.

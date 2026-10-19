@@ -262,25 +262,25 @@ func _ready() -> void:
 	layer.add_child(_go_label)
 	# The boss's bar, top centre, with its name and the second phase's mark (issue #67).
 	_boss_back = ColorRect.new()
-	_boss_back.position = Vector2(SCREEN.x / 2.0 - 400.0, 110.0)
+	_boss_back.position = Vector2(SCREEN.x / 2.0 - 400.0, 158.0)
 	_boss_back.size = Vector2(800.0, 26.0)
 	_boss_back.color = Color(0.1, 0.1, 0.12, 0.8)
 	_boss_back.visible = false
 	layer.add_child(_boss_back)
 	_boss_bar = ColorRect.new()
-	_boss_bar.position = Vector2(SCREEN.x / 2.0 - 398.0, 112.0)
+	_boss_bar.position = Vector2(SCREEN.x / 2.0 - 398.0, 160.0)
 	_boss_bar.size = Vector2(796.0, 22.0)
 	_boss_bar.color = Color(0.8, 0.25, 0.25)
 	_boss_bar.visible = false
 	layer.add_child(_boss_bar)
 	_boss_phase = ColorRect.new()
-	_boss_phase.position = Vector2(SCREEN.x / 2.0 - 400.0 + 800.0 * BOSS.phase_two_at - 2.0, 106.0)
+	_boss_phase.position = Vector2(SCREEN.x / 2.0 - 400.0 + 800.0 * BOSS.phase_two_at - 2.0, 154.0)
 	_boss_phase.size = Vector2(4.0, 34.0)
 	_boss_phase.color = Color(1.0, 0.9, 0.6)
 	_boss_phase.visible = false
 	layer.add_child(_boss_phase)
 	_boss_name = Label.new()
-	_boss_name.position = Vector2(SCREEN.x / 2.0 - 400.0, 68.0)
+	_boss_name.position = Vector2(SCREEN.x / 2.0 - 400.0, 116.0)
 	_boss_name.size.x = 800.0
 	_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_boss_name.add_theme_font_size_override("font_size", 32)

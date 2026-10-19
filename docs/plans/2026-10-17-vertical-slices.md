@@ -40,6 +40,10 @@ About 8 to 10 sessions in all. Steps 3, 4, 7 and 8 need nothing and can be taken
 - **Ben's effects** for step 6: a missile, a blast ring, a fireball, hit sparks (asked for on 2026-10-15; sizes in the pull request of #56).
 - **Round three of the questionnaire** for step 10: who the boss is comes from the team's characters.
 
+## Where it stands (2026-10-18)
+
+Every step that needed nothing is built and merged; #63 waits on Ben's effects; #68 is scrapped. The next session's first job is not a step of this plan but a review of it: issue #92, "Find the fun", described at the top of `docs/STATUS.md`. A new plan follows from that.
+
 ## How a fresh session picks this up
 
 1. Read `CLAUDE.md`, then `docs/STATUS.md`, then this plan.

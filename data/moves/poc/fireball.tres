@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Resource_fbhit"]
 script = ExtResource("1_mqvml")
-damage = 14
+damage = 16
 mana = 2
 hitstun = 18
 hitstop = 6

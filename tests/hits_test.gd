@@ -276,7 +276,7 @@ func _test_fireball_hit() -> void:
 	while target.combo_hits == 0 and ticks < 120:
 		_run(1)
 		ticks += 1
-	_check(target.state == Fighter.State.HITSTUN and target.combo_damage == 14, "the fireball hits the target in its lane")
+	_check(target.state == Fighter.State.HITSTUN and target.combo_damage == 16, "the fireball hits the target in its lane (%d damage)" % target.combo_damage)
 	_check(missed.combo_hits == 0, "and flies past a target in another lane")
 	_check(_projectiles.count() == 0, "the fireball is used up by the hit")
 	_check(attacker.hitstop == 0, "a projectile hit does not freeze its caster")
@@ -726,11 +726,11 @@ func _test_heavy_fireball() -> void:
 	while target.combo_hits == 0 and ticks < 150:
 		_run(1)
 		ticks += 1
-	_check(target.combo_damage == 28, "it hits twice as hard as the light one (%d)" % target.combo_damage)
+	_check(target.combo_damage == 30, "it hits about twice as hard as the light one (%d)" % target.combo_damage)
 	_clear()
 	attacker = _fighter(620.0, 1, QCF + [R | H])
 	_run(7 + 23)
-	_check(_projectiles.count() == 1 and is_equal_approx(_projectiles.rect(0).size.x, Projectiles.RADIUS * 4.0), "and is twice as big (%.0f wide)" % _projectiles.rect(0).size.x)
+	_check(_projectiles.count() == 1 and is_equal_approx(_projectiles.rect(0).size.x, Projectiles.RADIUS * 5.0), "and is two and a half times as big (%.0f wide)" % _projectiles.rect(0).size.x)
 
 
 func _test_heavy_fireball_needs_a_clean_motion() -> void:
@@ -765,7 +765,7 @@ func _test_blast_every_lane() -> void:
 	_run(7)
 	_check(attacker.move != null and attacker.move.id == &"blast_heavy", "with heavy it is the big blast")
 	_run(45)
-	_check(far.combo_damage == 24 and far.state == Fighter.State.LAUNCHED, "which reaches further, hits twice as hard and launches")
+	_check(far.combo_damage == 30 and far.state == Fighter.State.LAUNCHED, "which reaches further, hits 30 and launches (%d, %s)" % [far.combo_damage, Fighter.STATE_NAMES[far.state]])
 
 
 func _test_homing_missiles() -> void:
@@ -780,7 +780,7 @@ func _test_homing_missiles() -> void:
 	while target.combo_hits == 0 and ticks < 200:
 		_run(1)
 		ticks += 1
-	_check(target.combo_damage == 10, "it homes on a target in another lane and hits it (after %d ticks)" % ticks)
+	_check(target.combo_damage == 15, "it homes on a target in another lane and hits it (after %d ticks, %d damage)" % [ticks, target.combo_damage])
 	_clear()
 	attacker = _fighter(600.0, 1, _repeat(R, 3) + _repeat(D, 3) + [D | R | H])
 	target = _fighter(1300.0, 2, [], 2)

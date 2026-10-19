@@ -13,6 +13,14 @@ var shake: float = 0.0
 var combo_window: int = 90
 ## The shake a guard break gives (issue #72).
 const BREAK_SHAKE: float = 12.0
+## What a launched body does to the small fry it flies into (issue #95, the knock-ons of #63):
+## a jab's damage, a launch, and the flier's own speed as the push.
+const CARRY: HitBox = preload("res://data/moves/crowd/carry.tres")
+## A flier carries only when flying at least this fast along the lane: the heavy's uppercut
+## sends a body up, not along, and bowls nobody.
+var carry_min_speed: float = 6.0
+## The share of the flier's speed the carried body flies off with. 1 means they fly together.
+var carry_share: float = 1.0
 
 var _tick: int = 0
 var _combo: Dictionary[Body, int] = {}
@@ -25,13 +33,52 @@ func resolve() -> void:
 	_resolve_moves()
 	if projectiles != null:
 		_resolve_projectiles()
+	_resolve_carries()
 
 
 ## The push a projectile gives: away from a burst's centre, along a missile's or fireball's flight.
 func _projectile_direction(i: int, target: Body) -> int:
-	if projectiles.hits_every_lane(i) and projectiles.hit(i) != null and projectiles.radius(i) > Projectiles.RADIUS:
+	if projectiles.kind(i) == Projectiles.Kind.BURST:
 		return 1 if target.x >= projectiles.rect(i).get_center().x else -1
 	return projectiles.direction(i)
+
+
+## A body in the air after a launch, flying along its lane, bowls over the small fry
+## of its own team it flies into (issue #95): each takes the carry hit with the
+## flier's speed as its push, so they fly on together and the next one is carried
+## in turn. Credited to whoever launched the flier. Each body once per flight.
+func _resolve_carries() -> void:
+	for flier in fighters:
+		if flier.state != Body.State.LAUNCHED or flier.hitstop > 0 or not flier.fights():
+			continue
+		var speed: float = flier.flight_speed()
+		if absf(speed) < carry_min_speed:
+			continue
+		var direction: int = 1 if speed > 0.0 else -1
+		var box: Rect2 = flier.hurt_rect()
+		var launcher: Body = flier.hit_by if flier.hit_by != null and is_instance_valid(flier.hit_by) else null
+		for target in fighters:
+			if target == flier or target.team != flier.team or target.lane != flier.lane or not target.can_be_carried():
+				continue
+			if target.state == Body.State.LAUNCHED or not target.can_be_hit() or flier.carried.has(target):
+				continue
+			if (target.x - flier.x) * direction <= 0.0:
+				continue  # behind the flier: it is the ones ahead that get bowled
+			var hurt: Rect2 = target.hurt_rect()
+			if not box.intersects(hurt):
+				continue
+			flier.carried.append(target)
+			var hit: HitBox = CARRY.duplicate()
+			hit.knockback = absf(speed) * carry_share
+			target.hit_by = launcher
+			target.take_hit(hit, direction)
+			flier.hitstop = maxi(flier.hitstop, hit.hitstop)
+			shake = maxf(shake, hit.shake)
+			if sparks != null:
+				sparks.spawn(box.intersection(hurt).get_center(), 24.0)
+			Sounds.play(&"hit")
+			if launcher != null and launcher.team != target.team:
+				_count(launcher)
 
 
 func _resolve_moves() -> void:
@@ -66,7 +113,7 @@ func _resolve_moves() -> void:
 		var stop: int = targets[i].blocked_hitstop(hits[i]) if targets[i].blocks_hit(hits[i], attackers[i].facing) else hits[i].hitstop
 		freeze[attackers[i]] = maxi(freeze.get(attackers[i], 0), stop)
 	for i in hits.size():
-		_land(targets[i], hits[i], attackers[i].facing, points[i])
+		_land(targets[i], hits[i], attackers[i].facing, points[i], attackers[i])
 		if not targets[i].blocks_hit(hits[i], attackers[i].facing) and targets[i].fights():
 			_count(attackers[i])
 			attackers[i].on_hit_landed(hits[i])
@@ -92,15 +139,15 @@ func _resolve_projectiles() -> void:
 					continue  # a missile flies through the others to the one it is after
 				if box.intersects(target.hurt_rect()):
 					var direction: int = _projectile_direction(i, target)
-					_land(target, hit, direction, box.intersection(target.hurt_rect()).get_center())
+					var caster: Body = projectiles.owner_of(i)
+					if caster == null:
+						# A projectile with no owner (a test's) counts for the first body of its team.
+						for body in fighters:
+							if body.team == projectiles.team(i):
+								caster = body
+								break
+					_land(target, hit, direction, box.intersection(target.hurt_rect()).get_center(), caster)
 					if not target.blocks_hit(hit, direction) and target.fights():
-						var caster: Body = projectiles.owner_of(i)
-						if caster == null:
-							# A projectile with no owner (a test's) counts for the first body of its team.
-							for body in fighters:
-								if body.team == projectiles.team(i):
-									caster = body
-									break
 						if caster != null:
 							_count(caster)
 							caster.on_hit_landed(hit)
@@ -131,7 +178,9 @@ func _can_hit(team: int, lane: int, target: Body) -> bool:
 	return target.team != team and target.lane == lane and target.can_be_hit()
 
 
-func _land(target: Body, hit: HitBox, direction: int, at: Vector2) -> void:
+## `attacker` is whose hit it is (a swinger, a projectile's caster), remembered on the
+## target for the carries' credit; null for nobody.
+func _land(target: Body, hit: HitBox, direction: int, at: Vector2, attacker: Body = null) -> void:
 	if target.blocks_hit(hit, direction):
 		target.take_block(hit, direction)
 		if sparks != null:
@@ -139,6 +188,7 @@ func _land(target: Body, hit: HitBox, direction: int, at: Vector2) -> void:
 		Sounds.play(&"block")
 		return
 	var was_alive: bool = not target.is_dying()
+	target.hit_by = attacker
 	target.take_hit(hit, direction)
 	shake = maxf(shake, BREAK_SHAKE if target.just_broke else hit.shake)
 	if sparks != null:

@@ -84,6 +84,11 @@ var just_broke: bool = false
 var swing_targets: Array[Body] = []
 var swing_groups: PackedInt32Array = PackedInt32Array()
 var swing_froze: bool = false
+## Whose hit landed on this body last, set by Combat: a body it carries while flying is
+## credited to them (issue #95). Null until hit, or when that body is gone.
+var hit_by: Body
+## The bodies this flight has carried (issue #95), so each is bowled once per launch.
+var carried: Array[Body] = []
 
 var _stun_ticks: int = 0
 var _knock_speed: float = 0.0
@@ -257,6 +262,18 @@ func in_hit_reaction() -> bool:
 	return state == State.HITSTUN or state == State.LAUNCHED
 
 
+## How fast the body flies along the lane after a launch, in pixels a tick, signed by
+## direction; 0 when not launched. A flying body carries the small fry it flies into (issue #95).
+func flight_speed() -> float:
+	return _air_speed if state == State.LAUNCHED else 0.0
+
+
+## Whether a flying body bowls this one over (issue #95). Small fry are; players, bosses
+## and props are not, so nobody is ever knocked into a player and no player is bowled.
+func can_be_carried() -> bool:
+	return false
+
+
 ## Called by Combat when a hit of this body's lands clean: a fighter is paid mana and guard.
 func on_hit_landed(_hit: HitBox) -> void:
 	pass
@@ -297,6 +314,8 @@ func take_hit(hit: HitBox, direction: int) -> void:
 	if launch > 0.0 or is_jumping() or state == State.LAUNCHED:
 		if state == State.LAUNCHED:
 			juggle_hits += 1
+		else:
+			carried.clear()  # a new flight bowls everyone in its way afresh
 		vertical_speed = launch if launch > 0.0 else air_hit_pop
 		_air_speed = direction * hit.knockback
 		_enter(State.LAUNCHED)

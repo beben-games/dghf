@@ -5,13 +5,14 @@
 
 [sub_resource type="Resource" id="Resource_hit"]
 script = ExtResource("1_hbox")
-damage = 28
+damage = 30
 mana = 3
 hitstun = 24
 hitstop = 8
 blockstun = 14
 knockback = 14.0
-shake = 8.0
+launch = 24.0
+shake = 10.0
 
 [resource]
 script = ExtResource("2_move")
@@ -25,6 +26,7 @@ projectile_frame = 22
 projectile_offset = Vector2(170, -150)
 projectile_speed = 13.0
 projectile_hit = SubResource("Resource_hit")
-projectile_size = 2.0
-mana_cost = 35
+projectile_size = 2.5
+projectile_pierce = true
+mana_cost = 30
 fallback = &"fireball"

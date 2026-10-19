@@ -15,7 +15,7 @@ blockstun = 12
 knockback = 14.0
 launch = 24.0
 shake = 8.0
-mana = 10
+mana = 14
 
 [resource]
 script = ExtResource("2_move")

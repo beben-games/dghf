@@ -34,12 +34,14 @@ script = ExtResource("2_arena")
 left = 0.0
 right = 2400.0
 waves = Array[ExtResource("3_wave")]([SubResource("Resource_wave_1a"), SubResource("Resource_wave_1b")])
+props = Array[Vector2]([Vector2(1900, 2), Vector2(2200, 0)])
 
 [sub_resource type="Resource" id="Resource_arena_2"]
 script = ExtResource("2_arena")
 left = 3360.0
 right = 5760.0
 waves = Array[ExtResource("3_wave")]([SubResource("Resource_wave_2a"), SubResource("Resource_wave_2b")])
+props = Array[Vector2]([Vector2(3700, 1), Vector2(4600, 0), Vector2(5300, 2)])
 
 [resource]
 script = ExtResource("1_level")

@@ -159,6 +159,12 @@ func _tick_state() -> void:
 			pass
 
 
+## A body that fights: its hits count for combos and pay, and missiles pick it as a target.
+## A prop (issue #64) does not.
+func fights() -> bool:
+	return true
+
+
 ## Playing a move. Combat checks the move's boxes against other bodies.
 func is_attacking() -> bool:
 	return state == State.ATTACK and move != null

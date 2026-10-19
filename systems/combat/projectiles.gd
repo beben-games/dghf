@@ -120,7 +120,7 @@ func _home(i: int, bodies: Array[Body]) -> void:
 		target = null
 		var best: float = INF
 		for body in bodies:
-			if body.team == _team[i] or not body.can_be_hit() or _already_hit[i].has(body.get_instance_id()):
+			if body.team == _team[i] or not body.fights() or not body.can_be_hit() or _already_hit[i].has(body.get_instance_id()):
 				continue
 			if not _all_lanes[i] and body.lane != _lane[i]:
 				continue

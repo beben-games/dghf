@@ -38,6 +38,8 @@ const STATE_NAMES: Array[String] = [
 ## The push a killing blow gives, so a body that dies flies a little.
 @export var death_launch: float = 14.0
 
+## How large this body is against a plain fighter (a boss is 1.3); the lanes' scales multiply it.
+var size: float = 1.0
 var lane_y: PackedFloat32Array = PackedFloat32Array()  # screen y of each lane, back to front
 ## How large each lane draws its bodies: smaller further back, for depth. 1 is full size.
 var lane_scale: PackedFloat32Array = PackedFloat32Array()
@@ -82,6 +84,8 @@ var swing_froze: bool = false
 
 var _stun_ticks: int = 0
 var _knock_speed: float = 0.0
+## A grab's throw, waiting for the hold to end: the launch and the push, or zero for none.
+var _throw: Vector2 = Vector2.ZERO
 var _air_speed: float = 0.0
 var _ground_y: float = 0.0
 var _lane_from_y: float = 0.0
@@ -109,7 +113,7 @@ func set_lanes(lanes: PackedFloat32Array, scales: PackedFloat32Array = PackedFlo
 		lane_scale.fill(1.0)
 	if state != State.LANE_CHANGE:
 		_ground_y = lane_y[lane]
-		depth_scale = lane_scale[lane]
+		depth_scale = lane_scale[lane] * size
 		_place()
 
 
@@ -275,6 +279,14 @@ func take_hit(hit: HitBox, direction: int) -> void:
 	_interrupted()
 	move = null
 	var launch: float = hit.launch
+	if hit.grab and not is_jumping() and state != State.LAUNCHED:
+		# Held where it stands for the hold, then thrown.
+		_stun_ticks = hit.hitstun
+		_knock_speed = 0.0
+		_throw = Vector2(direction * hit.knockback, maxf(launch, 1.0))
+		_enter(State.HITSTUN)
+		_place()
+		return
 	if is_dying() and launch <= 0.0 and not in_hit_reaction() and not is_jumping():
 		launch = death_launch  # the killing blow sends the body flying
 	if launch > 0.0 or is_jumping() or state == State.LAUNCHED:
@@ -294,8 +306,13 @@ func take_hit(hit: HitBox, direction: int) -> void:
 func _interrupted() -> void:
 	if state == State.LANE_CHANGE:
 		_ground_y = lane_y[lane]
-		depth_scale = lane_scale[lane]
+		depth_scale = lane_scale[lane] * size
 		height = 0.0
+
+
+## Whether the body is held in a grab right now.
+func held() -> bool:
+	return state == State.HITSTUN and _throw != Vector2.ZERO
 
 
 ## Hops to `to_lane`: the ground line and the size slide to the new lane's
@@ -310,7 +327,7 @@ func start_lane_change(to_lane: int) -> void:
 func _tick_lane_change() -> void:
 	var t: float = minf(float(state_ticks) / lane_change_ticks, 1.0)
 	_ground_y = lerpf(_lane_from_y, lane_y[lane], t)
-	depth_scale = lerpf(_scale_from, lane_scale[lane], t)
+	depth_scale = lerpf(_scale_from, lane_scale[lane] * size, t)
 	height = sin(t * PI) * lane_hop
 	if state_ticks >= lane_change_ticks:
 		height = 0.0
@@ -332,6 +349,13 @@ func _tick_hitstun() -> void:
 	x = clampf(x + _knock_speed, bounds.x, bounds.y)
 	_knock_speed *= knockback_friction
 	if state_ticks >= _stun_ticks:
+		if _throw != Vector2.ZERO:
+			# The hold is over: the throw.
+			vertical_speed = _throw.y
+			_air_speed = _throw.x
+			_throw = Vector2.ZERO
+			_enter(State.LAUNCHED)
+			return
 		_enter(State.KNOCKDOWN if is_dying() else State.IDLE)
 
 

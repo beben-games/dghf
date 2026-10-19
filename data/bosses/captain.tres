@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BossKind" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://systems/enemies/boss_kind.gd" id="1_kind"]
+[ext_resource type="Script" path="res://systems/combat/move.gd" id="2_move"]
+[ext_resource type="Resource" path="res://data/moves/boss/boss_light.tres" id="3_light"]
+[ext_resource type="Resource" path="res://data/moves/boss/boss_heavy.tres" id="4_heavy"]
+[ext_resource type="Resource" path="res://data/moves/boss/boss_grab.tres" id="5_grab"]
+[ext_resource type="Resource" path="res://data/moves/boss/boss_shot.tres" id="6_shot"]
+[ext_resource type="Resource" path="res://data/moves/boss/boss_lunge.tres" id="7_lunge"]
+
+[resource]
+script = ExtResource("1_kind")
+title = "The Captain"
+moves = Array[ExtResource("2_move")]([ExtResource("3_light"), ExtResource("4_heavy"), ExtResource("5_grab"), ExtResource("6_shot"), ExtResource("7_lunge")])

@@ -54,6 +54,9 @@ func _draw() -> void:
 	else:
 		_draw_figure()
 	draw_set_transform(Vector2.ZERO)
+	if _fighter.telegraphing():
+		# The tell of a telegraphed move (issue #67): a red mark over the head.
+		draw_colored_polygon(PackedVector2Array([Vector2(-18.0, -340.0), Vector2(18.0, -340.0), Vector2(0.0, -304.0)]), Color(1.0, 0.25, 0.2))
 	if not tag.is_empty():
 		var at := Vector2(-60.0, -310.0 + sin(_fighter.state_ticks * 0.1) * 4.0)
 		draw_string_outline(ThemeDB.fallback_font, at, tag, HORIZONTAL_ALIGNMENT_CENTER, 120.0, 34, 8, Color.BLACK)

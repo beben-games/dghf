@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="Level" load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/level.gd" id="1_level"]
+[ext_resource type="Script" path="res://scenes/levels/arena_data.gd" id="2_arena"]
+[ext_resource type="Script" path="res://scenes/levels/wave_data.gd" id="3_wave"]
+[ext_resource type="Script" path="res://systems/enemies/crowd_kind.gd" id="4_kind"]
+[ext_resource type="Resource" path="res://data/enemies/small_fry.tres" id="5_plain"]
+[ext_resource type="Resource" path="res://data/enemies/fast.tres" id="6_fast"]
+[ext_resource type="Resource" path="res://data/enemies/shielded.tres" id="7_shielded"]
+[ext_resource type="Resource" path="res://data/enemies/thrower.tres" id="8_thrower"]
+
+[sub_resource type="Resource" id="Resource_wave_1a"]
+script = ExtResource("3_wave")
+kinds = Array[ExtResource("4_kind")]([ExtResource("5_plain"), ExtResource("6_fast")])
+counts = PackedInt32Array(8, 2)
+
+[sub_resource type="Resource" id="Resource_wave_1b"]
+script = ExtResource("3_wave")
+kinds = Array[ExtResource("4_kind")]([ExtResource("5_plain"), ExtResource("6_fast"), ExtResource("7_shielded"), ExtResource("8_thrower")])
+counts = PackedInt32Array(6, 2, 1, 1)
+
+[sub_resource type="Resource" id="Resource_wave_2a"]
+script = ExtResource("3_wave")
+kinds = Array[ExtResource("4_kind")]([ExtResource("5_plain"), ExtResource("6_fast"), ExtResource("8_thrower")])
+counts = PackedInt32Array(6, 3, 1)
+
+[sub_resource type="Resource" id="Resource_wave_2b"]
+script = ExtResource("3_wave")
+kinds = Array[ExtResource("4_kind")]([ExtResource("5_plain"), ExtResource("6_fast"), ExtResource("7_shielded"), ExtResource("8_thrower")])
+counts = PackedInt32Array(8, 3, 2, 2)
+
+[sub_resource type="Resource" id="Resource_arena_1"]
+script = ExtResource("2_arena")
+left = 0.0
+right = 2400.0
+waves = Array[ExtResource("3_wave")]([SubResource("Resource_wave_1a"), SubResource("Resource_wave_1b")])
+
+[sub_resource type="Resource" id="Resource_arena_2"]
+script = ExtResource("2_arena")
+left = 3360.0
+right = 5760.0
+waves = Array[ExtResource("3_wave")]([SubResource("Resource_wave_2a"), SubResource("Resource_wave_2b")])
+
+[resource]
+script = ExtResource("1_level")
+title = "The camp"
+stage_width = 5760.0
+arenas = Array[ExtResource("2_arena")]([SubResource("Resource_arena_1"), SubResource("Resource_arena_2")])

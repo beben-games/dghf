@@ -64,6 +64,8 @@ var vertical_speed: float = 0.0
 var hitstop: int = 0
 ## Ticks left drawn white after taking a hit.
 var flash_ticks: int = 0
+## Hits taken since the body was placed, for a level's results (issue #62). Blocked hits don't count.
+var hits_taken: int = 0
 ## Hits and damage taken in the current combo, or in the last one once it is over.
 var combo_hits: int = 0
 var combo_damage: int = 0
@@ -92,6 +94,7 @@ func place_on(lanes: PackedFloat32Array, start_lane: int, start_x: float) -> voi
 	lane = start_lane
 	x = start_x
 	health = max_health
+	hits_taken = 0
 	set_lanes(lanes)
 
 
@@ -257,6 +260,7 @@ func take_hit(hit: HitBox, direction: int) -> void:
 		combo_damage = 0
 	combo_hits += 1
 	combo_damage += hit.damage
+	hits_taken += 1
 	if max_health > 0:
 		health = maxi(health - hit.damage, 0)
 	hitstop = hit.hitstop

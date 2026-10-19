@@ -22,11 +22,8 @@ const SCREEN := Vector2(1920.0, 1080.0)
 ## The melee and the sandbox are this wide; the boss fight stays one screen
 ## (docs/design/2026-10-17-camera-and-scrolling-stage.md, proposed).
 const STAGE_WIDTH: float = SCREEN.x * 3.0
-## The melee's arenas: the camera locks in each until its waves are beaten, then the player walks on.
-const MELEE_ARENAS: Array[Dictionary] = [
-	{"left": 0.0, "right": 2400.0, "waves": [10, 10]},
-	{"left": 3360.0, "right": 5760.0, "waves": [10, 15]},
-]
+## The melee is the first level (issue #62): arenas of waves as data.
+const MELEE_LEVEL: Level = preload("res://data/levels/melee.tres")
 ## A wave comes in from this far past the view's edges.
 const SPAWN_GAP: float = 100.0
 ## The backdrop repeats every this many pixels.
@@ -135,8 +132,12 @@ var guard_bars: Array[ColorRect] = []
 var _tank: bool = false
 var _health_tags: Array[Label] = []
 var _layer: CanvasLayer
-## The big line in the middle: DOWN, or CLEAR.
+## The big line in the middle: DOWN, or LEVEL CLEAR, and the results under it.
 var _message: Label
+var _results: Label
+## The level's clock and the best combo seen, for the results (issue #62).
+var _level_ticks: int = 0
+var _best_combo: int = 0
 var _pause_label: Label
 var _pause_back: ColorRect
 var _paused: bool = false
@@ -221,6 +222,15 @@ func _ready() -> void:
 	_message.add_theme_constant_override("outline_size", 14)
 	_message.visible = false
 	layer.add_child(_message)
+	_results = Label.new()
+	_results.position = Vector2(0.0, 500.0)
+	_results.size.x = SCREEN.x
+	_results.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_results.add_theme_font_size_override("font_size", 40)
+	_results.add_theme_color_override("font_outline_color", Color.BLACK)
+	_results.add_theme_constant_override("outline_size", 10)
+	_results.visible = false
+	layer.add_child(_results)
 	_go_label = Label.new()
 	_go_label.position = Vector2(SCREEN.x - 420.0, 440.0)
 	_go_label.add_theme_font_size_override("font_size", 96)
@@ -383,7 +393,13 @@ func _find_skin() -> FighterSkin:
 func _apply_mode() -> void:
 	_clear_dummies()
 	var width: float = SCREEN.x if mode == Mode.BOSS_FIGHT else STAGE_WIDTH
-	_arenas.setup(width, MELEE_ARENAS if mode == Mode.MELEE else [])
+	if mode == Mode.MELEE:
+		_arenas.setup_level(MELEE_LEVEL)
+		width = _arenas.stage_width
+	else:
+		_arenas.setup(width, [])
+	_level_ticks = 0
+	_best_combo = 0
 	camera.set_limits(0.0, width)
 	camera.snap(SCREEN.x / 2.0)
 	_update_bounds()
@@ -475,7 +491,9 @@ func tick() -> void:
 	# The camera follows the players, the arenas lock it or let it go, and the bounds follow the view.
 	camera.follow(players, MARGIN)
 	if _anyone_alive():
-		_arenas.tick(_tick, camera.left(), camera.right(), crowd.count(), spawn_wave)
+		if not _arenas.done:
+			_level_ticks += 1
+		_arenas.tick(_tick, camera.left(), camera.right(), crowd.count(), _spawn_level_wave)
 	var limits: Vector2 = _arenas.limits()
 	camera.set_limits(limits.x, limits.y)
 	_update_bounds()
@@ -564,10 +582,19 @@ func _in_front() -> float:
 	return clampf(leader.x + leader.facing * 320.0, leader.bounds.x, leader.bounds.y)
 
 
+## What the arenas send: a level's wave, or a plain count of small fry.
+func _spawn_level_wave(what: Variant) -> void:
+	if what is WaveData:
+		spawn_wave((what as WaveData).total(), what)
+	else:
+		spawn_wave(int(what))
+
+
 ## A wave of small fry from just off screen on both sides, spread over the
 ## lanes, facing in. A side at the stage's end sends its share from the other
 ## side; with no room on either side (a one-screen stage) they stand at the edges.
-func spawn_wave(how_many: int) -> void:
+## `wave` says which kinds; without it, the sandbox's mix.
+func spawn_wave(how_many: int, wave: WaveData = null) -> void:
 	var open_left: bool = camera.left() - SPAWN_GAP > 0.0
 	var open_right: bool = camera.right() + SPAWN_GAP < _arenas.stage_width
 	for i in how_many:
@@ -581,11 +608,19 @@ func spawn_wave(how_many: int) -> void:
 			at_x = camera.left() - SPAWN_GAP - step if open_left else camera.left() + MARGIN + step
 		else:
 			at_x = camera.right() + SPAWN_GAP + step if open_right else camera.right() - MARGIN - step
-		crowd.spawn(i % 3, at_x, 1 if from_left else -1, wave_kind(i))
+		crowd.spawn(i % 3, at_x, 1 if from_left else -1, wave.kind_at(i) if wave != null else wave_kind(i))
 
 
-## The kind of the `i`th small fry of a wave: mostly plain, with a fast one, a shielded one and
-## a thrower mixed in.
+## The results of the level so far (issue #62): ticks on the clock, hits taken per player, the best combo.
+func results() -> Dictionary:
+	var taken: PackedInt32Array = PackedInt32Array()
+	for player in players:
+		taken.append(player.hits_taken)
+	return {"ticks": _level_ticks, "hits_taken": taken, "best_combo": _best_combo}
+
+
+## The kind of the `i`th small fry of F6's wave: mostly plain, with a fast one, a shielded one and
+## a thrower mixed in. A level's waves say their own kinds.
 func wave_kind(i: int) -> CrowdKind:
 	if i % 8 == 7:
 		return KIND_THROWER
@@ -692,6 +727,7 @@ func _update_combo() -> void:
 		if combo > hits:
 			hits = combo
 			best = i
+	_best_combo = maxi(_best_combo, hits)
 	_combo_label.visible = hits >= 2
 	_combo_label.text = "%d HITS" % hits
 	_combo_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3) if players.size() == 1 else PLAYER_COLORS[best].lightened(0.3))
@@ -699,10 +735,26 @@ func _update_combo() -> void:
 	if all_down:
 		_message.text = "DOWN    R to start over"
 	elif _arenas.done:
-		_message.text = "CLEAR    R to start over"
+		_message.text = "LEVEL CLEAR"
 	_message.visible = all_down or _arenas.done
+	_results.visible = _arenas.done and not all_down
+	if _results.visible:
+		_results.text = _results_text()
 	# Between arenas the arrow flashes until the next one locks.
 	_go_label.visible = _arenas.between() and (_tick / 20) % 2 == 0
+
+
+## The results screen's lines: the time, the hits each player took, the best combo, and the keys.
+func _results_text() -> String:
+	var r: Dictionary = results()
+	var seconds: int = int(r["ticks"]) / 60
+	var taken: String = ""
+	var hits: PackedInt32Array = r["hits_taken"]
+	for i in hits.size():
+		taken += ("P%d %d" % [players[i].input.player, hits[i]]) if players.size() > 1 else str(hits[i])
+		if i < hits.size() - 1:
+			taken += ", "
+	return "time %d:%02d        hits taken %s        best combo %d\n\nR to go again        Tab, then M for the menu" % [seconds / 60, seconds % 60, taken, r["best_combo"]]
 
 
 func _update_readout() -> void:

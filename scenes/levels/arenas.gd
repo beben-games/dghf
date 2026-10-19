@@ -2,8 +2,9 @@ class_name Arenas
 extends RefCounted
 ## The arenas of a stage (issue #58): stretches where the camera locks until
 ## their waves are beaten, as in most beat 'em ups. Each is a dictionary with
-## `left` and `right`, the walls in stage pixels, and `waves`, the counts of
-## small fry to send one after the other. Once a tick the stage tells it where
+## `left` and `right`, the walls in stage pixels, and `waves`, the waves to
+## send one after the other: a `WaveData` each from a `Level` (issue #62), or
+## plain counts of small fry. Once a tick the stage tells it where
 ## the view is and how many enemies stand, and it says where the camera may go
 ## and asks for the next wave when it is time. No arenas means a free camera.
 ## Waves as data and a results screen are step 5 of the plan (issue #62).
@@ -32,6 +33,14 @@ func setup(width: float, list: Array) -> void:
 	stage_width = width
 	arenas.assign(list)
 	reset()
+
+
+## The arenas of a level, as data (issue #62).
+func setup_level(level: Level) -> void:
+	var list: Array = []
+	for arena in level.arenas:
+		list.append({"left": arena.left, "right": arena.right, "waves": arena.waves})
+	setup(level.stage_width, list)
 
 
 ## Back to before the first arena.
@@ -66,8 +75,8 @@ func wave_count() -> int:
 
 
 ## Once a tick, after the camera moved. `view_left` and `view_right` are the
-## view's edges, `alive` how many enemies stand, and `spawn` is called with a
-## count when a wave is due.
+## view's edges, `alive` how many enemies stand, and `spawn` is called with the
+## wave (a `WaveData`, or a count) when one is due.
 func tick(tick: int, view_left: float, view_right: float, alive: int, spawn: Callable) -> void:
 	if done or arenas.is_empty():
 		return
@@ -82,7 +91,7 @@ func tick(tick: int, view_left: float, view_right: float, alive: int, spawn: Cal
 	var waves: Array = arenas[index]["waves"]
 	if waves_sent < waves.size():
 		if alive <= wave_low and tick - _last_wave_tick >= wave_gap:
-			spawn.call(int(waves[waves_sent]))
+			spawn.call(waves[waves_sent])
 			waves_sent += 1
 			_last_wave_tick = tick
 	elif alive == 0:

@@ -136,8 +136,17 @@ func _land(target: Body, hit: HitBox, direction: int, at: Vector2) -> void:
 		target.take_block(hit, direction)
 		if sparks != null:
 			sparks.spawn(at, 20.0 + hit.hitstop * 3.0, true)
+		Sounds.play(&"block")
 		return
+	var was_alive: bool = not target.is_dying()
 	target.take_hit(hit, direction)
 	shake = maxf(shake, BREAK_SHAKE if target.just_broke else hit.shake)
 	if sparks != null:
 		sparks.spawn(at, 30.0 + hit.hitstop * 6.0)
+	# The sound of it (issue #65): a break, a kill, or a hit by its weight.
+	if target.just_broke:
+		Sounds.play(&"guard_break")
+	elif target.fights():
+		Sounds.play(&"hit_heavy" if hit.launch > 0.0 or hit.damage >= 18 else &"hit")
+		if was_alive and target.is_dying():
+			Sounds.play(&"death")

@@ -86,6 +86,7 @@ func tick(players: Array[Fighter]) -> void:
 			if player.state != Body.State.DEAD and player.lane == prop.lane and absf(player.x - prop.x) <= pickup_reach:
 				player.health = mini(player.health + heal, player.max_health)
 				prop.taken = true
+				Sounds.play(&"pickup")
 				break
 	var i: int = _alive.size() - 1
 	while i >= 0:

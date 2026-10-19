@@ -90,7 +90,7 @@ Combo: J, J, L, then hold W to jump after the launch, then J and L in the air
 
 F1: hitboxes and hurtboxes      F2: lane spacing and depth      F3: shade the back lanes
 F4: the big dummies guard       F5: every enemy fights back, or stands still       F6: ten more small fry      R: start over
-F7: refill mana      F8: a tank's guard bar for player 1, three times bigger
+F7: refill mana      F8: a tank's guard bar for player 1, three times bigger      F9: mute
 1: a small fry in front of you          2: a big dummy          3: a fast one          4: a shielded one          5: a thrower          6: a barrel
 Barrels break in two hits and drop a potion that heals 25: walk over it. The melee's arenas have a few.
 Small fry: the fast one is weak and quick. The shielded one blocks from the front until the shield breaks (two heavies),
@@ -195,6 +195,9 @@ func _ready() -> void:
 	props = Props.new()
 	props.setup(lanes(), scales())
 	add_child(props)
+
+	add_child(Sounds.new())
+	Sounds.music(true)
 
 	crowd = CrowdDirector.new()
 	crowd.projectiles = _projectiles
@@ -574,6 +577,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F7:
 				for player in players:
 					player.mana = player.max_mana
+			KEY_F9:
+				var sounds: Sounds = Sounds.instance()
+				if sounds != null:
+					sounds.muted = not sounds.muted
 			KEY_F8:
 				_tank = not _tank
 				_fighter.max_guard = TANK_GUARD if _tank else GUARD_BAR

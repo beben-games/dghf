@@ -26,6 +26,10 @@ A sixteen-second loop in A minor plays in every scene of the stage. **F9** mutes
 - The calls are in `Combat._land` (hits, blocks, breaks, kills), `Fighter` (swings, spells, the dash), `CrowdBody` (swings and rocks), `Prop` and `Props` (barrels and potions).
 - `tools/audio/make_placeholders.py` synthesizes every cue and the loop in pure Python and encodes them to OGG with `oggenc` (or ffmpeg). Rerun it to change a cue.
 
+## What comes next
+
+Ben, after hearing it: good enough for now. The real sounds are E's: the list of every cue and track the game needs, with what each has to say and how to deliver, is `docs/audio.md` (issue #87).
+
 ## Proposed: choices made while building, to confirm or change
 
 - **Team-made placeholders rather than a CC0 pack.** The issue asked for CC0 sounds; a synthesized set needs no download, no credits row and no licence check, and is as easy to replace. A CC0 pack can still come in through `CREDITS.md`.

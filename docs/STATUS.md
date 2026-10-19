@@ -34,7 +34,7 @@ Visuals still wait: the plain figure and private placeholder skins carry the gam
 | The art pipeline | `tools/art/`, `docs/art.md` | `python3 tools/art/pixellab.py balance` and `python3 tools/art/budget.py` report from this repository (Ben's key, in his keychain). `gen.py plan art/jobs/probe_sizes.json` lists the sprite-size probe |
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/`. Add `--skin <folder>` for a playtest build with a skin beside the executable: its zips are named `-private` and must not be published |
 
-The controls are in `README.md`. The skin format is in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. The camera and the arenas are in `docs/design/2026-10-17-camera-and-scrolling-stage.md`, co-op in `docs/design/2026-10-17-local-coop.md`. How to draw or prepare character frames is in `docs/skins.md`.
+The controls are in `README.md`. The sounds and music the game needs are listed for E in `docs/audio.md`. The skin format is in `docs/design/2026-10-04-poc-1080p-player.md`. Hits and the training dummy are in `docs/design/2026-10-04-hits-landing.md`. The camera and the arenas are in `docs/design/2026-10-17-camera-and-scrolling-stage.md`, co-op in `docs/design/2026-10-17-local-coop.md`. How to draw or prepare character frames is in `docs/skins.md`.
 
 ## Showing someone around
 
@@ -110,7 +110,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 ## Waiting on people
 
 - **T** (GitHub `pipochao`, invited to the repository and the board on 2026-10-11): accept the invitations, install Godot 4.7.2, take the tour above. T's round three is in: three lanes with a small perspective effect, 30 to 40 enemies at most, two attack buttons plus guard plus a spell button, block and dodge, combo counter only, no friendly fire.
-- **E** (GitHub `T13nou`): finish round three, run the stress test and post its table on #3.
+- **E** (GitHub `T13nou`): finish round three, run the stress test and post its table on #3. New: the sound effects and music, from the list in `docs/audio.md` (issue #87, Ben's request of 2026-10-18).
 - **Ben:** run the Windows build, answer the five newest round-three questions, write up what T and E said about the hits and the combos on #9 and #8.
 - **All three:** a weekly meeting to settle sections 2, 5 and 9 and the screen and sprite size. New for that agenda: the lane spacing and depth (F2 in the proof of concept), the resolution (the probe says 1080p native with characters about 240 pixels tall from `create-character-v3` at 256, in the look of Ben's knight: see `docs/probes/2026-10-11-size-probe/`), and the button layout, where Ben and T now agree on two attacks plus guard (both built) and E has to confirm. Also new: classes through the bars (Ben, 2026-10-17: a tank with a much bigger guard bar), to settle together with who the three characters are.
 

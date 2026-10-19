@@ -16,6 +16,7 @@ Working title: **Open.**
 - **Decided (2026-09-27).** 3 playable characters in the first release.
 - **Open.** Who the three characters are, how each fights, and their signature spells.
 - **Proposed (Ben, 2026-10-17).** The characters differ as classes through their bars as much as their moves: a tank has a much bigger guard bar and its guard taunts (the crowd nearby comes to its lane and piles on it), to keep a swarm or a boss busy while the rest of the team blasts. The guard bar is built (`docs/design/2026-10-17-guard-bar.md`); which classes the three are goes with the question above.
+- **Proposed (Ben, 2026-10-18).** Boss fights feel like a fighting game, but asymmetric: the boss is much stronger than any one character, like the final bosses of Marvel vs Capcom, and all three characters are needed to beat it. Not best-of-three rounds. **Open:** how the three take part (tag team, 3v1 or another mechanism), issue #90, for the meeting.
 - **Decided (2026-09-27).** Solo and local co-op in the first release. Online play is out of scope.
 - **Proposed.** For remote sessions, the team streams one machine's game, for example with Parsec.
 

@@ -27,7 +27,7 @@ Sizes are in sessions, as in the vertical-slices plan: a day with Ben at the key
 | # | Step | Issue | Milestone | Size | Needs |
 |---|---|---|---|---|---|
 | 1 | **A way out of the pile that always works.** The light blast becomes the get-off-me move: free, out at once, launching everything around the player in every lane. If that isn't enough on its own, a cap on how long the crowd can chain a player, and invincible ticks on the lane hop. | #94 | 2 | 0.5 to 1 | nothing |
-| 2 | **Spells that clear.** A heavy spell kills a plain small fry and launches the rest; a super clears the screen's lanes; mana retuned so a combo into a heavy spell is the loop. With it, the knock-ons and launches that carry neighbours from #63, which need none of Ben's effects. | #95 | 2 | 1 | 1 |
+| 2 | **Spells that clear.** The heavy spells hit hard, wide and launch; a super clears the screen's lanes; mana retuned so a combo into a heavy spell is the loop. Damage stays plain move data that today happens to kill the first level's plain small fry with a heavy blast: a number, not a rule (Ben, 2026-10-18, on #95: stronger mobs and character stats come later). With it, the knock-ons and launches that carry neighbours from #63, which need none of Ben's effects. | #95 | 2 | 1 | 1 |
 | 3 | **Spells on their own buttons**, motions kept as the alternative. Touches the button layout the team agreed on, so it goes to the meeting with the build to play. | #96 | 2 | 0.5 | nothing |
 | 4 | **Throwers back off less, and the knight reaches them.** Numbers only. | #97 | 2 | 0.5 | nothing |
 

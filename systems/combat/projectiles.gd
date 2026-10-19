@@ -173,6 +173,10 @@ func lane(i: int) -> int:
 	return _lane[i]
 
 
+func kind(i: int) -> Kind:
+	return _kind[i] as Kind
+
+
 func team(i: int) -> int:
 	return _team[i]
 

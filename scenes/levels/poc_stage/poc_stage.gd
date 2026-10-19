@@ -78,10 +78,10 @@ Light attack: J or (X)          Heavy attack, a launcher: L or (Y)          Both
 Guard: hold K or (B)            Dash: Shift or the right trigger with a direction, held to keep running; alone, a step back
 A landed hit frees you: after a swing connects, anything can follow at once. A miss commits you to the swing.
 J or L while dashing is a running attack. Lights step you forward.
-Specials, with J for the light version or L for the heavy one, twice as big and twice as hard but asking a cleaner motion:
+Specials, with J for the light version or L for the heavy one, bigger, harder, launching and clearing, but asking a cleaner motion:
 Fireball: down, down-forward, forward        Missiles, homing across lanes: forward, then down-forward        Blast around you, every lane: tap down twice
-Super fireball: the fireball motion twice, then L: huge, and goes through everyone
-Mana: hits fill the blue bar. Light specials are free; heavy ones cost some of it and the super all of it.
+Super fireball: the fireball motion twice, then L: huge, sweeps every lane in front of you, goes through everyone
+Mana: hits fill the blue bar; a three-hit combo pays one heavy spell. Light specials are free; heavy ones cost 30 and the super all of it.
 A heavy you can't pay for comes out as its light version, and the bar flashes red. The melee starts empty.
 Guard: blocking drains the white bar by the hit's damage; hits you land refill it, and a quiet moment too, slowly.
 At zero the guard breaks: the hit launches you. Below a quarter the guard can't be raised.

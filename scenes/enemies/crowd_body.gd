@@ -111,6 +111,8 @@ func revive(lanes: PackedFloat32Array, scales: PackedFloat32Array, start_lane: i
 	blocked = 0
 	taunt_wait = -1
 	target = null
+	hit_by = null
+	carried.clear()
 	shield = kind.shield if kind != null else 0
 	facing = face
 	place_on(lanes, start_lane, start_x)
@@ -121,6 +123,11 @@ func revive(lanes: PackedFloat32Array, scales: PackedFloat32Array, start_lane: i
 ## Dead and finished lying there: the director can take it back.
 func is_done() -> bool:
 	return state == State.DEAD and state_ticks >= knockdown_ticks
+
+
+## Small fry are bowled over by a body launched into them (issue #95).
+func can_be_carried() -> bool:
+	return true
 
 
 ## A shield stops hits from the front while the body stands or walks.

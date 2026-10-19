@@ -14,7 +14,7 @@ hitstun = 16
 hitstop = 5
 blockstun = 8
 knockback = 12.0
-mana = 6
+mana = 8
 
 [sub_resource type="Resource" id="Resource_cancel"]
 script = ExtResource("3_cancel")

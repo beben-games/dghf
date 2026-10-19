@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HitBox" format=3]
+
+[ext_resource type="Script" path="res://systems/combat/hit_box.gd" id="1_hbox"]
+
+[resource]
+script = ExtResource("1_hbox")
+damage = 5
+hitstun = 12
+hitstop = 3
+launch = 16.0
+shake = 2.0
+unblockable = true

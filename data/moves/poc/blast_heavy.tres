@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Resource_hit"]
 script = ExtResource("1_hbox")
-damage = 24
+damage = 30
 mana = 3
 hitstun = 20
 hitstop = 8
@@ -13,23 +13,25 @@ blockstun = 14
 knockback = 14.0
 launch = 22.0
 shake = 12.0
+unblockable = true
 
 [resource]
 script = ExtResource("2_move")
 id = &"blast_heavy"
 animation = &"fireball"
-total_frames = 52
+total_frames = 46
 button = 256
 motion = PackedInt32Array(2, 2)
 motion_window = 18
-projectile_frame = 16
+projectile_frame = 12
 projectile_offset = Vector2(0, -130)
 projectile_speed = 0.0
 projectile_hit = SubResource("Resource_hit")
 projectile_kind = 1
 projectile_size = 10.0
 projectile_lifetime = 28
+projectile_grow = 10
 projectile_all_lanes = true
 projectile_pierce = true
-mana_cost = 40
+mana_cost = 30
 fallback = &"blast_light"

@@ -65,11 +65,11 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Dash | Shift with a direction: a dodge with invincible ticks, and a run for as long as it is held. Shift alone steps back | Right trigger |
 | Running attack | J or L during the dash: a lunge, the heavy one a launcher | X or Y |
 | A landed hit frees you | After a swing connects, anything can follow at once: the next attack, a special, a jump, a lane hop, the dash, or walking off. A miss commits you | |
-| Fireball | Down, down-forward, forward, then J (light) or L (heavy: twice as big, twice as hard, needs a cleaner motion) | The same with X or Y |
-| Homing missiles, across lanes | Forward, then down-forward, then J (one) or L (three, bigger) | The same |
-| Blast around you, every lane | Tap down twice, then J (the get-off-me move: out at once, invincible, launches everyone around you, free) or L (bigger, hits hard, 40 mana) | The same |
-| Super fireball | The fireball motion twice, then L: huge, and goes through everyone | The same |
-| Mana | Hits fill the blue bar. Light specials are free; heavy ones cost some, the super all of it, and a heavy you can't pay for comes out as its light version while the bar flashes red. The melee starts empty, the other scenes full | |
+| Fireball | Down, down-forward, forward, then J (light) or L (heavy: bigger, hits hard, launches and goes through everyone in the lane; needs a cleaner motion) | The same with X or Y |
+| Homing missiles, across lanes | Forward, then down-forward, then J (one) or L (three, bigger, launching) | The same |
+| Blast around you, every lane | Tap down twice, then J (the get-off-me move: out at once, invincible, launches everyone around you, free) or L (bigger, hits hard, launches everything around you through shields, 30 mana) | The same |
+| Super fireball | The fireball motion twice, then L: huge, sweeps every lane in front of you and goes through everyone | The same |
+| Mana | Hits fill the blue bar: a three-hit combo pays one heavy spell. Light specials are free; heavy ones cost 30, the super all of it, and a heavy you can't pay for comes out as its light version while the bar flashes red. The melee starts empty, the other scenes full | |
 | Guard bar | Blocking drains the white bar by the hit's damage; hits you land refill it, a quiet moment slowly. At zero the guard breaks and the hit launches you; below a quarter it can't be raised | |
 | Taunt | The knight is a tank: while you hold the guard, small fry within half a screen fight you, converge on your lane one after another (a few dawdle) and pile on from their side | |
 | Combo | Light, light, heavy: each press after the hit before lands. Then hold up to jump after the target, and light, heavy in the air | The same |

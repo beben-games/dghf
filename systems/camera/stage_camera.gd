@@ -2,7 +2,9 @@ class_name StageCamera
 extends Camera2D
 ## The beat 'em up camera (issue #58; docs/architecture.md, section 9, still
 ## proposed): follows the players along the stage, a little ahead of where
-## they face, and never shows anything past its limits. The stage drives it
+## they face, and never shows anything past its limits. In a boss fight it is
+## a fighting-game camera (issue #66): it zooms and pans on the two fighters,
+## pulling out as they separate. The stage drives it
 ## once a tick, after everyone has moved, and reads the view's edges back as
 ## the players' bounds, so the screen's edges hold them in. The shake is its
 ## offset, so nothing else on the stage has to move.
@@ -14,11 +16,23 @@ const SCREEN := Vector2(1920.0, 1080.0)
 ## How far ahead of the players, the way the first one faces, the view centres.
 @export var look_ahead: float = 120.0
 
+@export_group("Boss fight")
+## The closest the camera comes on a pair: 1.6 is a view 1,200 wide.
+@export var max_zoom: float = 1.6
+## The room kept beside the pair, at zoom 1.
+@export var fight_margin: float = 260.0
+## Share of the gap to the wanted zoom closed each tick.
+@export var zoom_speed: float = 0.06
+## How far above the fighters' feet the view centres, so they stand in its lower half.
+@export var fight_lift: float = 320.0
+
 ## The x range the view may show. The stage sets it, or its arenas do.
 var limit_left_x: float = 0.0
 var limit_right_x: float = 1920.0
-## The centre of the view, before the shake.
+## The centre of the view, before the shake, and how close it is (1 is the whole screen).
 var x: float = 960.0
+var y: float = 540.0
+var zoom_level: float = 1.0
 
 
 func _init() -> void:
@@ -52,6 +66,36 @@ func tick(targets_x: PackedFloat32Array, facing: int) -> void:
 	_place()
 
 
+## One tick of the fighting-game camera (issue #66): the view as wide as the
+## bodies need plus the margins, between the whole screen and max_zoom, its
+## centre on their midpoint and a lift above their feet, everything eased and
+## kept inside the limits and the screen.
+func frame_fight(bodies: Array) -> void:
+	if bodies.is_empty():
+		return
+	var lo: float = INF
+	var hi: float = -INF
+	var feet: float = 0.0
+	for body: Body in bodies:
+		lo = minf(lo, body.x)
+		hi = maxf(hi, body.x)
+		feet += body.position.y + body.height
+	feet /= bodies.size()
+	var wanted: float = clampf(SCREEN.x / (hi - lo + 2.0 * fight_margin), 1.0, max_zoom)
+	zoom_level = lerpf(zoom_level, wanted, zoom_speed)
+	x = _clamped(lerpf(x, (lo + hi) / 2.0, follow_speed))
+	var half_h: float = SCREEN.y / 2.0 / zoom_level
+	y = clampf(lerpf(y, feet - fight_lift, follow_speed), half_h, SCREEN.y - half_h)
+	_place()
+
+
+## Back to the whole screen at the stage's height, for the modes that follow.
+func reset_view() -> void:
+	zoom_level = 1.0
+	y = SCREEN.y / 2.0
+	_place()
+
+
 ## One tick of following `players` (issue #59): the midpoint of the living
 ## ones, with the look-ahead only when one is alive, so with two or more
 ## nobody is dragged by the screen's edge. Then every living player's bounds
@@ -76,13 +120,21 @@ func follow(players: Array, margin: float) -> void:
 		player.keep_in_bounds()
 
 
-## The view's edges on the stage.
+## The view's edges on the stage, at the current zoom.
 func left() -> float:
-	return x - SCREEN.x / 2.0
+	return x - SCREEN.x / 2.0 / zoom_level
 
 
 func right() -> float:
-	return x + SCREEN.x / 2.0
+	return x + SCREEN.x / 2.0 / zoom_level
+
+
+func top() -> float:
+	return y - SCREEN.y / 2.0 / zoom_level
+
+
+func bottom() -> float:
+	return y + SCREEN.y / 2.0 / zoom_level
 
 
 ## The x range a player may stand in: the view, less a margin on each side.
@@ -99,11 +151,12 @@ func shake(amount: float, tick: int) -> void:
 ## A centre that keeps the view inside the limits. Limits narrower than the
 ## screen centre the view between them.
 func _clamped(centre: float) -> float:
-	var half: float = SCREEN.x / 2.0
-	if limit_right_x - limit_left_x <= SCREEN.x:
+	var half: float = SCREEN.x / 2.0 / zoom_level
+	if limit_right_x - limit_left_x <= half * 2.0:
 		return (limit_left_x + limit_right_x) / 2.0
 	return clampf(centre, limit_left_x + half, limit_right_x - half)
 
 
 func _place() -> void:
-	position = Vector2(x, SCREEN.y / 2.0)
+	position = Vector2(x, y)
+	zoom = Vector2(zoom_level, zoom_level)

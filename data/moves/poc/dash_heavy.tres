@@ -25,4 +25,6 @@ total_frames = 30
 button = 256
 from_dash = true
 hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])
-travel = 14.0
+travel = 11.0
+travel_settle = 10
+travel_ease_in = false

@@ -46,8 +46,14 @@ const JUMP: StringName = &"jump"
 @export var rise: float = 0.0
 @export var rise_frame: int = 0
 @export var rise_forward: float = 0.0
-## Pixels a tick the user moves forward while the move's boxes are active (a spinning kick that travels).
+## Pixels a tick, at full speed, the user moves forward during the move (a spinning kick that
+## travels; a light that steps). Eased (issue #80, Ben's quirk): it rises over the hit frames
+## and settles to nothing over `travel_settle` frames after them, so the fighter never
+## starts or stops in one tick. A running attack sets `travel_ease_in` false to keep the
+## run's pace into the hit.
 @export var travel: float = 0.0
+@export var travel_settle: int = 0
+@export var travel_ease_in: bool = true
 
 @export_group("Cancels")
 ## When this move can be cut short, and by which moves.
@@ -82,6 +88,25 @@ const JUMP: StringName = &"jump"
 @export var projectile_interval: int = 0
 ## Ticks a missile flies straight before it starts to home, so a fan opens before it closes in.
 @export var projectile_homing_delay: int = 0
+
+
+## How far the user moves on `frame` of this move: the travel eased over the hit frames and
+## the settle after them. 0 outside that window or for a move that does not travel.
+func travel_speed(frame: int) -> float:
+	if travel <= 0.0 or hit_boxes.is_empty():
+		return 0.0
+	var from: int = hit_boxes[0].first_frame
+	var to: int = hit_boxes[0].last_frame
+	for box in hit_boxes:
+		from = mini(from, box.first_frame)
+		to = maxi(to, box.last_frame)
+	if frame < from or frame > to + travel_settle:
+		return 0.0
+	if frame <= to:
+		if not travel_ease_in:
+			return travel
+		return travel * sin(0.5 * PI * float(frame - from + 1) / float(to - from + 1))
+	return travel * cos(0.5 * PI * float(frame - to) / float(travel_settle + 1))
 
 
 ## Whether `other` can start now, cutting this move short on `frame`.

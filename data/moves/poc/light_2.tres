@@ -33,3 +33,4 @@ follow_up = true
 hit_boxes = Array[ExtResource("1_hbox")]([SubResource("Resource_hit")])
 cancels = Array[ExtResource("3_cancel")]([SubResource("Resource_cancel")])
 travel = 5.0
+travel_settle = 6

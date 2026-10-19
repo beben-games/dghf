@@ -130,7 +130,7 @@ func blocks(direction: int) -> bool:
 
 ## The shield holds a hit it can take; a heavier one, or a guard breaker, goes through.
 func blocks_hit(hit: HitBox, direction: int) -> bool:
-	return blocks(direction) and not hit.breaks_guard and not hit.grab and shield > hit.damage
+	return blocks(direction) and not hit.breaks_guard and not hit.grab and not hit.unblockable and shield > hit.damage
 
 
 ## A blocked hit drains the shield and nudges the body back.
@@ -144,7 +144,7 @@ func take_block(hit: HitBox, direction: int) -> void:
 
 ## A hit on a raised shield that it can't take breaks it: the hit lands in full and launches.
 func take_hit(hit: HitBox, direction: int) -> void:
-	if blocks(direction) and not hit.grab:
+	if blocks(direction) and not hit.grab and not hit.unblockable:
 		shield = 0
 		just_broke = true
 		var breaking: HitBox = hit.duplicate()

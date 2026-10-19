@@ -10,7 +10,7 @@ Both vertical slices of `docs/plans/2026-10-17-vertical-slices.md` exist. **The 
 
 Ben played both slices end to end on 2026-10-18 (issue #92; his words are quoted on the issues each thing belongs to). **The shapes pass:** the boss fight is the right size and feel, only too weak for now; the level and the kinds are nice; the swing is reactive enough. **The core loop does not pay off yet:** being surrounded is too hard to get out of, the spells neither clear a pile nor cast easily in one, the throwers flee out of the knight's short reach, and the knight's tank kit (guard, taunt) has no answer to a crowd when played alone. The plan that follows is `docs/plans/2026-10-18-core-loop-feel-pass.md`: a feel pass on the loop, not a new slice and not a change of direction. Its steps, in order:
 
-1. **A way out of the pile** (#94): the light blast as the free, instant get-off-me move; a cap on the crowd's chain and invincible hop ticks if that isn't enough.
+1. **A way out of the pile** (#94): the light blast as the free, instant get-off-me move; a cap on the crowd's chain and invincible hop ticks if that isn't enough. Built on `code/94-way-out` on 2026-10-18 (`docs/design/2026-10-18-way-out-of-the-pile.md`, proposed): the headless sandbox test found the crowd leaves gaps and the kit had nothing to clear with; the blast now comes out at once, invincible, launching everything around the knight in every lane, a shove through shields, 6 damage, free. Ben played it on 2026-10-18: he gets out every time with one input, and the melee no longer frustrates when the crowd closes in. In review, pull request #100.
 2. **Spells that clear** (#95): a heavy spell kills a small fry, a super clears the lanes, mana retuned around a combo into a heavy spell; with the knock-ons and carried launches of #63 that need no effects.
 3. **Spells on buttons** (#96), motions kept. For the meeting once built: the layout is the team's.
 4. **Throwers** (#97): back off less, within the knight's reach. Numbers only.
@@ -26,7 +26,7 @@ What is known to be missing or pending: Ben's effects for the crowd feel pass (#
 | The game: the menu and the stage | `scenes/main/` (the menu), `scenes/levels/poc_stage/` (the stage), `scenes/levels/` (levels, arenas, waves), `systems/camera/`, `systems/enemies/` (the crowd director, kinds, brains, the boss), `scenes/props/`, `systems/audio/`, `systems/input/lobby.gd` (joining) | `scripts/run.sh`, or F5 in the editor. The menu offers the **boss fight**, the **melee** (the first level, "The camp") and a **sandbox** (the melee's stage, free; add enemies and barrels one by one, standing still until told). In the melee and the sandbox any button on a second or third pad joins. In a fight, Tab lists every key |
 | The crowd stress test | `scenes/stress_test/` | `scripts/run.sh res://scenes/stress_test/stress_test.tscn` (add `-- --benchmark` for the timed table) |
 | The move preview tool | `scenes/tools/move_preview/` | `scripts/run.sh res://scenes/tools/move_preview/move_preview.tscn`. Steps through a move frame by frame and reloads it when its file is saved |
-| The tests, thirteen scripts | `tests/*_test.gd` | `godot --headless --path . -s tests/<name>.gd --quit-after 8000` prints `all passed`. `poc_player`, `move_preview`, `hits`, `crowd`, `camera`, `coop`, `mana`, `guard_bar`, `enemies`, `level`, `props`, `sounds`, `boss`. After adding a `class_name`, run `godot --headless --path . --import` first |
+| The tests, fourteen scripts | `tests/*_test.gd` | `godot --headless --path . -s tests/<name>.gd --quit-after 8000` prints `all passed`. `poc_player`, `move_preview`, `hits`, `crowd`, `camera`, `coop`, `mana`, `guard_bar`, `enemies`, `level`, `props`, `sounds`, `boss`, `way_out` (the sandbox pile, run headless, with the numbers for the hop, the dash and the blast). After adding a `class_name`, run `godot --headless --path . --import` first |
 | The placeholder sounds | `tools/audio/make_placeholders.py` | `python3 tools/audio/make_placeholders.py` remakes `assets/sfx/` and `assets/music/` (needs `oggenc` or ffmpeg) |
 | The art pipeline | `tools/art/`, `docs/art.md` | `python3 tools/art/pixellab.py balance` and `python3 tools/art/budget.py` report from this repository (Ben's key, in his keychain). `gen.py plan art/jobs/probe_sizes.json` lists the sprite-size probe |
 | Windows x64 and Linux x64 builds | `scripts/build.sh` | Zips land in `builds/`. Add `--skin <folder>` for a playtest build with a skin beside the executable: its zips are named `-private` and must not be published |
@@ -106,7 +106,8 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 | Issue | State |
 |---|---|
-| #94 A way out of the pile, #95 Spells that clear, #96 Spells on buttons, #97 Throwers | The core-loop feel pass, above, in that order. Not started. |
+| #94 A way out of the pile | In review: pull request #100. Ben played it on 2026-10-18 and gets out every time with one input; the melee no longer frustrates when the crowd closes in. |
+| #95 Spells that clear, #96 Spells on buttons, #97 Throwers | The core-loop feel pass, above, in that order. Not started. |
 | #98 Every character must work solo | For the meeting with #33: the knight's crowd control, or the caster next. |
 | #92 Find the fun | Done on 2026-10-18: Ben's reactions are on the issues, the plan is `docs/plans/2026-10-18-core-loop-feel-pass.md`. |
 | #2 The combat core | Sections 1, 3, 4 and 7 are decided. Sections 2, 5 and 9 wait for the meeting. |

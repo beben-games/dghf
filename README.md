@@ -67,7 +67,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | A landed hit frees you | After a swing connects, anything can follow at once: the next attack, a special, a jump, a lane hop, the dash, or walking off. A miss commits you | |
 | Fireball | Down, down-forward, forward, then J (light) or L (heavy: twice as big, twice as hard, needs a cleaner motion) | The same with X or Y |
 | Homing missiles, across lanes | Forward, then down-forward, then J (one) or L (three, bigger) | The same |
-| Blast around you, every lane | Tap down twice, then J or L (bigger, launches) | The same |
+| Blast around you, every lane | Tap down twice, then J (the get-off-me move: out at once, invincible, launches everyone around you, free) or L (bigger, hits hard, 40 mana) | The same |
 | Super fireball | The fireball motion twice, then L: huge, and goes through everyone | The same |
 | Mana | Hits fill the blue bar. Light specials are free; heavy ones cost some, the super all of it, and a heavy you can't pay for comes out as its light version while the bar flashes red. The melee starts empty, the other scenes full | |
 | Guard bar | Blocking drains the white bar by the hit's damage; hits you land refill it, a quiet moment slowly. At zero the guard breaks and the hit launches you; below a quarter it can't be raised | |

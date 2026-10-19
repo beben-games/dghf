@@ -28,13 +28,14 @@ var _pierce: PackedByteArray = PackedByteArray()  # 1 for one that goes through 
 var _all_lanes: PackedByteArray = PackedByteArray()  # 1 for one that hits in every lane
 var _homing: PackedFloat32Array = PackedFloat32Array()  # how hard a missile turns toward its target, 0 for none
 var _homing_from: PackedInt32Array = PackedInt32Array()  # the age from which it turns
+var _grow: PackedInt32Array = PackedInt32Array()  # ticks a burst takes to reach full size; 0 for 60% of its life
 var _target: Array[Body] = []  # what a missile homes on
 var _owner: Array[Body] = []  # who sent it, for the combo count; null for nobody in particular
 var _already_hit: Array[PackedInt64Array] = []  # the bodies a piercing one has hit, by instance id
 
 
 func _init() -> void:
-	for arr in [_kind, _age, _life, _lane, _team, _homing_from]:
+	for arr in [_kind, _age, _life, _lane, _team, _homing_from, _grow]:
 		arr.resize(CAPACITY)
 	for arr in [_x, _y, _vx, _vy, _scale, _homing]:
 		arr.resize(CAPACITY)
@@ -61,13 +62,13 @@ func spawn_from(move: Move, at: Vector2, lane: int, team: int, facing: int, dept
 	var vy: float = (index - (n - 1) / 2.0) * move.projectile_spread
 	spawn(at, move.projectile_speed * facing, lane, team, move.projectile_hit, depth * move.projectile_size,
 			move.projectile_pierce, move.projectile_kind, move.projectile_lifetime, move.projectile_all_lanes,
-			move.projectile_homing, vy, move.projectile_homing_delay, owner)
+			move.projectile_homing, vy, move.projectile_homing_delay, owner, move.projectile_grow)
 
 
 ## `hit` is what it does to a target of another team in its lane, or null for none.
 func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, hit: HitBox = null, size: float = 1.0,
 		pierce: bool = false, kind: Kind = Kind.FIREBALL, life: int = 0, all_lanes: bool = false, homing: float = 0.0,
-		velocity_y: float = 0.0, homing_delay: int = 0, owner: Body = null) -> void:
+		velocity_y: float = 0.0, homing_delay: int = 0, owner: Body = null, grow: int = 0) -> void:
 	if _count == CAPACITY:
 		return
 	_kind[_count] = kind
@@ -85,6 +86,7 @@ func spawn(at: Vector2, velocity_x: float, in_lane: int = 0, of_team: int = 0, h
 	_all_lanes[_count] = 1 if all_lanes else 0
 	_homing[_count] = homing
 	_homing_from[_count] = homing_delay
+	_grow[_count] = grow
 	_target[_count] = null
 	_owner[_count] = owner
 	_already_hit[_count] = PackedInt64Array()
@@ -160,8 +162,10 @@ func rect(i: int) -> Rect2:
 
 func radius(i: int) -> float:
 	var r: float = RADIUS * _scale[i]
-	if _kind[i] == Kind.BURST and _life[i] > 0:
-		r *= minf(float(_age[i] + 1) / (_life[i] * 0.6), 1.0)
+	if _kind[i] == Kind.BURST:
+		var grow: float = float(_grow[i]) if _grow[i] > 0 else _life[i] * 0.6
+		if grow > 0.0:
+			r *= minf(float(_age[i] + 1) / grow, 1.0)
 	return r
 
 
@@ -212,7 +216,7 @@ func direction(i: int) -> int:
 func remove(i: int) -> void:
 	# Fill the hole with the last one: order doesn't matter.
 	_count -= 1
-	for arr in [_kind, _age, _life, _lane, _team, _homing_from]:
+	for arr in [_kind, _age, _life, _lane, _team, _homing_from, _grow]:
 		arr[i] = arr[_count]
 	for arr in [_x, _y, _vx, _vy, _scale, _homing]:
 		arr[i] = arr[_count]

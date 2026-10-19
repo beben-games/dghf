@@ -492,6 +492,7 @@ func _add_boss(kind: BossKind, boss_lane: int, at_x: float) -> Fighter:
 	fighter.health = kind.max_health
 	fighter.size = kind.size
 	fighter.walk_speed = kind.walk_speed
+	fighter.launch_resist = kind.launch_resist
 	fighter.moves = kind.moves
 	fighter.set_lanes(lanes(), scales())
 	_dummy_views[_dummies.find(fighter)].body_color = kind.body_color

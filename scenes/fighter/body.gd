@@ -37,6 +37,9 @@ const STATE_NAMES: Array[String] = [
 @export var getup_ticks: int = 20
 ## The push a killing blow gives, so a body that dies flies a little.
 @export var death_launch: float = 14.0
+## A launch at or below this does not lift the body: it takes the hit standing, pushed back
+## (a boss stands through the light blast, issue #94). 0 means any launch lifts it.
+@export var launch_resist: float = 0.0
 
 ## How large this body is against a plain fighter (a boss is 1.3); the lanes' scales multiply it.
 var size: float = 1.0
@@ -279,6 +282,8 @@ func take_hit(hit: HitBox, direction: int) -> void:
 	_interrupted()
 	move = null
 	var launch: float = hit.launch
+	if launch > 0.0 and launch <= launch_resist and not is_jumping() and state != State.LAUNCHED:
+		launch = 0.0  # too light to lift this body: a push instead
 	if hit.grab and not is_jumping() and state != State.LAUNCHED:
 		# Held where it stands for the hold, then thrown.
 		_stun_ticks = hit.hitstun

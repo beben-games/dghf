@@ -42,7 +42,7 @@ About 8 to 10 sessions in all. Steps 3, 4, 7 and 8 need nothing and can be taken
 
 ## Where it stands (2026-10-18)
 
-Every step that needed nothing is built and merged; #63 waits on Ben's effects; #68 is scrapped. The next session's first job is not a step of this plan but a review of it: issue #92, "Find the fun", described at the top of `docs/STATUS.md`. A new plan follows from that.
+Every step that needed nothing is built and merged; #63 waits on Ben's effects; #68 is scrapped. Ben reviewed both slices on 2026-10-18 (issue #92, "Find the fun"): the shapes pass, the core loop does not pay off yet. The plan that follows is `docs/plans/2026-10-18-core-loop-feel-pass.md`; the knock-ons of step 6 moved there (#95), and #63 keeps the effects.
 
 ## How a fresh session picks this up
 

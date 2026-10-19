@@ -18,6 +18,7 @@ Working title: **Open.**
 - **Proposed (Ben, 2026-10-17).** The characters differ as classes through their bars as much as their moves: a tank has a much bigger guard bar and its guard taunts (the crowd nearby comes to its lane and piles on it), to keep a swarm or a boss busy while the rest of the team blasts. The guard bar is built (`docs/design/2026-10-17-guard-bar.md`); which classes the three are goes with the question above.
 - **Proposed (Ben, 2026-10-18).** Boss fights feel like a fighting game, but asymmetric: the boss is much stronger than any one character, like the final bosses of Marvel vs Capcom, and all three characters are needed to beat it. Not best-of-three rounds. **Open:** how the three take part (tag team, 3v1 or another mechanism), issue #90, for the meeting.
 - **Decided (2026-09-27).** Solo and local co-op in the first release. Online play is out of scope.
+- **Open (Ben, 2026-10-18, after playing the melee alone).** Since solo is in, every character must be fun alone. The knight's tank kit (a guard that taunts) is a team kit and gives a solo player no crowd control: does the knight get a clearing tool of its own, or is the caster the next character and the knight the co-op anchor? Issue #98, for the meeting with the question above.
 - **Proposed.** For remote sessions, the team streams one machine's game, for example with Parsec.
 
 ## Setting and tone
@@ -64,6 +65,6 @@ Working title: **Open.**
 - **Proposed.** Each milestone takes two to four weeks and ends with something playable:
   1. **Setup:** repository, Godot project, project board, this file and `CLAUDE.md`. Spec: `docs/design/2026-10-03-setup.md`.
   2. **Milestone 1:** one character on an empty stage, moving and attacking, one punchable enemy, placeholder art. Includes a crowd stress test to choose how enemies are built.
-  3. **Milestone 2:** the horde: dozens of simple enemies at once, and a first spell combo.
+  3. **Milestone 2:** the horde: dozens of simple enemies at once, and a first spell combo. Built as the melee slice (`docs/plans/2026-10-17-vertical-slices.md`); Ben's review of 2026-10-18 found the crowd-into-spells loop under-built, so the milestone ends with the core-loop feel pass of `docs/plans/2026-10-18-core-loop-feel-pass.md`.
   4. **Milestone 3:** three characters and local co-op with a shared camera.
   5. **Milestone 4:** one complete level with PixelLab art and music, released.

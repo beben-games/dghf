@@ -172,6 +172,7 @@ func _tick_state() -> void:
 				move_frame = 0
 				start_swing()
 				_enter(State.ATTACK)
+				Sounds.play(&"fireball" if move.projectile_frame >= 0 else &"swing")
 			elif wanted_direction != 0:
 				facing = wanted_direction
 				x = clampf(x + wanted_direction * walk_speed, bounds.x, bounds.y)

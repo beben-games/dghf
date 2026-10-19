@@ -94,6 +94,9 @@ func take_hit(hit: HitBox, _direction: int) -> void:
 		state = State.DEAD
 		state_ticks = 0
 		broken_ticks = 0
+		Sounds.play(&"barrel")
+	else:
+		Sounds.play(&"hit")
 
 
 func _tick_state() -> void:

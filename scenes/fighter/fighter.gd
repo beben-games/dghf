@@ -362,6 +362,7 @@ func _try_dodge() -> bool:
 	_dodge_back = direction == 0
 	_knock_speed = 0.0
 	_enter(State.DODGE)
+	Sounds.play(&"dash")
 	return true
 
 
@@ -425,6 +426,7 @@ func _try_moves(in_air: bool, free: bool = false, dashing: bool = false) -> bool
 			move_frame = 0
 			start_swing()
 			_enter(State.AIR_ATTACK if in_air else State.ATTACK)
+			Sounds.play(&"fireball" if chosen.projectile_frame >= 0 else &"swing")
 			return true
 	return false
 

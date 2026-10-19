@@ -83,6 +83,7 @@ The game is a sandbox for now: one character against the big dummy on one screen
 | Ten more small-fry enemies | F6 | |
 | Refill everyone's mana | F7 | |
 | A tank's guard bar for player 1, three times bigger | F8 | |
+| Mute the placeholder sound and music | F9 | |
 | A small fry in front of you in a random lane; a big dummy in front of you | 1; 2 | |
 | A fast, a shielded or a throwing small fry in front of you | 3; 4; 5 | |
 | A barrel in front of you | 6 | |

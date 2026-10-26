@@ -40,6 +40,10 @@ Twenty-three candidates (`art/jobs/vfx_jeanne.json`, 122 generations). Ben's wor
 
 **The second batch** (`art/jobs/vfx_jeanne2.json`, about 64 generations) follows from the review: a fire aura for a mob burning to death; a blood burst and a slash flash as separate one-shot effects, combined in code, the slash in one direction and rotated or flipped for the others, so no set of directional blood hits is generated; a smaller, flamier fire hit, one fresh and one as a change to the first through its `conversation`; two more tries at a taunt aura that reads as a taunt. The fire hit's size is judged in the wiring step, in action, as Ben asked.
 
+## Ben's review of the second batch (2026-10-25)
+
+Eight candidates (`art/jobs/vfx_jeanne2.json`, 64 generations); Ben's words are on issue #63. **Picked, in `assets/vfx/`:** the blood burst (`hit_blood`, "OK"), the small fire hit (`jeanne_fire_hit`, the fresh 96-pixel one, "OK"; the change to the first stays in the library) and taunt aura C (`jeanne_taunt_aura`, "unhinged, but lowkey good"; D was "the same vein as before"). **Library:** the slash flash, which "might still need more love" since slashes come from any direction, and may only serve a cutting spell later. **Wrong:** the two mob fire auras: the goal is the enemy sprite itself catching fire, not flames around it, so a burning death is generated around the enemy's own sprite once a small fry has one (or done as a shader on the sprite, in code). **To fix later:** the taunt aura is a perfect circle and sits off the player's centre. Its JSON carries the anchor the artist placed at the knight's feet (`kind: feet`), which the wiring uses to line it up; the shape is a slider on PixelLab.
+
 ## What is left to the next step
 
 1. Ben picks a variant of each effect from the contact sheets and GIFs (`art/raw/vfx_jeanne/`, git-ignored), or tweaks one on the website first.

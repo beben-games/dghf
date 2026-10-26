@@ -26,7 +26,9 @@ class ApiError(RuntimeError):
 
 def request_bytes(method: str, path: str, body: dict | None = None) -> bytes:
     data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(BASE + path, data=data, method=method)
+    # A VFX result's files are served by the API itself (not storage): an absolute API URL is allowed.
+    url = path if path.startswith(BASE.rsplit("/", 1)[0] + "/") else BASE + path
+    req = urllib.request.Request(url, data=data, method=method)
     # Unredirected: a redirect to file storage never carries the key.
     req.add_unredirected_header("Authorization", "Bearer " + keys.key("pixellab"))
     req.add_header("Accept", "application/json")

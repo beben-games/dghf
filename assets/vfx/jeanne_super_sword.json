@@ -1,0 +1,252 @@
+{
+ "frames": [
+  {
+   "filename": "jeanne-super-sword-a 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-super-sword-a 1.png",
+   "frame": {
+    "x": 512,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-super-sword-a 2.png",
+   "frame": {
+    "x": 1024,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-super-sword-a 3.png",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-super-sword-a 4.png",
+   "frame": {
+    "x": 512,
+    "y": 192,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-super-sword-a 5.png",
+   "frame": {
+    "x": 1024,
+    "y": 192,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-super-sword-a 6.png",
+   "frame": {
+    "x": 0,
+    "y": 384,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-super-sword-a 7.png",
+   "frame": {
+    "x": 512,
+    "y": 384,
+    "w": 512,
+    "h": 192
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 512,
+    "h": 192
+   },
+   "sourceSize": {
+    "w": 512,
+    "h": 192
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "jeanne-super-sword-a.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1536,
+   "h": 576
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 256,
+   "y": 96
+  },
+  "frameTags": [
+   {
+    "name": "jeanne-super-sword-a",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ },
+ "source": {
+  "effect_id": "cba9547b-120f-42c0-8cb6-9acfcc6f95ee",
+  "call": "vfx_jeanne/super_sword_pro_a",
+  "job": "art/jobs/vfx_jeanne.json",
+  "canvas": {
+   "h": 192,
+   "w": 512
+  },
+  "frames": 8,
+  "fps": 16,
+  "loop": true,
+  "anchor": {
+   "x": 256,
+   "y": 96,
+   "kind": "origin"
+  }
+ }
+}

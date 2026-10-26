@@ -234,6 +234,20 @@ def save_outputs(out: Path, call: dict, reply: dict, jobs: list[dict]) -> list[s
             detail = pixellab.request("GET", path.format(reply[key]))
             (out / "detail.json").write_text(json.dumps(strip_images(detail), indent=2))
             sources.append(detail)
+    if call["endpoint"] == "/vfx":
+        # A VFX result links its files (GIF, spritesheet PNG and JSON, the game-pack ZIP) on the API host,
+        # fetched with the key; the ZIP is unpacked beside them.
+        saved = []
+        for job in jobs:
+            for name, url in ((job.get("last_response") or {}).get("files") or {}).items():
+                data = pixellab.request_bytes("GET", url)
+                (out / name).write_bytes(data)
+                saved.append(name)
+                if name.endswith(".zip"):
+                    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+                        archive.extractall(out / "game")
+                    saved.append("game/")
+        return saved
     images, urls = [], []
     for source in sources:
         # A template animation returns its frames twice: raw (80 to 100 colours) and reduced
@@ -338,9 +352,11 @@ def finish(concept: str, call: dict, state: dict) -> None:
         return
     saved = patiently(lambda: save_outputs(out, call, reply, jobs), call["id"])
     left = patiently(pixellab.balance, "balance")["subscription"]["generations"]
+    effect = next(((j.get("last_response") or {}) for j in jobs if (j.get("last_response") or {}).get("effect_id")), None)
     log({**record, "time": now(), "status": "completed", "job_ids": job_ids,
          "character_id": reply.get("character_id"), "usage": usage_of(reply, jobs), "saved": saved,
-         "balance_after": left})
+         "balance_after": left,
+         **({"effect": {k: effect.get(k) for k in ("effect_id", "edit_url", "canvas", "frames", "fps", "loop", "parts", "anchor", "conversation")}} if effect else {})})
     print(f"  {call['id']}: {len(saved)} file(s), usage {usage_of(reply, jobs)}, {left:.0f} left")
 
 

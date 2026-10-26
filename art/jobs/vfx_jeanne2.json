@@ -1,0 +1,102 @@
+{
+    "concept": "vfx_jeanne2",
+    "note": "Issue #63, after Ben's review of the first batch (2026-10-25): a fire aura for a mob burning to death (the fire death was too much fire), a blood burst and a slash flash as separate effects to combine, a smaller and flamier fire hit (one fresh, one change to the first through its conversation), and two more tries at a taunt aura around Ben's knight.",
+    "calls": [
+        {
+            "id": "mob_fire_aura_a",
+            "endpoint": "/vfx",
+            "estimate": 8,
+            "body": {
+                "name": "dghf mob fire aura A",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "Flames burning on a standing human-sized figure, as a fire aura wrapping the space of a body 230 px tall: tongues of orange-red flame rising from the feet around the torso and head, embers lifting off. Canvas 192 by 288, 8 frames at 12 fps, loops, anchored bottom centre, only the flames drawn. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "mob_fire_aura_b",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf mob fire aura B",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A thin burning aura hugging the outline of an empty standing-figure shape 230 px tall: small licking flames along the silhouette, brighter at the shoulders and head, a few sparks drifting up. Canvas 192 by 288, 8 frames at 12 fps, loops, anchored bottom centre. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_blood_burst",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf hit blood burst",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A blood burst with no direction: crimson and dark red drops spraying out evenly from the centre in every direction after a brief white flash, then arcing down and fading. Canvas 128 by 128, 8 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_slash",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf hit slash",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A sword slash flash alone, no blood: a thin curved white arc with a red-pink edge sweeping from upper left to lower right across the centre, flashing bright then fading. Canvas 128 by 128, 6 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_fire_small",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne fire hit small",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A small flaming impact: a quick white-orange flash at the centre, then a few licking tongues of flame curling up and out with sparks, over fast. Canvas 96 by 96, 8 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_fire_change",
+            "endpoint": "/vfx",
+            "estimate": 4,
+            "body": {
+                "name": "jeanne fire hit",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "Make it smaller, about 96 pixels across, and more flame-like: fewer solid blobs, more licking tongues of fire curling upward, keep the quick flash.",
+                "effect_id": "2b79571d-c37c-4260-875e-dd993b760700",
+                "conversation": "1-xv9V8crfG7apHdFgybTg.7463638da87903255453fbe61a651af987c6e20de8390109735087cb5d9eca26"
+            }
+        },
+        {
+            "id": "taunt_aura_c",
+            "endpoint": "/vfx",
+            "estimate": 14,
+            "body": {
+                "name": "jeanne taunt aura C",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A taunting challenge aura on this knight: a fierce red-gold glow flaring up around her, pulsing rings of light pushing outward from her body like a shout, embers and sparks flung out, bold and aggressive. 12 frames at 12 fps, loops. Keep the knight unchanged. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background.",
+                "sprite": {
+                    "ref": "ben_knight_frame"
+                }
+            }
+        },
+        {
+            "id": "taunt_aura_d",
+            "endpoint": "/vfx",
+            "estimate": 14,
+            "body": {
+                "name": "jeanne taunt aura D",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A beckoning holy aura on this knight: golden light pulsing outward from her in waves, bright rays shooting out, and small motes streaming in toward her chest so the crowd is drawn to her. 12 frames at 12 fps, loops. Keep the knight unchanged. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background.",
+                "sprite": {
+                    "ref": "ben_knight_frame"
+                }
+            }
+        }
+    ]
+}

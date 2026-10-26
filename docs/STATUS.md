@@ -1,6 +1,6 @@
 # Status
 
-**Updated 2026-10-18, night.** Where the project stands, for a person or a Claude starting a new session. Read it after `CLAUDE.md`. To show someone what there is to play, go to "Showing someone around". Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
+**Updated 2026-10-25.** Where the project stands, for a person or a Claude starting a new session. Read it after `CLAUDE.md`. To show someone what there is to play, go to "Showing someone around". Update it at the end of a working session: it is a snapshot, and the issues, the game bible and the design specs stay the sources of truth.
 
 ## In one paragraph
 
@@ -17,7 +17,7 @@ Ben played both slices end to end on 2026-10-18 (issue #92; his words are quoted
 
 A fresh session takes the lowest-numbered open one whose needs are done: #96 now, then #97 (numbers only). For the meeting, not the plan: every character must work solo, so the knight's crowd control or the caster next (#98, with #33); the spell economy after step 2; the boss's strength after #90.
 
-What is known to be missing or pending: Ben's effects for the crowd feel pass (#63: a missile, a blast ring, a fireball, hit sparks, and the taunt's attracting force); the real sounds (E, #87); any play by T or E since the first proof of concept; the weekly meeting with its agenda below.
+What is known to be missing or pending: Ben's pick among the generated effects for the crowd feel pass (#63, generated on 2026-10-25, to be wired in next); the real sounds (E, #87); any play by T or E since the first proof of concept; the weekly meeting with its agenda below.
 
 ## What runs today
 
@@ -113,7 +113,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 | #92 Find the fun | Done on 2026-10-18: Ben's reactions are on the issues, the plan is `docs/plans/2026-10-18-core-loop-feel-pass.md`. |
 | #2 The combat core | Sections 1, 3, 4 and 7 are decided. Sections 2, 5 and 9 wait for the meeting. |
 | #90 Boss fights: tag team, 3v1 or something else? | For the meeting, with #33 (characters appear as bosses, then unlock). |
-| #63 Crowd feel pass | Its knock-ons and carried launches are in main since #95 (a launched small fry carries the ones it flies into); the death effects and VFX wait on Ben's effects (a missile, a blast ring, a fireball, hit sparks, the taunt's pull). |
+| #63 Crowd feel pass | Its knock-ons and carried launches are in main since #95. **The first effects were generated on 2026-10-25** on `art/63-jeanne-effects` with PixelLab's new effects artist (`docs/design/2026-10-25-jeanne-effects.md`, proposed): the knight is Jeanne d'Arc with fire and holy light; 23 candidates (the sun, the sword of flame, the super's swords, the light darts, blood and block hits, fire and light impacts, the taunt's aura and pull, blood and fire deaths) for 122 generations, in `art/raw/vfx_jeanne/` with a review page from `tools/art/vfx_review.py`. Waiting on Ben's pick; the wiring into the game is the step after. |
 | #87 Sound effects and music | E's, from `docs/audio.md`. |
 | #3 Crowd stress test | Measured on Ben's Mac. Needs numbers from E, T and Ben's Windows PC. |
 | #11 Port the PixelLab art pipeline | In review. The tools report the balance from here; `docs/art.md` is the guide; the size probe of 2026-10-11 found `create-character-v3` at 256 matches Ben's knight (`art/refs/`). Done when the meeting has picked the look and size. |
@@ -124,7 +124,7 @@ This is not decided, and it pulls against two things the game bible has as decid
 
 - **T** (GitHub `pipochao`, invited to the repository and the board on 2026-10-11): accept the invitations, install Godot 4.7.2, take the tour. T's round three is in: three lanes with a small perspective effect, 30 to 40 enemies at most, two attack buttons plus guard plus a spell button, block and dodge, combo counter only, no friendly fire.
 - **E** (GitHub `T13nou`): finish round three, take the tour, run the stress test and post its table on #3; the sound effects and music from `docs/audio.md` (#87).
-- **Ben:** list the quirks from the combat-feel spike on #80; the effects for #63; play co-op with real pads; run the Windows build; answer the five newest round-three questions; write up what T and E said about the hits and the combos on #9 and #8.
+- **Ben:** pick a variant of each of Jeanne's effects on the review page (#63, `art/63-jeanne-effects`); list the quirks from the combat-feel spike on #80; play co-op with real pads; run the Windows build; answer the five newest round-three questions; write up what T and E said about the hits and the combos on #9 and #8.
 - **All three:** a weekly meeting. Its agenda: sections 2, 5 and 9 of the architecture (lanes and depth, the 50-pixel preset; the resolution, where the probe says 1080p native with characters about 240 pixels tall in the look of Ben's knight; the button layout, where Ben and T agree on two attacks plus guard and E has to confirm; what guard and dodge should stop); the combat feel of #80; classes through the bars and who the three characters are; the shape of boss fights (#90) and bosses that unlock (#33); every character working solo, the knight's crowd control or the caster next (#98); spells on buttons once built (#96); the spell economy (#60) after #95; the enemy's feel.
 
 ## Working in this repository

@@ -1,0 +1,265 @@
+{
+    "concept": "vfx_jeanne",
+    "note": "Issue #63: Jeanne's first effects from PixelLab's /vfx (docs/design/2026-10-25-jeanne-effects.md). Pro artist with two variants of each effect, lite for the main ones as a cheap comparison; the taunt aura is generated around Ben's approved knight frame. A pro description of 400 characters or more is quoted 1.25x, so those are estimated at 8.",
+    "calls": [
+        {
+            "id": "sun_pro_a",
+            "endpoint": "/vfx",
+            "estimate": 8,
+            "body": {
+                "name": "jeanne sun A",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A bright sun-like explosion bursting outward from one point, shoving everything away: a blinding white-gold core flashes, a thick ring of orange-red flame races outward to the canvas edge with sparks, then embers drift and fade. Fills the whole 512 by 512 canvas, 16 frames at 20 fps, plays once, anchored at the centre. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "sun_pro_b",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne sun B",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A small sun igniting: a golden corona with solar flares and rays flaring out from a white core, then a shockwave ring of fire expanding to the canvas edge and breaking into sparks. Fills the whole 512 by 512 canvas, 16 frames at 20 fps, plays once, anchored at the centre. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "sun_lite",
+            "endpoint": "/vfx",
+            "estimate": 1,
+            "body": {
+                "name": "jeanne sun lite",
+                "artist": "lite",
+                "game_pack": true,
+                "description": "A bright sun-like explosion bursting outward from one point, shoving everything away: a blinding white-gold core flashes, a thick ring of orange-red flame races outward to the canvas edge with sparks, then embers drift and fade. Fills the whole 512 by 512 canvas, 16 frames at 20 fps, plays once, anchored at the centre. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "sword_pro_a",
+            "endpoint": "/vfx",
+            "estimate": 8,
+            "body": {
+                "name": "jeanne flame sword A",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A flying sword made of fire seen from the side, pointing right and moving right: a blade of white-yellow flame with an orange-red fiery edge, a crossguard and hilt of darker flame, trailing a flame tail and sparks behind it. Canvas 256 by 128, 8 frames at 16 fps, loops, the sword stays centred while its flames flicker. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "sword_pro_b",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne flame sword B",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A longsword forged of flame flying point first to the right: a crisp sword silhouette outlined in dark red, filled with yellow-white fire, flames streaming back from the blade and hilt into a trailing wake with sparks. Canvas 256 by 128, 8 frames at 16 fps, loops, the sword stays centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "sword_lite",
+            "endpoint": "/vfx",
+            "estimate": 1,
+            "body": {
+                "name": "jeanne flame sword lite",
+                "artist": "lite",
+                "game_pack": true,
+                "description": "A flying sword made of fire seen from the side, pointing right and moving right: a blade of white-yellow flame with an orange-red fiery edge, a crossguard and hilt of darker flame, trailing a flame tail and sparks behind it. Canvas 256 by 128, 8 frames at 16 fps, loops, the sword stays centred while its flames flicker. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "super_sword_pro_a",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne super sword A",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A huge sword of holy light and fire flying point first to the right: a blade of blinding white and gold light with orange fire blazing along its edges and streaming behind it, rays of light and sparks in its wake. Canvas 512 by 192, 8 frames at 16 fps, loops, the sword stays centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "super_sword_pro_b",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne super sword B",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A giant greatsword of white-gold holy light flying to the right, red-orange flames spiralling around the blade and a long radiant trail of light and embers behind it. Canvas 512 by 192, 8 frames at 16 fps, loops, the sword stays centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "dart_pro_a",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne light dart A",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A small holy light dart flying to the right: a sharp spear of white-gold light with a short glowing trail and tiny sparkles, like a shooting star of blessed light. Canvas 96 by 48, 6 frames at 16 fps, loops, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "dart_pro_b",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne light dart B",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A slender arrow of holy light flying right: a white core with a pale gold and sky-blue glow, a small cross-shaped sparkle at the tip and a soft fading trail. Canvas 96 by 48, 6 frames at 16 fps, loops, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "dart_lite",
+            "endpoint": "/vfx",
+            "estimate": 1,
+            "body": {
+                "name": "jeanne light dart lite",
+                "artist": "lite",
+                "game_pack": true,
+                "description": "A small holy light dart flying to the right: a sharp spear of white-gold light with a short glowing trail and tiny sparkles, like a shooting star of blessed light. Canvas 96 by 48, 6 frames at 16 fps, loops, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_blood_pro_a",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf hit blood A",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A blood splash from a sword blow landing: a burst of dark red and crimson drops spraying outward from the centre with a brief white impact flash, the drops arcing and falling, gone quickly. Canvas 128 by 128, 8 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_blood_pro_b",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf hit blood B",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A quick crimson slash impact: a thin white-red slash flash across the centre, then blood droplets spraying out in a fan and falling away. Canvas 128 by 128, 8 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_blood_lite",
+            "endpoint": "/vfx",
+            "estimate": 1,
+            "body": {
+                "name": "dghf hit blood lite",
+                "artist": "lite",
+                "game_pack": true,
+                "description": "A blood splash from a sword blow landing: a burst of dark red and crimson drops spraying outward from the centre with a brief white impact flash, the drops arcing and falling, gone quickly. Canvas 128 by 128, 8 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_block_pro",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf hit block",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A blocked hit on a shield: a small bright white-blue spark flash at the point of impact, a few metallic sparks flying off and a thin pale blue ring, over fast. Canvas 96 by 96, 6 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_block_lite",
+            "endpoint": "/vfx",
+            "estimate": 1,
+            "body": {
+                "name": "dghf hit block lite",
+                "artist": "lite",
+                "game_pack": true,
+                "description": "A blocked hit on a shield: a small bright white-blue spark flash at the point of impact, a few metallic sparks flying off and a thin pale blue ring, over fast. Canvas 96 by 96, 6 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_fire_pro",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne fire hit",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A small fire impact where a blade of flame strikes: a quick orange-white flash, a puff of flame curling upward and a few sparks. Canvas 128 by 128, 8 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "hit_light_pro",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne light hit",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A small holy light impact: a white-gold flash with a cross-shaped sparkle and a soft ring of light that fades. Canvas 96 by 96, 6 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "taunt_aura_pro",
+            "endpoint": "/vfx",
+            "estimate": 14,
+            "body": {
+                "name": "jeanne taunt aura",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A holy golden aura glowing around this knight, drawing enemies to her: a soft warm gold glow behind her body pulsing gently, small motes of light drifting upward and faint rays. 12 frames at 12 fps, loops. Keep the knight unchanged. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background.",
+                "sprite": {
+                    "ref": "ben_knight_frame"
+                }
+            }
+        },
+        {
+            "id": "taunt_aura_lite",
+            "endpoint": "/vfx",
+            "estimate": 3,
+            "body": {
+                "name": "jeanne taunt aura lite",
+                "artist": "lite",
+                "game_pack": true,
+                "description": "A holy golden aura glowing around this knight, drawing enemies to her: a soft warm gold glow behind her body pulsing gently, small motes of light drifting upward and faint rays. 12 frames at 12 fps, loops. Keep the knight unchanged. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background.",
+                "sprite": {
+                    "ref": "ben_knight_frame"
+                }
+            }
+        },
+        {
+            "id": "taunt_pull_pro",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "jeanne taunt pull",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "Streaks of golden light drawn in from every side toward the centre of the canvas, like a magnet pulling light: thin comet-like streaks with sparkles converging on a faint central glow and fading there. Canvas 512 by 512, 12 frames at 16 fps, loops, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "death_blood_pro",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf death blood",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A body's death burst of blood: a big spray of crimson drops bursting outward and upward from the centre, a few dark droplets falling to the ground, over in a moment. Canvas 192 by 192, 10 frames at 20 fps, plays once, centred. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        },
+        {
+            "id": "death_fire_pro",
+            "endpoint": "/vfx",
+            "estimate": 6,
+            "body": {
+                "name": "dghf death fire",
+                "artist": "pro",
+                "game_pack": true,
+                "description": "A human-sized column of fire burning something away to ash: flames flare up from the bottom and engulf the space of a standing figure, then collapse into embers and grey ash puffs that drift off. Canvas 192 by 288, 12 frames at 15 fps, plays once, anchored at the bottom centre. Pixel art for a 1080p beat 'em up with 230 px tall characters, lit from the top left, transparent background."
+            }
+        }
+    ]
+}

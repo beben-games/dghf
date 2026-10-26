@@ -1,0 +1,200 @@
+{
+ "frames": [
+  {
+   "filename": "jeanne-light-dart-a 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-light-dart-a 1.png",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-light-dart-a 2.png",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-light-dart-a 3.png",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 96,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-light-dart-a 4.png",
+   "frame": {
+    "x": 96,
+    "y": 48,
+    "w": 96,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "jeanne-light-dart-a 5.png",
+   "frame": {
+    "x": 192,
+    "y": 48,
+    "w": 96,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "jeanne-light-dart-a.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 288,
+   "h": 96
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 48,
+   "y": 24
+  },
+  "frameTags": [
+   {
+    "name": "jeanne-light-dart-a",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ]
+ },
+ "source": {
+  "effect_id": "dce58a46-3350-458b-b719-5352e3f3d0c5",
+  "call": "vfx_jeanne/dart_pro_a",
+  "job": "art/jobs/vfx_jeanne.json",
+  "canvas": {
+   "h": 48,
+   "w": 96
+  },
+  "frames": 6,
+  "fps": 16,
+  "loop": true,
+  "anchor": {
+   "x": 48,
+   "y": 24,
+   "kind": "origin"
+  }
+ }
+}

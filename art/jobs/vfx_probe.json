@@ -1,0 +1,17 @@
+{
+    "concept": "vfx_probe",
+    "note": "Issue #63: one lite call to PixelLab's new /vfx endpoint to learn its result (the files it links, the canvas and frame count it picks from the description) before the batch of Jeanne's effects.",
+    "calls": [
+        {
+            "id": "sun_lite_probe",
+            "endpoint": "/vfx",
+            "estimate": 1,
+            "body": {
+                "name": "dghf probe sun",
+                "artist": "lite",
+                "game_pack": true,
+                "description": "A bright sun-like fire explosion bursting outward from a single point: a white-gold core flashes, then a ring of orange and red flame with sparks expands outward and fades into drifting embers. Pixel art for a 1080p side-scrolling beat 'em up whose characters are about 230 pixels tall; one light from the top left; clean readable shapes. Canvas 384 by 384 pixels, 16 frames at 20 fps, plays once and does not loop, transparent background, anchored at the centre."
+            }
+        }
+    ]
+}

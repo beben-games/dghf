@@ -1,0 +1,324 @@
+{
+    "concept": "jeanne_concepts",
+    "note": "Issue #104: concept art for Jeanne the paladin from Ben's brief of 2026-11-09 (bare head, stylised French plate, a fleur-de-lys, a one-handed spear and shield, subtle anime). Eight looks varying hair, eyes, face and tabard: stills in the in-game stance with the Pro image model, two more with Ben's knight lending its rendering, six as v3 characters (south shows the face, east is the in-game view) and two as Pro Flash characters to compare the models. All at the 256 canvas.",
+    "calls": [
+        {
+            "id": "still_a_bowl_brown",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, short dark brown hair in a bowl cut, brown eyes, a calm determined face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1429,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_b_black_grey",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, short tousled black hair, grey eyes, a stern young face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, no tabard, a fleur-de-lys engraved in gold on the polished breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1430,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_c_auburn_tail",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, auburn hair in a short ponytail, green eyes, freckles, a fierce look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a white tabard with a golden fleur-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1431,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_d_blonde_braid",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long blonde hair in a single braid over the shoulder, blue eyes, a serene face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1412,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_e_chestnut_circlet",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, chin-length chestnut hair with a thin gold circlet, amber eyes, a proud face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a white tabard with a golden fleur-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1456,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_f_ash_pixie",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, a short ash-blonde pixie cut, blue-grey eyes, a sharp confident face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, no tabard, a fleur-de-lys engraved in gold on the polished breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1920,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_g_dark_ribbon",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, shoulder-length dark hair tied back with a white ribbon, hazel eyes, a gentle resolute face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a white tabard with a golden fleur-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1428,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_h_platinum_long",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long loose platinum blonde hair, golden eyes, a radiant holy look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1453,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_knightstyle_a_bowl_brown",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, short dark brown hair in a bowl cut, brown eyes, a calm determined face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1429,
+                "no_background": true,
+                "style_image": {
+                    "ref": "ben_knight_frame",
+                    "as": "reference",
+                    "usage": "the pixel size, outline, detail and shading to match; not the character"
+                },
+                "style_options": {
+                    "color_palette": false,
+                    "outline": true,
+                    "detail": true,
+                    "shading": true
+                }
+            }
+        },
+        {
+            "id": "still_knightstyle_d_blonde_braid",
+            "endpoint": "/generate-image-v2",
+            "estimate": 20,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long blonde hair in a single braid over the shoulder, blue eyes, a serene face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 1412,
+                "no_background": true,
+                "style_image": {
+                    "ref": "ben_knight_frame",
+                    "as": "reference",
+                    "usage": "the pixel size, outline, detail and shading to match; not the character"
+                },
+                "style_options": {
+                    "color_palette": false,
+                    "outline": true,
+                    "detail": true,
+                    "shading": true
+                }
+            }
+        },
+        {
+            "id": "char_v3_a_bowl_brown",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, short dark brown hair in a bowl cut, brown eyes, a calm determined face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne concept a_bowl_brown",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1429,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_v3_c_auburn_tail",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, auburn hair in a short ponytail, green eyes, freckles, a fierce look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a white tabard with a golden fleur-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne concept c_auburn_tail",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1431,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_v3_d_blonde_braid",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long blonde hair in a single braid over the shoulder, blue eyes, a serene face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne concept d_blonde_braid",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1412,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_v3_e_chestnut_circlet",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, chin-length chestnut hair with a thin gold circlet, amber eyes, a proud face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a white tabard with a golden fleur-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne concept e_chestnut_circlet",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1456,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_v3_f_ash_pixie",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, a short ash-blonde pixie cut, blue-grey eyes, a sharp confident face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, no tabard, a fleur-de-lys engraved in gold on the polished breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne concept f_ash_pixie",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1920,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_v3_g_dark_ribbon",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, shoulder-length dark hair tied back with a white ribbon, hazel eyes, a gentle resolute face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a white tabard with a golden fleur-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne concept g_dark_ribbon",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1428,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_flash_a_bowl_brown",
+            "endpoint": "/create-character-pro-flash",
+            "estimate": 17,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, short dark brown hair in a bowl cut, brown eyes, a calm determined face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne flash a_bowl_brown",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1429,
+                "n_directions": 8
+            }
+        },
+        {
+            "id": "char_flash_d_blonde_braid",
+            "endpoint": "/create-character-pro-flash",
+            "estimate": 17,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long blonde hair in a single braid over the shoulder, blue eyes, a serene face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a royal blue tabard with golden fleurs-de-lys over the breastplate, a one-handed spear in her right hand and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne flash d_blonde_braid",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 1412,
+                "n_directions": 8
+            }
+        }
+    ]
+}

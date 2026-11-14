@@ -38,7 +38,43 @@ Eighteen candidates across eight looks (`art/jobs/jeanne_concepts.json`, 188 gen
 
 **What it means for the pipeline:** the stills are already the in-game sprite: the side view, the stance, the size. A side-scroller needs one facing, so the approved still can be animated directly as the first frame (`animate-pixminimax`, up to 40 frames at 256) with no eight-direction character in between. The recipe below names a still rather than a character id; the three-animation proof decides whether that holds.
 
-Ben's picks: pending.
+Ben's ranking of the first round (2026-11-13) is on issue #104. In short: the faces and the armour work with every method; his top three were the black-haired still (b), the Pro Flash blonde braid (d) and the v3 ash pixie (f); the spear was the weak point nearly everywhere (bland, or a sword with a long handle); the long blue tabard "looks weird" on the stills; the knight's rendering as a style image ranked last; the ribbon is out; platinum needed more material.
+
+## The second round, and two questions answered (2026-11-13)
+
+`art/jobs/jeanne_round2.json`, 21 calls, 156 generations. The liked looks again as stills with an ornate winged spear and a short or no surcoat, platinum twice and as characters; and probes for the two questions Ben raised.
+
+### Does a feature need a particular model?
+
+Ben: "some of the new features (attacks, vfx, etc.) may require us to use a specific model." Measured, with the same motions from his top still and from a v3 character:
+
+| | From a lone still (`animate-pixminimax`) | From a v3 character (`animate-character`, pixminimax) |
+|---|---|---|
+| Idle, 8 frames | 1 generation; the feet on the same pixels in every frame | not run |
+| Walk, 8 frames | 1 generation; walks in place out of the stance and back | 1 generation; upright, the spear dragging through the legs |
+| Spear thrust, 12 frames | 2 generations; draws back, steps, stabs with a small arc, returns to the stance; the bottom row and the foot span do not move by a pixel | 2 generations; starts facing the camera, turns, a stiff thrust, the spear changes shape |
+
+So attacks need no character: a still is enough, and it animated better. What each kind of asset unlocks, from the API's own reference:
+
+- **Any image up to 256 by 256:** custom animations (`animate-pixminimax`, 4 to 40 frames, with an optional end pose; `animate-with-text-v3`, at most 8 frames at 256), frame edits (`edit-images-v2`, `edit-animation-v2`, `transfer-outfit-v2`), a skeleton estimate (0.1 generation), and effects built around it (`/vfx` takes any PNG or GIF up to 512 and 32 frames).
+- **Only a PixelLab character** (v3, Pro Flash or Pro, all built from a front-facing image): the template library by id and the skeleton modes (1 generation a direction), the website's template actions, and character states (one edit across every direction). Pro characters stop at 168 pixels; v3 and Pro Flash reach 256.
+- **The ceiling everywhere is the 256 canvas** for anything animated. The 1080p direction's 230-pixel characters fit; nothing bigger can be animated.
+
+The slice therefore animates from the approved still. A character can be made later from a front view of the same design if a template motion is wanted; nothing is lost by starting from the still. And the fixed canvas held: the still's 256 canvas is every frame's canvas, so the bake needs no realignment for moves that stay on the ground (the risk named below is smaller than feared; air moves are still to prove).
+
+### Can the weapon in hand change?
+
+Ben: "any chance that we can have an equipment system that allows us to change the visual for the weapon in hand?" Yes, by building it into the recipe rather than into the renderer:
+
+1. **The weapon is swapped on the still** with `edit-images-v2` (10 generations): three spears and an arming sword were swapped onto still b with the knight, the pose, the armour and the shield unchanged.
+2. **Each loadout's animations are generated from its own still.** A thrust from the winged-spear frame and a slash from the sword frame (2 generations each) kept the weapon through all twelve frames, with the feet as steady as the original.
+3. **The game picks the skin by loadout:** `assets/sprites/jeanne/<loadout>/`, one sheet each, the same animation names. About 10 generations for the swap plus one or two per animation, so roughly 40 a weapon.
+
+What this is not: a weapon drawn as its own layer at run time. That would give any number of weapons without generating, from hand positions (`estimate-skeleton` gives keypoints for 0.1 generation a frame), but the weapon would be a rotated sprite and could not pass behind the body or the shield. Kept as an option if the game ever wants dozens of weapons. **Open, for Ben and the team:** whether equipment is only a look or also changes moves and numbers; a weapon of another kind (a sword for a spear) wants its own motion prompts, which the recipe allows per loadout.
+
+One fault to name in the second round: the v3 character for the platinum look ignored the prompt (a blonde bun, a blue dress under the armour) and reads like an existing anime knight. It is not a candidate.
+
+Ben's pick: pending.
 
 ## Goals, non-goals, anti-goals
 
@@ -56,6 +92,7 @@ Ben's picks: pending.
 - the approved still that every animation starts from (a file under `art/refs/`, approved in `refs.json`), facing the way the game mirrors from; or a PixelLab character id and its in-game direction, if the proof shows a character animates better;
 - the canvas (`cell`) and the feet point;
 - one entry per animation: its name as the game asks for it, the motion in words, whether it loops, the frame count, and optionally the start or end pose.
+- the loadouts: for each weapon look, the edit that makes its still from the base still, and any motion prompts that differ for it.
 
 **One command**, `python3 tools/art/skin.py build <name>` (and `plan`, which spends nothing):
 

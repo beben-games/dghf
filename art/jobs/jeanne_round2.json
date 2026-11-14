@@ -1,0 +1,374 @@
+{
+    "concept": "jeanne_round2",
+    "note": "Issue #104, after Ben's ranking of 2026-11-13: the spear was the weak point and the long blue tabard looked weird. Four edits of his top still (three spears and a sword, which is also the weapon-swap probe for an equipment system); the liked looks again as stills with an ornate spear and short or no surcoat, platinum twice; platinum and black-grey as characters; and the same idle, thrust and walk from a lone still and from a v3 character, to see whether attacks need a particular model. Added after the first results: the same attack animated from two of the weapon-swapped frames, the last link of an equipment system.",
+    "calls": [
+        {
+            "id": "edit_b_spear_winged",
+            "endpoint": "/edit-images-v2",
+            "estimate": 20,
+            "no_refs_reason": "the image being edited is the concept itself (Ben's top-ranked still), not a style reference; no approved reference exists yet for the new look",
+            "body": {
+                "method": "edit_with_text",
+                "edit_images": [
+                    {
+                        "file": "art/raw/jeanne_concepts/still_b_black_grey/00.png",
+                        "kind": "subject",
+                        "as": "flat"
+                    }
+                ],
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "description": "Replace her plain spear with an ornate winged spear: a long gilded leaf-shaped blade with two small wings at its base, a dark ash shaft, and a small white pennon with a gold fleur-de-lys tied below the blade. Keep the knight, her face, hair, pose, armour and shield exactly as they are.",
+                "no_background": true
+            }
+        },
+        {
+            "id": "edit_b_spear_lys",
+            "endpoint": "/edit-images-v2",
+            "estimate": 20,
+            "no_refs_reason": "the image being edited is the concept itself (Ben's top-ranked still), not a style reference; no approved reference exists yet for the new look",
+            "body": {
+                "method": "edit_with_text",
+                "edit_images": [
+                    {
+                        "file": "art/raw/jeanne_concepts/still_b_black_grey/00.png",
+                        "kind": "subject",
+                        "as": "flat"
+                    }
+                ],
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "description": "Replace her plain spear with a holy spear whose steel blade is shaped like a fleur-de-lys with gold inlay, on a white-wrapped shaft with a gold butt cap. Keep the knight, her face, hair, pose, armour and shield exactly as they are.",
+                "no_background": true
+            }
+        },
+        {
+            "id": "edit_b_spear_radiant",
+            "endpoint": "/edit-images-v2",
+            "estimate": 20,
+            "no_refs_reason": "the image being edited is the concept itself (Ben's top-ranked still), not a style reference; no approved reference exists yet for the new look",
+            "body": {
+                "method": "edit_with_text",
+                "edit_images": [
+                    {
+                        "file": "art/raw/jeanne_concepts/still_b_black_grey/00.png",
+                        "kind": "subject",
+                        "as": "flat"
+                    }
+                ],
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "description": "Replace her plain spear with a paladin's spear: a broad white-gold blade glowing with a faint warm light, and a red and gold tassel below the blade. Keep the knight, her face, hair, pose, armour and shield exactly as they are.",
+                "no_background": true
+            }
+        },
+        {
+            "id": "edit_b_sword_swap",
+            "endpoint": "/edit-images-v2",
+            "estimate": 20,
+            "no_refs_reason": "the image being edited is the concept itself (Ben's top-ranked still), not a style reference; no approved reference exists yet for the new look",
+            "body": {
+                "method": "edit_with_text",
+                "edit_images": [
+                    {
+                        "file": "art/raw/jeanne_concepts/still_b_black_grey/00.png",
+                        "kind": "subject",
+                        "as": "flat"
+                    }
+                ],
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "description": "Replace the spear with a one-handed arming sword with a gold crossguard, held forward in the same hand. Remove the spear entirely. Keep the knight, her face, hair, pose, armour and shield exactly as they are.",
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_b_black_grey",
+            "endpoint": "/generate-image-v2",
+            "estimate": 10,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, short tousled black hair, grey eyes, a stern young face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, no tabard, a fleur-de-lys engraved in gold on the polished breastplate, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 2430,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_c_auburn_tail",
+            "endpoint": "/generate-image-v2",
+            "estimate": 10,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, auburn hair in a short ponytail, green eyes, freckles, a fierce look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a short white surcoat with a golden fleur-de-lys, belted at the waist, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 2431,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_d_blonde_braid",
+            "endpoint": "/generate-image-v2",
+            "estimate": 10,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long blonde hair in a single braid over the shoulder, blue eyes, a serene face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a short white surcoat with a golden fleur-de-lys, belted at the waist, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 2412,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_e_chestnut_circlet",
+            "endpoint": "/generate-image-v2",
+            "estimate": 10,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, chin-length chestnut hair with a thin gold circlet, amber eyes, a proud face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a short white surcoat with a golden fleur-de-lys, belted at the waist, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 2456,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_f_ash_pixie",
+            "endpoint": "/generate-image-v2",
+            "estimate": 10,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, a short ash-blonde pixie cut, blue-grey eyes, a sharp confident face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, no tabard, a fleur-de-lys engraved in gold on the polished breastplate, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 2920,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_h_platinum_long",
+            "endpoint": "/generate-image-v2",
+            "estimate": 10,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long loose platinum blonde hair, golden eyes, a radiant holy look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a short royal blue surcoat with golden fleurs-de-lys, belted at the waist, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 2453,
+                "no_background": true
+            }
+        },
+        {
+            "id": "still_h_platinum_long_2",
+            "endpoint": "/generate-image-v2",
+            "estimate": 10,
+            "no_refs_reason": "Ben's brief of 2026-11-09 asks for a subtle anime style, away from the realistic knight that is the only approved reference; the concepts are what a new reference is picked from",
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long loose platinum blonde hair, golden eyes, a radiant holy look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a short royal blue surcoat with golden fleurs-de-lys, belted at the waist, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, side view facing right, in a ready fighting stance with the shield forward and the spear levelled. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "seed": 2553,
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_v3_b_black_grey",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, short tousled black hair, grey eyes, a stern young face, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, no tabard, a fleur-de-lys engraved in gold on the polished breastplate, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne r2 b_black_grey",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 2430,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_v3_h_platinum_long",
+            "endpoint": "/create-character-v3",
+            "estimate": 9,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long loose platinum blonde hair, golden eyes, a radiant holy look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a short royal blue surcoat with golden fleurs-de-lys, belted at the waist, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne r2 h_platinum_long",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 2453,
+                "outline": "single color outline",
+                "detail": "high detail",
+                "no_background": true
+            }
+        },
+        {
+            "id": "char_flash_h_platinum_long",
+            "endpoint": "/create-character-pro-flash",
+            "estimate": 17,
+            "body": {
+                "description": "Jeanne d'Arc as a young paladin knight, long loose platinum blonde hair, golden eyes, a radiant holy look, bare head with her face clearly visible, no helmet, wearing French 15th-century full plate armour, elegant and slightly stylised with gold trim, a short royal blue surcoat with golden fleurs-de-lys, belted at the waist, holding an ornate one-handed winged spear with a long gilded leaf-shaped blade and a small white pennon bearing a gold fleur-de-lys in her right hand, with no sword, and a heater shield with a golden fleur-de-lys on her left arm, standing ready. Subtle anime style like a 1990s 2D fighting game sprite: expressive face, slender realistic proportions, clean cel shading. Detailed pixel art, dark selective outline, light from the top left, full body, no background",
+                "name": "jeanne r2 flash h",
+                "image_size": {
+                    "width": 256,
+                    "height": 256
+                },
+                "view": "low top-down",
+                "template_id": "mannequin",
+                "seed": 2453,
+                "n_directions": 8
+            }
+        },
+        {
+            "id": "anim_still_b_idle",
+            "endpoint": "/animate-pixminimax",
+            "estimate": 6,
+            "body": {
+                "first_frame": {
+                    "file": "art/raw/jeanne_concepts/still_b_black_grey/00.png",
+                    "kind": "subject"
+                },
+                "description": "idle in her fighting stance: breathing, the shield and the spear tip rising and settling slightly, feet planted, a loop",
+                "frame_count": 8,
+                "no_background": true,
+                "direction": "east",
+                "view": "side",
+                "subject_description": "a young woman knight in plate armour with a spear in her right hand and a shield on her left arm",
+                "initial_pose": "a ready fighting stance facing right, shield forward, spear levelled"
+            }
+        },
+        {
+            "id": "anim_still_b_thrust",
+            "endpoint": "/animate-pixminimax",
+            "estimate": 6,
+            "body": {
+                "first_frame": {
+                    "file": "art/raw/jeanne_concepts/still_b_black_grey/00.png",
+                    "kind": "subject"
+                },
+                "description": "a quick one-handed spear thrust: she draws the spear back, steps and stabs straight forward at chest height, then pulls it back to her ready stance, shield kept up",
+                "frame_count": 12,
+                "no_background": true,
+                "direction": "east",
+                "view": "side",
+                "subject_description": "a young woman knight in plate armour with a spear in her right hand and a shield on her left arm",
+                "initial_pose": "a ready fighting stance facing right, shield forward, spear levelled"
+            }
+        },
+        {
+            "id": "anim_still_b_walk",
+            "endpoint": "/animate-pixminimax",
+            "estimate": 6,
+            "body": {
+                "first_frame": {
+                    "file": "art/raw/jeanne_concepts/still_b_black_grey/00.png",
+                    "kind": "subject"
+                },
+                "description": "walking forward in her fighting stance with the shield up and the spear levelled, a two-step walk cycle in place",
+                "frame_count": 8,
+                "no_background": true,
+                "direction": "east",
+                "view": "side",
+                "subject_description": "a young woman knight in plate armour with a spear in her right hand and a shield on her left arm",
+                "initial_pose": "a ready fighting stance facing right, shield forward, spear levelled"
+            }
+        },
+        {
+            "id": "anim_char_f_walk",
+            "endpoint": "/animate-character",
+            "estimate": 6,
+            "body": {
+                "character_id": "85c8de97-8b58-4106-8531-6216c6202c5b",
+                "animation_name": "anim_char_f_walk",
+                "mode": "pixminimax",
+                "template_action": "walking",
+                "directions": [
+                    "east"
+                ]
+            }
+        },
+        {
+            "id": "anim_char_f_thrust",
+            "endpoint": "/animate-character",
+            "estimate": 6,
+            "body": {
+                "character_id": "85c8de97-8b58-4106-8531-6216c6202c5b",
+                "animation_name": "anim_char_f_thrust",
+                "mode": "pixminimax",
+                "action_description": "a quick one-handed spear thrust: she draws the spear back, steps and stabs straight forward at chest height, then pulls it back to her ready stance, shield kept up",
+                "subject_description": "a young woman knight in plate armour with a spear in her right hand and a shield on her left arm",
+                "frame_count": 12,
+                "directions": [
+                    "east"
+                ]
+            }
+        },
+        {
+            "id": "anim_edit_winged_thrust",
+            "endpoint": "/animate-pixminimax",
+            "estimate": 3,
+            "body": {
+                "first_frame": {
+                    "file": "art/raw/jeanne_round2/edit_b_spear_winged/00.png",
+                    "kind": "subject"
+                },
+                "description": "a quick one-handed spear thrust: she draws the spear back, steps and stabs straight forward at chest height, then pulls it back to her ready stance, shield kept up",
+                "frame_count": 12,
+                "no_background": true,
+                "direction": "east",
+                "view": "side",
+                "subject_description": "a young woman knight in plate armour with a spear in her right hand and a shield on her left arm",
+                "initial_pose": "a ready fighting stance facing right, shield forward, spear levelled"
+            }
+        },
+        {
+            "id": "anim_edit_sword_slash",
+            "endpoint": "/animate-pixminimax",
+            "estimate": 3,
+            "body": {
+                "first_frame": {
+                    "file": "art/raw/jeanne_round2/edit_b_sword_swap/00.png",
+                    "kind": "subject"
+                },
+                "description": "a quick one-handed sword slash: she raises the sword, steps and cuts diagonally down in front of her, then returns to her ready stance, shield kept up",
+                "frame_count": 12,
+                "no_background": true,
+                "direction": "east",
+                "view": "side",
+                "subject_description": "a young woman knight in plate armour with a sword in her right hand and a shield on her left arm",
+                "initial_pose": "a ready fighting stance facing right, shield forward, sword held forward"
+            }
+        }
+    ]
+}

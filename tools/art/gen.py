@@ -89,6 +89,9 @@ def resolve_images(value, refs: dict, used: list):
             if value.get("as") == "sized":  # inpaint-v3: {image, size}
                 width, height = Image.open(path).size
                 return {"image": image, "size": {"width": width, "height": height}}
+            if value.get("as") == "flat":  # edit-images-v2's edit_images: {image, width, height}
+                width, height = Image.open(path).size
+                return {"image": image, "width": width, "height": height}
             return image
         if "ref" in value and set(value) <= {"ref", "as", "usage"}:  # as: sized, style or reference
             ref = refs.get(value["ref"])

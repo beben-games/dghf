@@ -8,15 +8,23 @@ One section per look: a call's id with its method prefix removed (still_a_bowl -
 same look made by several methods sits side by side. A card per call: its loose images (a still, a
 Pro call's candidates) and, for a character, the rotations asked for (the south view shows the face,
 the east view is the in-game sprite). Images are embedded, so the file stands alone, and drawn at
-whole-number scale with hard pixels. Each card carries its prompt. Nothing is judged here.
+whole-number scale with hard pixels. An animation call (animate-pixminimax, animate-character) is
+shown as a looping GIF on a flat ground colour at --fps, beside its frame count. Each card carries
+its prompt. Nothing is judged here.
 """
 
 import argparse
 import base64
 import html
+import io
 import json
 import sys
 from pathlib import Path
+
+from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sheet import groups_of  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "art" / "raw"
@@ -59,10 +67,38 @@ def shots_of(call_dir: Path, directions: list[str]) -> list[tuple[str, Path]]:
     return character or shots
 
 
-def card(call_dir: Path, directions: list[str], scale: int) -> str:
+GROUND = (78, 70, 62, 255)  # the proof-of-concept stage's ground, as tools/art/preview.py uses
+
+
+def animation_gif(call_dir: Path, fps: int) -> tuple[str, int, tuple[int, int]] | None:
+    """The call's frames as a looping GIF (data URI), their count and size; None when it made none."""
+    paths = [path for _, group in groups_of(call_dir) for path in group]
+    if len(paths) < 2:
+        return None
+    frames = []
+    for path in paths:
+        frame = Image.open(path).convert("RGBA")
+        base = Image.new("RGBA", frame.size, GROUND)
+        base.alpha_composite(frame)
+        frames.append(base.convert("P", palette=Image.Palette.ADAPTIVE, colors=255))
+    data = io.BytesIO()
+    frames[0].save(data, format="GIF", save_all=True, append_images=frames[1:], duration=round(1000 / fps), loop=0, disposal=1)
+    return "data:image/gif;base64," + base64.b64encode(data.getvalue()).decode(), len(frames), frames[0].size
+
+
+def card(call_dir: Path, directions: list[str], scale: int, fps: int = 12) -> str:
     request = json.loads((call_dir / "request.json").read_text())
     body = request.get("body", {})
     figures = []
+    if request.get("endpoint") in ("/animate-pixminimax", "/animate-character", "/animate-with-text-v3"):
+        gif = animation_gif(call_dir, fps)
+        if gif:
+            src, count, (width, height) = gif
+            motion = body.get("description") or body.get("action_description") or body.get("template_action") or ""
+            return f"""<div class="card"><b>{html.escape(call_dir.name)}</b>
+  <span class="meta">({html.escape(request.get("endpoint", "?").lstrip("/"))} · {count} frames at {fps} fps)</span>
+  <div class="shots"><figure><img src="{src}" width="{width * scale}" height="{height * scale}" alt="{html.escape(call_dir.name)}"></figure></div>
+  <details><summary>motion</summary>{html.escape(motion)}</details></div>"""
     for label, path in shots_of(call_dir, directions):
         width, height = size_of(path)
         figures.append(f'<figure><img src="{embed(path)}" width="{width * scale}" height="{height * scale}" '
@@ -82,6 +118,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--prefixes", default="", help="method prefixes to strip from ids, longest first")
     parser.add_argument("--directions", default="south,south-east,east")
     parser.add_argument("--scale", type=int, default=2)
+    parser.add_argument("--fps", type=int, default=12, help="the speed animation GIFs play at")
     parser.add_argument("--out")
     args = parser.parse_args(argv)
     concept_dir = RAW / args.concept
@@ -94,7 +131,7 @@ def main(argv: list[str]) -> int:
     for call_dir in sorted(p for p in concept_dir.iterdir() if (p / "request.json").exists()):
         look = next((call_dir.name[len(p):] for p in prefixes if call_dir.name.startswith(p)), call_dir.name)
         groups.setdefault(look, []).append(call_dir)
-    sections = [f'<h2>{html.escape(look)}</h2>\n<div class="cards">\n' + "\n".join(card(d, directions, args.scale) for d in dirs) + "\n</div>"
+    sections = [f'<h2>{html.escape(look)}</h2>\n<div class="cards">\n' + "\n".join(card(d, directions, args.scale, args.fps) for d in dirs) + "\n</div>"
                 for look, dirs in sorted(groups.items())]
     page = f"""<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(args.concept)} review</title>
 <style>{STYLE}</style></head><body>
